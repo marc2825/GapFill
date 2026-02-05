@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[CHI '26] GapFill (Project Page)</title>
+    <meta name="description" content="[CHI '26] No Pixel Left Behind: Filling Gaps in Anime Colorization. Animation production workflows often involve digital colorization of line art, where small unpainted regions (“gaps”) frequently occur and remain an underexplored challenge. We conducted a formative study in modern Japanese animation (anime) pipelines and found that while the paint bucket tool is widely used for base coloring, tiny enclosed areas are frequently overlooked, resulting in time-consuming manual detection and filling. We introduce GapFill, a tool grounded in professional practices that reduces the effort of gap detection, zooming, and color selection. Our deep-learning method suggests appropriate fill colors by referencing surrounding regions, leveraging the flat-color nature of anime-style images.">
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="lang-switch">
+        <button class="lang-btn active" onclick="setLang('en')">EN</button>
+        <button class="lang-btn" onclick="setLang('jp')">JP</button>
+    </div>
+
+    <div class="container">
+        <h1>
+            <span class="en-text">No Pixel Left Behind: Filling Gaps in Anime Colorization</span>
+            <span class="jp-text">GapFill: アニメ調彩色における塗り残しの解消を支援するツール</span>
+        </h1>
+
+        <div class="authors">
+            <span class="en-text"><strong>Masahiro Kono</strong><sup>1</sup>, Akinobu Maejima<sup>2,3</sup>, Yuki Koyama<sup>1</sup>, Yotam Sechayk<sup>1</sup>, Takeo Igarashi<sup>1</sup></span>
+            <span class="jp-text"><strong>河野 将大</strong><sup>1</sup>, 前島 謙宣<sup>2,3</sup>, 小山 裕己<sup>1</sup>, SECHAYK Yotam<sup>1</sup>, 五十嵐 健夫<sup>1</sup></span>
+        </div>
+        <div class="affiliations">
+            <span class="en-text"><sup>1</sup> The University of Tokyo; <sup>2</sup> OLM Digital, Inc.; <sup>3</sup> IMAGICA GROUP Inc.</span>
+            <span class="jp-text"><sup>1</sup> 東京大学; <sup>2</sup> OLM Digital, Inc.; <sup>3</sup> IMAGICA GROUP Inc.</span>
+        </div>
+        <div class="conference">
+            CHI '26: The ACM CHI Conference on Human Factors in Computing Systems (Full Conference Paper)
+        </div>
+        <div class="conference conference-secondary">
+            & WISS '25: Workshop on Interactive Systems and Software (Demo Presentation)
+        </div>
+
+        <!-- TODO: リンクを挿入-->
+        <div class="link-block">
+            <a href="" class="btn is-disabled" aria-disabled="true" tabindex="-1"><i class="fas fa-book"></i> <span class="en-text">ACM Library</span><span class="jp-text">ACM公式</span></a>
+            <a href="" class="btn is-disabled" aria-disabled="true" tabindex="-1"><i class="fas fa-file-pdf"></i> <span class="en-text">Paper (Full/EN)</span><span class="jp-text">論文（フル/英）</span></a>
+            <a href="https://www.wiss.org/WISS2025Proceedings/data/demo/2-C15.pdf" class="btn"><i class="fas fa-file-pdf"></i> <span class="en-text">Paper (Short/JP)</span><span class="jp-text">論文（ショート/日）</span></a>
+            <a href="assets/GapFill_Posters.pdf" class="btn"><i class="fas fa-file-pdf"></i> <span class="en-text">Posters</span><span class="jp-text">ポスター</span></a>
+            <a href="" class="btn is-disabled" aria-disabled="true" tabindex="-1"><i class="fas fa-video"></i> <span class="en-text">Demo Video</span><span class="jp-text">デモ動画</span></a>
+            <a href="" class="btn is-disabled" aria-disabled="true" tabindex="-1"><i class="fas fa-desktop"></i> <span class="en-text">Slides</span><span class="jp-text">発表資料</span></a>
+            <a href="" class="btn is-disabled" aria-disabled="true" tabindex="-1"><i class="fab fa-github"></i> <span class="en-text">Code</span><span class="jp-text">コード</span></a>
+        </div>
+
+        <img class="teaser-img en-img" src="images/Teaser.png" alt="Teaser (EN)">
+        <img class="teaser-img jp-img" src="images/Teaser_jp.png" alt="Teaser (JP)">
+        <p class="caption teaser-caption">
+            <span class="en-text"><strong>GapFill</strong> is a specialized tool designed to assist professional anime colorists in addressing small, unpainted areas. (a) Colorization with the paint bucket tool often (b) leaves small enclosed regions <strong>(“gaps”)</strong> unpainted. When GapFill is activated, (c) <strong>automatic gap detection with circular highlights</strong> is triggered, and (d) these gaps are temporarily filled with suggested colors using our <strong>domain-specific deep learning</strong> method. (e) When the user hovers over a highlight, a <strong>magnified view pops up</strong>, allowing inspection without manual zooming. (f) Dragging within a highlight activates a <strong>color-picker mode</strong> for correcting the suggestion. (g) If suggestions appear correct, users can <strong>sweep across highlights</strong> to apply them at once.</span>
+            <span class="jp-text"><strong>GapFill</strong> は, プロのアニメ彩色担当者(仕上げスタッフ)が直面する, 小さな「塗り残し」への対処を支援するために設計された専用ツールです. (a) バケツツールを用いた彩色では, (b) 小さい閉領域の塗り忘れ<strong>（「塗り残し」）</strong>が頻繁に発生します. GapFillを有効にすると, (c) 塗り残し箇所が<strong>自動検出</strong>され, <strong>円形のハイライト</strong>で強調表示されます. それと同時に, (d) <strong>アニメ塗りの特性を活かした深層学習</strong>手法を用いて推測された色によって, 一時的に塗りつぶされた状態で表示されます. (e) 円形のハイライト部分にカーソルを合わせる(ホバーする)と塗り残し箇所<strong>周辺の拡大画面がポップアップ</strong>し, 手動でズーム操作を行うことなく状態を確認できます. (f) このハイライト内でドラッグ操作を開始すると<strong>「色選択(スポイト)モード」</strong>になり, AIによって提案された色を手動で修正できます. (g) 提案された色が正しいと感じる場合は, <strong>複数のハイライト上をなぞる(スイープする)</strong>ことで, それらを一括で適用できます. </span>
+        </p>
+
+        <div class="content-block">
+            <h2><span class="en-text">Abstract</span><span class="jp-text">概要</span></h2>
+            <p class="en-text" style="text-align: justify;">
+                Animation production workflows often involve digital colorization of line art, where small unpainted regions (<strong>“gaps”</strong>) frequently occur and remain an underexplored challenge. We conducted a formative study in Japanese animation (anime) pipelines and found that while the paint bucket tool is widely used for base coloring, tiny enclosed areas are frequently overlooked, resulting in time-consuming manual detection and filling. We introduce <strong>GapFill</strong>, a tool grounded in professional practices that reduces the effort of gap detection, zooming, and color selection. Our deep-learning method suggests appropriate fill colors by referencing surrounding regions, leveraging the flat-color nature of anime-style images. In a user study with 13 professional colorists, our system improved performance and usability in gap-filling tasks over conventional methods. The study also suggested that prediction accuracy alone is not the primary factor for usability, that appropriate colors can be contextually ambiguous, and that GapFill can complement existing tools depending on users' trust in new AI-powered assistance.
+            </p>
+            <p class="jp-text" style="text-align: justify;">
+                本研究では, アニメ制作現場における彩色工程を対象に事前調査を行い, ペイントソフトによる下塗り作業で塗りつぶし（バケツ）ツールが広く用いられている一方で, 小さな未着色領域（「塗り残し」）が頻繁に発生し, 既存ツールでは十分に対処されていない現状を明らかにした. これを踏まえ, 現場の制作慣行に即した塗り残し解消支援ツール<strong>「GapFill」</strong>を提案する. 提案ツールは直感的な操作性を通じて, 「塗り残しの検出」「拡大操作」「色選択」といった従来では避けられなかった反復的作業の負担軽減を主目的としている. 内部の色予測機能は, アニメ調画像特有のベタ塗り的配色に注目し, 周辺領域の対応関係を参照して間接的に色を推定する深層学習手法によって構成されている. 13名のプロの彩色者によるユーザスタディの結果, 本ツールは従来ツールに比べて塗り残し修正作業の効率性と有用性を向上させることが確認された. さらに, 有用性には色予測精度以外の要素の寄与も大きいことや, 塗り残しの色選択に一意の正解がない場合もあること, 本ツールが既存ツールを補完する形で柔軟に活用できることが示唆された.
+            </p>
+        </div>
+
+        <!-- TODO: Webデモを挿入-->
+        <div class="content-block">
+            <h2><span class="en-text">Web Demo (Used in the user study)</span><span class="jp-text">Webデモ（ユーザスタディで使用）</span></h2>
+            <div class="demo-software-frame">
+                <div class="demo-software-placeholder">
+                    <span class="en-text">The interactive web demo will be available here. (Web page coming soon.)</span>
+                    <span class="jp-text">インタラクティブwebデモはここに公開予定です.（Webページ準備中）</span>
+                </div>
+            </div>
+            <p class="demo-software-link">
+                <span class="en-text">Temporary URL: <a href="https://gapfill-webtest-855.pages.dev/" target="_blank" rel="noopener">https://gapfill-webtest-855.pages.dev/</a></span>
+                <span class="jp-text">仮URL: <a href="https://gapfill-webtest-855.pages.dev/" target="_blank" rel="noopener">https://gapfill-webtest-855.pages.dev/</a></span>
+            </p>
+        </div>
+
+        <!-- TODO: 動画を挿入-->
+        <div class="content-block">
+            <h2><span class="en-text">Demo Video</span><span class="jp-text">デモ動画</span></h2>
+            <div class="video-container">
+                <video src="" autoplay loop muted playsinline controls style="width: 100%; height: auto;"></video>
+            </div>
+        </div>
+
+
+        <div class="content-block">
+            <h2><span class="en-text">Background and Conventional Methods</span><span class="jp-text">背景と従来手法</span></h2>
+                
+                <p class="reveal-part">
+                    <span class="en-text">Manual colorization of line art with flat colors using the Paint Bucket (Flood Fill) tool. Small enclosed areas often remain unpainted (“gaps”) due to unintended line intersections especially at sharp corners. These gaps are often difficult to detect and time-consuming to fix manually. </span>
+                    <span class="jp-text">線画をバケツ（塗りつぶし）ツールによって彩色（ベタ塗り）する際, 鋭角部などで意図しない線分の交差が生じることにより, 小さな閉領域が塗り残されてしまうことが多い. このような塗り残しは発見が難しく, 手作業で修正するには時間がかかる. </span>
+                </p>
+                <div class="grid-2 reveal-part">
+                    <div class="grid-item">
+                        <img src="images/Colorization_PaintBucket.gif" alt="Colorization using the paint bucket">
+                        <p>
+                            <span class="en-text">Manual colorization of line art using the Paint Bucket tool. </span>
+                            <span class="jp-text">線画をバケツツールによって彩色している様子. </span>
+                        </p>
+                    </div>
+
+                    <div class="grid-item">
+                        <img src="images/Gap_Example.png" alt="Gap Example">
+                        <p>
+                            <span class="en-text">Small enclosed areas often remain unpainted (“gaps”) due to unintended line intersections especially at sharp corners.</span>
+                            <span class="jp-text">小さな閉領域は, 特に鋭角部における意図しない線分の交差によって, 「塗り残し」として残ることが多い. </span>
+                        </p>
+                    </div>
+                </div>
+
+                <p class="en-text">Below are the conventional methods for addressing unpainted small gaps that were identified through our formative study.<br>
+                    (reference: <a href="https://tips.clip-studio.com/en-us/articles/591" target="_blank">https://tips.clip-studio.com/en-us/articles/591</a>)</p>
+                <p class="jp-text">以下は, 事前調査を通じて明らかになった, 塗り残しに対処するための従来手法である. <br>
+                    (参考: <a href="https://tips.clip-studio.com/en-us/articles/591" target="_blank">https://tips.clip-studio.com/en-us/articles/591</a>)</p>
+                <div class="grid-3">
+                    <div class="grid-item">
+                        <img src="images/BlackLightMethod.gif" alt="Black Light Method">
+                        <p>
+                            <span class="en-text">(a) <strong>Black Light Method</strong>: Temporarily replace all colors with black in a single click, making gaps appear as white dots for easy detection. </span>
+                            <span class="jp-text">(a) <strong>ブラックライト法</strong>: 全ての塗りをワンクリックで一時的に黒に置換することで, 塗り残しを白い点として可視化し, 検出しやすくする. </span>
+                        </p>
+                    </div>
+                    <div class="grid-item">
+                        <img src="images/LeftoverPen.gif" alt="Leftover Pen">
+                        <p>
+                            <span class="en-text">(b) <strong>Leftover Pen</strong>: Fill all enclosed areas along the stroke with the specified color.</span>
+                            <span class="jp-text">(b) <strong>すきま塗りペン</strong>: ストローク中に存在する全ての閉領域を, 指定色で塗りつぶす.</span>
+                        </p>
+                    </div>
+                    <div class="grid-item">
+                        <img src="images/EncloseandFill.gif" alt="Enclose And Fill">
+                        <p>
+                            <span class="en-text">(c) <strong>Enclose and Fill</strong>: Fill all gaps within the enclosed area using a lasso-like tool.</span>
+                            <span class="jp-text">(c) <strong>囲って塗るツール</strong>: なげなわツールで囲まれた領域に含まれる全ての閉領域を, 指定色で塗りつぶす.</span>
+                        </p>
+                    </div>
+                </div>
+                <p>
+                    <span class="en-text">While these tools are convenient, the process still requires repetitive actions such as <strong>detecting gaps</strong>, <strong>zooming</strong>, and <strong>selecting colors</strong>.</span>
+                    <span class="jp-text">これらのツールは便利ではあるものの, 塗り残しの<strong>検出</strong>, <strong>拡大縮小</strong>操作, <strong>色の選択</strong>といった反復的な作業が依然として必要である.</span>
+                </p>
+        </div>
+
+
+        <div class="content-block">
+            <h2><span class="en-text">Proposed Tool: “GapFill”</span><span class="jp-text">提案ツール：「GapFill」</span></h2>
+            <h3 class="reveal-part"><span class="en-text">Design Principles</span><span class="jp-text">設計思想</span></h3>
+            <ul class="design-principles">
+                <li><span class="en-text">Reduce the manual workload in the repetitive cycle of detection, zooming, and color selection and filling.</span><span class="jp-text">従来手法に必然的に伴う「塗り残し検出」「拡大操作」「色選択」という反復操作を省略する.</span></li>
+                <li><span class="en-text">Fill gaps using local context such as neighboring colors, reflecting artists’ reliance on local cues.</span><span class="jp-text">塗り残し解消には主に周囲の色情報などの局所的な文脈を参照する.</span></li>
+                <li><span class="en-text">Promote practical adoption via intuitive, familiar interactions that bridge conventional workflows and support diverse, user-specific use cases.</span><span class="jp-text">現場の彩色者が慣れ親しんている操作体系から自然に移行できる, 直感的な操作感を提供したうえで, ユーザー固有の多様な作業工程を想定する.</span></li>
+                <li><span class="en-text">Provide a tool that prioritizes human controllability rather than pursuing full automation.</span><span class="jp-text">AIによる完全自動化を追求するのではなく, 手動による制御性も重視したツールを提供する.</span></li>
+            </ul>
+            
+            <h3 class="reveal-part"><span class="en-text">Features of GapFill</span><span class="jp-text">GapFill の機能</span></h3>
+            <div class="grid-2 align-top">
+                <div class="grid-item">
+                    <div class="media-box">
+                        <img src="images/GapDetection_Highlight.gif" alt="Unpainted Gap Detector with Circular Highlights; Automatic Color Suggestion for Filling Unpainted Gaps">
+                    </div>
+                    <p>
+                        <span class="en-text"><strong>Gap Detector with Circular Highlights and Automatic Color Suggestion</strong>: GapFill automatically detects and highlights small unpainted enclosed regions to reduce the manual effort required for gap detection. It also temporarily overlays each detected gap with a predicted fill color to reduce the manual effort of color selection.</span>
+                        <span class="jp-text"><strong>塗り残しの自動検出と強調表示, 自動色予測</strong>: 未着色の閉領域を自動検出し, 円形マーカーで強調表示する. 本機能により, 検出操作を省略できる. また, 検出された各塗り残し領域に対して, 予測色を一時的に重ねて表示する. 本機能により, 色選択操作を省略できる.</span>
+                    </p>
+                </div>
+                <div class="grid-item">
+                    <div class="media-box">
+                        <img src="images/Popup_Magnification.gif" alt="Hover-Activated Pop-up Magnification for Quick Inspection">
+                    </div>
+                    <p>
+                        <span class="en-text"><strong>Hover-Activated Pop-up Magnification</strong>: GapFill provides a hover-triggered localized magnification around each detected gap within the highlight, reducing the need for manual zooming during quick inspection.</span>
+                        <span class="jp-text"><strong>ホバー式ポップアップ拡大</strong>: 強調表示上にカーソルがある間は, 局所的な拡大プレビューが表示され, 塗り残し周辺を即座に確認できる. 本機能により, 拡大操作を省略できる.</span>
+                    </p>
+                </div>
+            </div>
+            <div class="grid-2">
+                <div class="grid-item">
+                    <img src="images/InCircle_ColorPick.gif" alt="In-Circle Color-pick for Correcting AI Suggested Colors">
+                    <p>
+                        <span class="en-text"><strong>In-Circle Color-pick for Correcting Colors</strong>: GapFill provides manual correction of AI-suggested fill colors through a familiar color-picker interaction within the highlight, allowing users to efficiently resolve few mispredicted gaps without manual zooming.</span>
+                        <span class="jp-text"><strong>予測色の手動修正のための円内カラーピッカー</strong>: カーソルが強調表示内にある状態での, 馴染み深いカラーピッカー操作を通じてAIの提案色を手動で修正でき, 拡大操作を行うことなく少数の誤予測が解消される.</span>
+                    </p>
+                </div>
+                <div class="grid-item">
+                    <img src="images/SweeptoApply.gif" alt="Out-Circle Sweep-to-Apply and Apply-All Button">
+                    <p>
+                        <span class="en-text"><strong>Out-Circle Sweep-to-Apply and Apply-All Button</strong>: GapFill supports batch application of AI-suggested colors via a familiar brush-like interaction when the cursor is outside the highlight, enabling efficient filling of multiple gaps.</span>
+                        <span class="jp-text"><strong>予測色の一括適用のためのスイープ操作</strong>: カーソルが強調表示外にある状態での, 馴染み深いブラシ操作を通じてAIの提案色を一括適用でき, 複数の塗り残しが効率的に解消される.</span>
+                    </p>
+                </div>
+            </div>
+
+
+            <h3 class="reveal-part"><span class="en-text">Method for Automatic Color Prediction</span><span class="jp-text">自動色予測手法</span></h3>
+            <div class="grid-2 align-center">
+                <div class="grid-item">
+                    <div class="media-box">
+                        <img class="en-img" src="images/ColorPrediction.png" alt="Color Prediction via Region Correspondence (EN)">
+                        <img class="jp-img" src="images/ColorPrediction_jp.png" alt="Color Prediction via Region Correspondence (JP)">
+                    </div>
+                    <p>
+                        <span class="en-text">We use an indirect color prediction approach that <strong>learns correspondences between regions</strong> rather than predicting colors directly. By leveraging the flat-color characteristics of anime-style images and the color-independent nature of unpainted gaps, our U-Net-based model predicts which surrounding large region shares the same color as the target gap and robustly suggests an appropriate fill color.</span>
+                        <span class="jp-text">色を直接予測するのではなく, <strong>領域間の対応関係を学習する</strong>間接的な色予測手法を用いている. アニメ画像特有のベタ塗り表現の特性と, 塗り残しの発生が色に依存しないという性質を活かし, U-Net ベースのモデルによって対象となる塗り残し領域が周辺のどの大きな領域と同色であるかを推定し, 適切な塗り色を頑健に提案する.</span>
+                    </p>
+                </div>
+                <div class="grid-item">
+                    <div class="media-box">
+                        <img src="images/Training.png" alt="Creating Synthetic Training Dataset">
+                    </div>
+                    <p>
+                        <span class="en-text">We create a synthetic training dataset by extracting line art, segmenting it into enclosed regions, and treating small regions below a pixel threshold as <strong>potential unpainted gaps</strong>. Using local image patches centered on these regions, the model is trained to associate each gap with the nearest large same-color region.</span>
+                        <span class="jp-text">線画を抽出して閉領域に分割し, 画素数が閾値以下の小さな領域を<strong>潜在的な塗り残し</strong>として扱うことで, 学習用データセットを構築している. これらの領域を中心とした局所的な画像パッチを用いて, 各塗り残しを最も近い同色の大領域と対応付けるようモデルを学習させている.</span>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+
+        <div class="content-block">
+            <h2><span class="en-text">Special Thanks</span><span class="jp-text">謝辞</span></h2>
+            <p>
+                <span class="en-text">
+                This project is based on results obtained from <strong>GENIAC</strong> (Generative AI Accelerator Challenge, a project to strengthen Japan’s generative AI development capabilities), a project implemented by the Ministry of Economy, Trade and Industry (METI) and the New Energy and Industrial Technology Development Organization (NEDO), Japan Grant Number JPNP20017.
+                This work was also supported by JST, <strong>CRONOS</strong>, Japan Grant Number JPMJCS25K1. <br>
+                Finally, we thank the professional colorists at <a href="https://www.olm.co.jp/about" target="_blank" rel="noopener noreferrer"><strong>OLM Asia SDN BHD</strong></a> for their participation and valuable feedback in our formative and user studies,
+                and we also express our sincere gratitude to the members of <a href="https://ponnomichi-pr.com/" target="_blank" rel="noopener noreferrer"><strong>©IIS-P / Ponnomichi Production Committee</strong></a> for kindly providing the image data.
+                </span>
+                <span class="jp-text">
+                本プロジェクトは, 経済産業省と国立研究開発法人新エネルギー・産業技術総合開発機構（NEDO）が実施する, 国内の生成 AI の開発力強化を目的としたプロジェクト<strong>「GENIAC（Generative AI Accelerator Challenge）」</strong>の成果をもとに作成されました.
+                また, 本研究は, JST <strong>CRONOS</strong> JPMJCS25K1 の支援も受けたものです. <br>
+                最後に, 事前調査およびユーザースタディにご協力いただいた, <a href="https://www.olm.co.jp/about" target="_blank" rel="noopener noreferrer"><strong>OLM Asia SDN BHD</strong></a>所属のプロの彩色者の皆様, 
+                そして画像データを快く提供してくださった<a href="https://ponnomichi-pr.com/" target="_blank" rel="noopener noreferrer"><strong>「©IIS-P ／ぽんのみち製作委員会」</strong></a> の皆様に深く感謝いたします.
+            </span>
+            </p>
+        </div>
+
+        <div class="content-block">
+            <h2><span class="en-text">Citation</span><span class="jp-text">引用</span></h2>
+            <pre>
+                <code>
+
+                </code>
+            </pre>
+        </div>
+
+        <footer>
+            <p>Contact: marckono2825@g.ecc.u-tokyo.ac.jp / ms-kono@animins.org</p>
+            <p>&copy; 2026 Masahiro Kono (Marc) / The University of Tokyo</p>
+        </footer>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
