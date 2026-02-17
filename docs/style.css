@@ -38,6 +38,25 @@ h3 {
 }
 p { margin-bottom: 15px; }
 
+/* --- Aside Note --- */
+.aside-note {
+    font-size: 0.9em;
+    line-height: 1.6;
+    text-align: left;
+}
+.aside-note h3 {
+    font-size: 1.05em;
+    margin-top: 20px;
+}
+
+.left-align-block {
+    text-align: left;
+}
+
+.left-align-text {
+    text-align: left;
+}
+
 /* --- Scroll Reveal --- */
 .reveal {
     opacity: 0;
@@ -141,9 +160,11 @@ img, video {
     color: rgba(0, 0, 0, 0.6);
     font-style: normal;
     margin-bottom: 40px;
+    text-align: center;
 }
 .caption.teaser-caption {
     font-style: italic;
+    text-align: left;
 }
 .video-container {
     position: relative;

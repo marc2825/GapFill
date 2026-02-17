@@ -21,7 +21,7 @@
     <div class="container">
         <h1>
             <span class="en-text">No Pixel Left Behind: Filling Gaps in Anime Colorization</span>
-            <span class="jp-text">GapFill: アニメ調彩色における塗り残しの解消を支援するツール</span>
+            <span class="jp-text">GapFill: アニメ調彩色における塗り残し解消支援ツール</span>
         </h1>
 
         <div class="authors">
@@ -46,8 +46,8 @@
             <a href="https://www.wiss.org/WISS2025Proceedings/data/demo/2-C15.pdf" class="btn"><i class="fas fa-file-pdf"></i> <span class="en-text">Paper (Short/JP)</span><span class="jp-text">論文（ショート/日）</span></a>
             <a href="assets/GapFill_Posters.pdf" class="btn"><i class="fas fa-file-pdf"></i> <span class="en-text">Posters</span><span class="jp-text">ポスター</span></a>
             <a href="https://github.com/marc2825/GapFill/releases/download/DemoVideo/GapFill_Video_CameraReady.mp4" class="btn"><i class="fas fa-video"></i> <span class="en-text">Demo Video</span><span class="jp-text">デモ動画</span></a>
-            <a href="" class="btn is-disabled" aria-disabled="true" tabindex="-1"><i class="fas fa-desktop"></i> <span class="en-text">Slides</span><span class="jp-text">発表資料</span></a>
-            <a href="" class="btn is-disabled" aria-disabled="true" tabindex="-1"><i class="fab fa-github"></i> <span class="en-text">Code</span><span class="jp-text">コード</span></a>
+            <a href="assets/GapFill_Slide_JP.pptx" class="btn"><i class="fas fa-desktop"></i> <span class="en-text">Slides</span><span class="jp-text">発表資料（仮）</span></a>
+            <a href="" class="btn is-disabled" aria-disabled="true" tabindex="-1"><i class="fab fa-github"></i> <span class="en-text">Code (Coming Soon)</span><span class="jp-text">コード（準備中）</span></a>
         </div>
 
         <img class="teaser-img en-img" src="images/Teaser.png" alt="Teaser (EN)">
@@ -226,7 +226,7 @@
 
         <div class="content-block">
             <h2><span class="en-text">Special Thanks</span><span class="jp-text">謝辞</span></h2>
-            <p>
+            <p class="left-align-text">
                 <span class="en-text">
                 This project is based on results obtained from <strong>GENIAC</strong> (Generative AI Accelerator Challenge, a project to strengthen Japan’s generative AI development capabilities), a project implemented by the Ministry of Economy, Trade and Industry (METI) and the New Energy and Industrial Technology Development Organization (NEDO), Japan Grant Number JPNP20017.
                 This work was also supported by JST, <strong>CRONOS</strong>, Japan Grant Number JPMJCS25K1. <br>
@@ -249,6 +249,12 @@
 
                 </code>
             </pre>
+            <div class="aside-note jp-text">
+                <h3>余談</h3>
+                <p>新規手法の提案以外にも,「ユーザーの潜在的ニーズの特定」と「定性的な価値を実証する妥当な評価系の構築」部分に困難があった.</p>
+                <p>第一に,プロの彩色者は既存工程に慣れており,筋の良い改善要望を言語化できるとは限らない.そこで単なるヒアリングに留まらず,実際の制作工程を観察し,現行の「検出・拡大・色選択の反復」こそが塗り残し修正における真のボトルネックであることを特定した.設計においては「正解」がなく意見が割れる中,不要な複雑化・多機能化を避けて既存フローに馴染む直感性と認知負荷の軽減を追求する決断を下し,シンプルで洗練された仕様にまとめ上げた.また,従来困難とされた小領域の色予測に対し,アニメ特有のベタ塗り特性や塗り残し特有の同色領域の近傍性・発生の非色依存性等に着目し,深層学習を用いた新規手法を提案・実装した.</p>
+                <p>第二に,既存ツールとの公平な比較も困難であった.そこで実験用ペイントソフトを自作し,学習効果や画像差を排除するため,左右対称に近い画像を分割して使用することで難易度を均等化する独自の評価試験を設計した.さらに「色に絶対的な正解はない」という仮説を検証するタスクも組み込み,多角的な評価を行った.</p>
+            </div>
         </div>
 
         <footer>
