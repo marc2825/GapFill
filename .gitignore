@@ -1,2 +1,31 @@
+# Large project assets
 /docs/videos_mp4/
-scripts
+/scripts/
+
+# GapFill ML inputs and generated artifacts
+/ml/data/
+/ml/region_analysis/
+/ml/patches/
+/ml/results/
+/ml/saved_models/
+
+# Python environments, caches, and test artifacts
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Generated ML files (including custom output directories)
+*.npy
+*.pth
+*.h5
+events.out.tfevents.*
+
+# Local tooling and OS metadata
+.codex/
+*:Zone.Identifier
+.DS_Store
