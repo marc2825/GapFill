@@ -2,17 +2,15 @@
 
 This directory contains the machine-learning pipeline for GapFill. It covers:
 
-1. Region analysis and nearest same-color label generation
-2. Training-patch preprocessing
-3. U-Net model training
-4. Model evaluation and visualization
+1. **Region analysis** and **closest same-color label** generation
+2. Training-patch **preprocessing**
+3. U-Net-based GapFill model **training**
+4. Model **evaluation** and optional **visualization**
 
-The web application should be kept separately from this directory. It can consume
-the trained model and other artifacts produced by this pipeline.
 
 ## Directory Layout
 
-The public repository is expected to have a structure similar to:
+The repository is expected to have a structure similar to:
 
 ```text
 repository/
@@ -34,9 +32,10 @@ repository/
 
 Run all commands in this document from the `ml/` directory.
 
+
 ## Environment Setup
 
-Python 3.12 is recommended.
+Python 3.12 on WSL2 (Ubuntu 22.04 LTS or later) is recommended (tested environment).
 
 ```bash
 cd ml
@@ -52,9 +51,10 @@ TensorBoard, and tqdm.
 For GPU training, ensure that the installed PyTorch build is compatible with the
 CUDA version available on the machine.
 
+
 ## Input Data
 
-Prepare paired line-art and colored images. Corresponding files must have the
+Prepare **paired line-art and colored images**. Corresponding files must have the
 same filename, including the extension.
 
 ```text
@@ -72,15 +72,29 @@ Supported image extensions are `.png`, `.jpg`, `.jpeg`, and `.tga`.
 
 - Line-art images are loaded as grayscale images.
 - Colored images are used to determine representative region colors.
-- If paired image sizes differ, the colored image is resized to the line-art
-  image size using nearest-neighbor interpolation.
+
+The line-art and colored images must have identical filenames and dimensions.
+For example, the following files would both be named `example.png` in their
+respective input directories.
+
+<table>
+  <tr>
+    <th>Line art (<code>data/line_art/example.png</code>)</th>
+    <th>Colored reference (<code>data/colored/example.png</code>)</th>
+  </tr>
+  <tr>
+    <td><img src="../docs/images/input_example_line_art.png" width="360" alt="Line-art input example"></td>
+    <td><img src="../docs/images/input_example_colored.png" width="360" alt="Corresponding colored input example"></td>
+  </tr>
+</table>
+
 
 ## Quick Start
 
 The standard workflow is:
 
 ```text
-analyze_regions -> preprocess_data -> train -> evaluate (+visualize)
+analyze_regions -> preprocess_data -> train -> evaluate (&visualize)
 ```
 
 With data under `data/line_art` and `data/colored`, the minimum command sequence
@@ -105,10 +119,11 @@ python -m src.evaluate gapfill \
 
 The output of each stage is used as the default input of the next stage.
 
+
 ## 1. Analyze Regions
 
-The analysis stage detects connected regions in each line-art image and finds
-the nearest larger region with the same representative color.
+The analysis stage **segments connected regions** in each line-art image (same as **flood-fill** operation)
+and finds **the closest larger region** with the same color.
 
 ```bash
 python -m src.analyze_regions \
@@ -127,21 +142,19 @@ region_analysis/
 └── combined/
 ```
 
-The generated CSV becomes the default input for both preprocessing and
-evaluation.
+The generated CSV becomes the default input for both preprocessing and evaluation.
 
 Useful options:
 
 - `--output_dir`: Override the analysis output directory.
 - `--num_samples`: Limit the number of source images.
 - `--flood_threshold`: Set the line-art binarization threshold.
-- `--region_size_threshold`: Set the maximum size of regions treated as small
-  target regions.
+- `--region_size_threshold`: Set the maximum size of regions treated as small target regions (potential **gaps**).
+
 
 ## 2. Preprocess Training Data
 
-The preprocessing stage reads the analysis CSV and creates model input and
-target patches.
+The **preprocessing** stage reads the analysis CSV and creates model input and target patches.
 
 ```bash
 python -m src.preprocess_data \
@@ -183,9 +196,10 @@ Useful options:
 
 When using NPY files, use `--use_npy` during both preprocessing and training.
 
+
 ## 3. Train the Model
 
-Train `NearestRegionUNet` using the generated patches:
+**Train `NearestRegionUNet`** (GapFill's model) using the generated patches:
 
 ```bash
 python -m src.train \
@@ -249,14 +263,14 @@ torchrun --nproc_per_node=2 -m src.train \
   --batch_size 64
 ```
 
-The training pipeline uses `DistributedSampler` and updates its epoch before
-each training epoch.
+The training pipeline uses `DistributedSampler` and updates its epoch before each training epoch.
+
 
 ## 4. Evaluate and Visualize
 
-### GapFill Model
+### **GapFill** Model
 
-Evaluate the trained model and create visualization grids:
+**Evaluate** the trained model and create **visualization** grids (optional):
 
 ```bash
 python -m src.evaluate gapfill \
@@ -286,18 +300,14 @@ Useful options:
 - `--model_path`: Evaluate a different checkpoint.
 - `--csv_file`: Use a different analysis CSV.
 - `--samples`: Limit the number of evaluated samples.
-- `--comparison_crop_size`: Restrict color selection to a centered portion of
-  the model output.
+- `--comparison_crop_size`: Restrict color selection to a centered portion of the model output.
 - `--show_labels`: Add labels to visualization panels.
-- `--save_raw_predictions`: Also save input, target, and prediction arrays as
-  NPY files.
-- `--results_only`: Skip per-sample visualization and save only the CSV and
-  summary.
+- `--save_raw_predictions`: Also save input, target, and prediction arrays as NPY files.
+- `--results_only`: Skip per-sample visualization and save only the CSV and summary.
 
 ### Greedy Baseline
 
-The greedy mode evaluates a non-neural baseline using colors adjacent to the
-target region:
+The greedy mode evaluates a non-neural baseline using colors adjacent (8-connected) to the target region:
 
 ```bash
 python -m src.evaluate greedy \
@@ -308,6 +318,7 @@ python -m src.evaluate greedy \
 
 It produces the same evaluation CSV and summary format, making its results
 directly comparable with the GapFill model.
+
 
 ## Configuration
 
@@ -329,6 +340,7 @@ Important defaults include:
 
 CLI arguments override these defaults without requiring changes to
 `src/config.py`.
+
 
 ## Source Overview
 
