@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+message: "If you use GapFill in your research, please cite the software and the associated paper."
+title: "GapFill"
+type: software
+authors:
+  - family-names: "Kono"
+    given-names: "Masahiro"
+  - family-names: "Maejima"
+    given-names: "Akinobu"
+  - family-names: "Koyama"
+    given-names: "Yuki"
+  - family-names: "Sechayk"
+    given-names: "Yotam"
+  - family-names: "Igarashi"
+    given-names: "Takeo"
+repository-code: "https://github.com/marc2825/GapFill"
+url: "https://marc2825.github.io/GapFill/"
+license: "MIT"
+abstract: >-
+  GapFill is a tool for detecting and filling small unpainted regions in
+  anime-style colorization workflows, with learned color suggestions based on
+  surrounding regions.
+keywords:
+  - "anime colorization"
+  - "gap filling"
+  - "deep learning"
+  - "human-computer interaction"
+preferred-citation:
+  type: conference-paper
+  title: "No Pixel Left Behind: Filling Gaps in Anime Colorization"
+  authors:
+    - family-names: "Kono"
+      given-names: "Masahiro"
+    - family-names: "Maejima"
+      given-names: "Akinobu"
+    - family-names: "Koyama"
+      given-names: "Yuki"
+    - family-names: "Sechayk"
+      given-names: "Yotam"
+    - family-names: "Igarashi"
+      given-names: "Takeo"
+  collection-title: "Proceedings of the 2026 CHI Conference on Human Factors in Computing Systems"
+  publisher:
+    name: "Association for Computing Machinery"
+  year: 2026
+  doi: "10.1145/3772318.3790968"
