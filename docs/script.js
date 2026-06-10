@@ -1,6 +1,7 @@
 function setLang(lang) {
     const body = document.body;
     const btns = document.querySelectorAll('.lang-btn');
+    const localizedLinks = document.querySelectorAll('[data-href-en][data-href-jp]');
     
     // Toggle body class
     if (lang === 'jp') {
@@ -17,6 +18,10 @@ function setLang(lang) {
         } else {
             btn.classList.remove('active');
         }
+    });
+
+    localizedLinks.forEach(link => {
+        link.href = lang === 'jp' ? link.dataset.hrefJp : link.dataset.hrefEn;
     });
 }
 
