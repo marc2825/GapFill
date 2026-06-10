@@ -8,6 +8,8 @@
 
 ![GapFill teaser figure](docs/images/Teaser.png)
 
+![GapFill UI preview](docs/images/GapFill_UI_preview.gif)
+
 
 **[WIP] Source code for the web application and the trained model will be released soon [WIP]**
 
