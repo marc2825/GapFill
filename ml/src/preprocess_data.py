@@ -11,7 +11,7 @@ from .pipelines.preprocess_data_pipeline import create_training_patches
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Create HDF5 or NPY training patches from nearest same color CSV.")
     parser.add_argument("--csv_file", type=str, default=str(config.REGION_ANALYSIS_CSV_PATH), help=f"Path to the nearest same color analysis CSV file (default: {config.REGION_ANALYSIS_CSV_PATH})")
-    parser.add_argument("--line_art_dir", type=str, required=True, help="Directory containing line art images.")
+    parser.add_argument("--line_art_dir", type=str, default=str(config.LINE_ART_DIR), help=f"Directory containing line art images (default: {config.LINE_ART_DIR})")
     parser.add_argument("--output_dir", type=str, default=str(config.PATCH_DATA_DIR), help=f"Output directory for training patches (default: {config.PATCH_DATA_DIR})")
     parser.add_argument("--crop_size", type=int, default=config.PATCH_SIZE, help="Crop size (square) for training patches.")
     parser.add_argument("--flood_threshold", type=int, default=128, help="Threshold used for binarization and region detection.")
