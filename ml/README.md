@@ -101,20 +101,13 @@ With data under `data/line_art` and `data/colored`, the minimum command sequence
 is:
 
 ```bash
-python -m src.analyze_regions \
-  --line_art_dir data/line_art \
-  --colored_dir data/colored
-
-python -m src.preprocess_data \
-  --line_art_dir data/line_art
+python -m src.analyze_regions
+python -m src.preprocess_data
 
 python -m src.train \
   --device cuda
 
-python -m src.evaluate gapfill \
-  --line_art_dir data/line_art \
-  --colored_dir data/colored \
-  --output_dir results/gapfill
+python -m src.evaluate gapfill
 ```
 
 The output of each stage is used as the default input of the next stage.
@@ -127,8 +120,6 @@ and finds **the closest larger region** with the same color.
 
 ```bash
 python -m src.analyze_regions \
-  --line_art_dir data/line_art \
-  --colored_dir data/colored \
   --flood_threshold 128 \
   --region_size_threshold 10 \
   --timeout_seconds 30
@@ -138,8 +129,7 @@ Default output:
 
 ```text
 region_analysis/
-├── nearest_same_color_analysis.csv
-└── combined/
+└── nearest_same_color_analysis.csv
 ```
 
 The generated CSV becomes the default input for both preprocessing and evaluation.
@@ -150,6 +140,7 @@ Useful options:
 - `--num_samples`: Limit the number of source images.
 - `--flood_threshold`: Set the line-art binarization threshold.
 - `--region_size_threshold`: Set the maximum size of regions treated as small target regions (potential **gaps**).
+- `--save_combined_images`: Also save `combined/*_combined.png`, with region-labeled line art and the colored image side by side.
 
 
 ## 2. Preprocess Training Data
@@ -157,9 +148,7 @@ Useful options:
 The **preprocessing** stage reads the analysis CSV and creates model input and target patches.
 
 ```bash
-python -m src.preprocess_data \
-  --line_art_dir data/line_art \
-  --crop_size 32
+python -m src.preprocess_data --crop_size 32
 ```
 
 By default:
@@ -173,7 +162,7 @@ By default:
 Default output:
 
 ```text
-patches/all/
+patches/
 ├── train/
 │   ├── inputs.h5
 │   └── targets.h5
@@ -218,7 +207,7 @@ python -m src.train --device cpu
 Default input:
 
 ```text
-patches/all/
+patches/
 ```
 
 Default training output:
@@ -273,10 +262,7 @@ The training pipeline uses `DistributedSampler` and updates its epoch before eac
 **Evaluate** the trained model and create **visualization** grids (optional):
 
 ```bash
-python -m src.evaluate gapfill \
-  --line_art_dir data/line_art \
-  --colored_dir data/colored \
-  --output_dir results/gapfill
+python -m src.evaluate gapfill
 ```
 
 Default inputs:
@@ -284,6 +270,8 @@ Default inputs:
 - CSV: `region_analysis/nearest_same_color_analysis.csv`
 - Model: `saved_models/gapfill/checkpoints/best_model.pth`
 - Crop size: `32`
+
+Default output: `results/gapfill/`
 
 Typical output:
 
@@ -310,10 +298,7 @@ Useful options:
 The greedy mode evaluates a non-neural baseline using colors adjacent (8-connected) to the target region:
 
 ```bash
-python -m src.evaluate greedy \
-  --line_art_dir data/line_art \
-  --colored_dir data/colored \
-  --output_dir results/greedy
+python -m src.evaluate greedy
 ```
 
 It produces the same evaluation CSV and summary format, making its results
@@ -328,11 +313,15 @@ Important defaults include:
 
 | Setting | Default |
 |---|---|
+| Line-art input | `data/line_art/` |
+| Colored input | `data/colored/` |
 | Region-analysis output | `region_analysis/` |
 | Analysis CSV | `region_analysis/nearest_same_color_analysis.csv` |
-| Training patches | `patches/all/` |
+| Training patches | `patches/` |
 | Model output | `saved_models/gapfill/` |
 | Best checkpoint | `saved_models/gapfill/checkpoints/best_model.pth` |
+| GapFill evaluation output | `results/gapfill/` |
+| Greedy evaluation output | `results/greedy/` |
 | Patch size | `32` |
 | Batch size | `64` |
 | Training split | `0.8` |

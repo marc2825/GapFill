@@ -174,6 +174,7 @@ def analyze_nearest_same_color(
     region_size_threshold=10,
     timeout_seconds=30,
     save_raw_data=True,
+    save_combined_images=False,
 ):
     """
     For each sample in the entire dataset, detect regions from line art and calculate
@@ -188,6 +189,7 @@ def analyze_nearest_same_color(
         region_size_threshold: Upper limit for target region size (only regions <= x are targeted)
         timeout_seconds: Processing timeout in seconds for each sample
         save_raw_data: Whether to save results as CSV (if True, saves all results together)
+        save_combined_images: Whether to save annotated line art and colored images side by side
 
     Returns:
         DataFrame summarizing analysis results across all samples
@@ -198,9 +200,9 @@ def analyze_nearest_same_color(
         raw_data_dir = os.path.join(output_dir, "raw_data")
         os.makedirs(raw_data_dir, exist_ok=True)
 
-    # Output directory for combined images: line art with region numbers alongside colored image
-    combined_dir = os.path.join(output_dir, "combined")
-    os.makedirs(combined_dir, exist_ok=True)
+    if save_combined_images:
+        combined_dir = os.path.join(output_dir, "combined")
+        os.makedirs(combined_dir, exist_ok=True)
 
     data_loader = RegionDataLoader(line_art_dir=line_art_dir, colored_dir=colored_dir)
     sample_count = len(data_loader) if num_samples is None else min(num_samples, len(data_loader))
@@ -221,24 +223,25 @@ def analyze_nearest_same_color(
             # region counts and size distributions are derived from this per-frame connected-component labeling.
             region_labels, _ = detect_regions(line_art_np, threshold=flood_threshold)
 
-            colored_bgr = cv2.cvtColor(colored_np, cv2.COLOR_RGB2BGR)
-            annotated_line_art = annotate_region_labels(line_art_np, region_labels)
-            try:
-                combined_image = np.hstack([annotated_line_art, colored_bgr])
-            except ValueError:
-                # Handle case where heights (number of rows) do not match
-                height1 = annotated_line_art.shape[0]
-                height2 = colored_bgr.shape[0]
-                if height1 != height2:
-                    min_height = min(height1, height2)
-                    annotated_line_art_cropped = annotated_line_art[:min_height, :]
-                    colored_bgr_cropped = colored_bgr[:min_height, :]
-                    combined_image = np.hstack([annotated_line_art_cropped, colored_bgr_cropped])
-                    print("Warning: Image heights differed; cropped to minimum height.")
-                else:
-                    raise
+            if save_combined_images:
+                colored_bgr = cv2.cvtColor(colored_np, cv2.COLOR_RGB2BGR)
+                annotated_line_art = annotate_region_labels(line_art_np, region_labels)
+                try:
+                    combined_image = np.hstack([annotated_line_art, colored_bgr])
+                except ValueError:
+                    # Handle case where heights (number of rows) do not match
+                    height1 = annotated_line_art.shape[0]
+                    height2 = colored_bgr.shape[0]
+                    if height1 != height2:
+                        min_height = min(height1, height2)
+                        annotated_line_art_cropped = annotated_line_art[:min_height, :]
+                        colored_bgr_cropped = colored_bgr[:min_height, :]
+                        combined_image = np.hstack([annotated_line_art_cropped, colored_bgr_cropped])
+                        print("Warning: Image heights differed; cropped to minimum height.")
+                    else:
+                        raise
 
-            cv2.imwrite(os.path.join(combined_dir, f"{filename}_combined.png"), combined_image)
+                cv2.imwrite(os.path.join(combined_dir, f"{filename}_combined.png"), combined_image)
 
             df_nearest = compute_nearest_same_color(region_labels, colored_np, size_threshold=region_size_threshold)
             if df_nearest.empty:

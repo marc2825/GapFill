@@ -7,12 +7,15 @@ ROOT_DIR = Path(os.path.dirname(os.path.abspath(__file__))).parent
 DATA_DIR = ROOT_DIR / "data"
 LINE_ART_DIR = DATA_DIR / "line_art"
 COLORED_DIR = DATA_DIR / "colored"
-PATCH_DATA_DIR = ROOT_DIR / "patches" / "all"
+PATCH_DATA_DIR = ROOT_DIR / "patches"
 REGION_ANALYSIS_OUTPUT_DIR = ROOT_DIR / "region_analysis"
 REGION_ANALYSIS_CSV_PATH = REGION_ANALYSIS_OUTPUT_DIR / "nearest_same_color_analysis.csv"
 MODEL_SAVE_DIR = ROOT_DIR / "saved_models"
 DEFAULT_MODEL_DIR = MODEL_SAVE_DIR / "gapfill"
 BEST_MODEL_PATH = DEFAULT_MODEL_DIR / "checkpoints" / "best_model.pth"
+RESULTS_DIR = ROOT_DIR / "results"
+DEFAULT_EVALUATION_DIR = RESULTS_DIR / "gapfill"
+DEFAULT_GREEDY_EVALUATION_DIR = RESULTS_DIR / "greedy"
 
 for directory in [DATA_DIR, LINE_ART_DIR, COLORED_DIR, PATCH_DATA_DIR, MODEL_SAVE_DIR]:
     directory.mkdir(exist_ok=True, parents=True)
