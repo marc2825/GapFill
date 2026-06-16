@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import csv
 import os
+from collections import OrderedDict
 
 import numpy as np
 import pandas as pd
@@ -65,7 +66,7 @@ def run_inference_pipeline(csv_file: str, crop_size: int, line_art_dir: str, col
         print(f"Model loaded from {model_path}")
 
     df = read_region_csv(csv_file)
-    image_cache = {}
+    image_cache = OrderedDict()
     patch_count = 0
     total_patches_with_colors = 0
     total_match_score = 0
@@ -74,7 +75,7 @@ def run_inference_pipeline(csv_file: str, crop_size: int, line_art_dir: str, col
         color_comparison_writer = csv.writer(color_comparison_file)
         color_comparison_writer.writerow(COLOR_COMPARISON_COLUMNS)
 
-        for _, row in tqdm(df.iterrows(), total=len(df), desc="Evaluating samples", disable=results_only):
+        for _, row in tqdm(df.iterrows(), total=len(df), desc="Evaluating samples"):
             if samples is not None and patch_count >= samples:
                 break
 

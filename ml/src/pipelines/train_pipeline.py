@@ -110,7 +110,7 @@ def train_model(args) -> None:
     patience_counter = 0
 
     for epoch in range(args.num_epochs):
-        if state.distributed and train_sampler is not None:
+        if train_sampler is not None:
             train_sampler.set_epoch(epoch)
 
         # ===========  TRAIN  =======================

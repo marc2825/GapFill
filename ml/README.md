@@ -103,10 +103,7 @@ is:
 ```bash
 python -m src.analyze_regions
 python -m src.preprocess_data
-
-python -m src.train \
-  --device cuda
-
+python -m src.train --device cuda
 python -m src.evaluate gapfill
 ```
 
@@ -194,7 +191,7 @@ When using NPY files, use `--use_npy` during both preprocessing and training.
 python -m src.train \
   --device cuda \
   --crop_size 32 \
-  --batch_size 64 \
+  --batch_size 256 \
   --num_epochs 100
 ```
 
@@ -249,7 +246,7 @@ For example, to train with two GPUs:
 torchrun --nproc_per_node=2 -m src.train \
   --device cuda \
   --backend nccl \
-  --batch_size 64
+  --batch_size 256
 ```
 
 The training pipeline uses `DistributedSampler` and updates its epoch before each training epoch.
