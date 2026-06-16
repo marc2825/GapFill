@@ -23,7 +23,7 @@ for directory in [DATA_DIR, LINE_ART_DIR, COLORED_DIR, PATCH_DATA_DIR, MODEL_SAV
 
 TRAIN_VAL_SPLIT = 0.8  # Fraction of source images assigned to training; the remainder is used for validation.
 PATCH_SIZE = 32
-BATCH_SIZE = 64
+BATCH_SIZE = 256
 NUM_WORKERS = 8
 USE_HDF5 = True
 REGION_SIZE_THRESHOLD = 10
