@@ -103,10 +103,7 @@ is:
 ```bash
 python -m src.analyze_regions
 python -m src.preprocess_data
-
-python -m src.train \
-  --device cuda
-
+python -m src.train --device cuda
 python -m src.evaluate gapfill
 ```
 
