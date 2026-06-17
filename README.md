@@ -11,7 +11,7 @@
 ![GapFill UI preview](docs/images/GapFill_UI_preview.gif)
 
 
-**[WIP] Source code for the web application and the trained model will be released soon [WIP]**
+**[WIP] Source code for the web application will be released soon [WIP]**
 
 
 **GapFill** is an interactive tool for helping professional anime colorists
@@ -59,8 +59,9 @@ This project is released under the [MIT License](LICENSE).
 
 ## Updates
 
+- **June 18, 2026:** The trained GapFill model is available as
+  `trained_model.pth`.
 - **June 10, 2026:** Source code (refactored) for the GapFill model is available.
 - **March 10, 2026:** The project website, paper, and demo web application are
   available.
-- Source code for the web application and the trained model will be released
-  soon.
+- Source code for the web application will be released soon.
