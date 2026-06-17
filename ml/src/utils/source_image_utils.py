@@ -43,6 +43,13 @@ def load_visualization_source(filename: str, line_art_dir: str, colored_dir: str
         print(f"Could not load {colored_path}")
         return None
 
+    if line_art.shape[:2] != colored_img.shape[:2]:
+        colored_img = cv2.resize(
+            colored_img,
+            (line_art.shape[1], line_art.shape[0]),
+            interpolation=cv2.INTER_NEAREST,
+        )
+
     region_labels, _ = detect_regions(line_art, threshold=flood_threshold)
     source = line_art, colored_path, colored_img, region_labels
     if cache is not None and max_cache_size > 0:

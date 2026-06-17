@@ -20,6 +20,12 @@ class SourceImageUtilsTest(unittest.TestCase):
         cv2.imwrite(str(line_art_dir / filename), line_art)
         cv2.imwrite(str(colored_dir / filename), colored)
 
+    def _write_mismatched_image_pair(self, line_art_dir: Path, colored_dir: Path, filename: str) -> None:
+        line_art = np.full((8, 10), 255, dtype=np.uint8)
+        colored = np.full((6, 7, 3), 128, dtype=np.uint8)
+        cv2.imwrite(str(line_art_dir / filename), line_art)
+        cv2.imwrite(str(colored_dir / filename), colored)
+
     def test_visualization_source_cache_is_bounded_lru(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -52,6 +58,23 @@ class SourceImageUtilsTest(unittest.TestCase):
 
             self.assertIsNotNone(source)
             self.assertEqual(len(cache), 0)
+
+    def test_visualization_source_resizes_colored_to_line_art_shape(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            line_art_dir = root / "line_art"
+            colored_dir = root / "colored"
+            line_art_dir.mkdir()
+            colored_dir.mkdir()
+            self._write_mismatched_image_pair(line_art_dir, colored_dir, "a.png")
+
+            source = load_visualization_source("a.png", str(line_art_dir), str(colored_dir), 128)
+
+            self.assertIsNotNone(source)
+            line_art, _, colored_img, region_labels = source
+            self.assertEqual(line_art.shape[:2], (8, 10))
+            self.assertEqual(colored_img.shape[:2], (8, 10))
+            self.assertEqual(region_labels.shape[:2], (8, 10))
 
 
 if __name__ == "__main__":
