@@ -1,0 +1,211 @@
+.gapfill-control {
+  padding: 15px;
+  background: #fff9c4;
+  border: 2px solid #f9a825;
+  border-radius: 8px;
+  margin: 10px;
+}
+
+.gapfill-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.gapfill-toggle-label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.gapfill-toggle {
+  position: relative;
+  width: 100px;
+  height: 40px;
+  background: #ccc;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.gapfill-toggle.active {
+  background: #ffc107;
+}
+
+.gapfill-toggle.locked {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.gapfill-toggle:disabled {
+  cursor: not-allowed;
+}
+
+.toggle-slider {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s;
+  left: 4px;
+}
+
+.gapfill-toggle.active .toggle-slider {
+  transform: translateX(56px);
+}
+
+.toggle-text {
+  position: absolute;
+  right: 10px;
+  font-weight: bold;
+  color: #333;
+  font-size: 14px;
+}
+
+.gapfill-toggle.active .toggle-text {
+  right: auto;
+  left: 10px;
+}
+
+.gapfill-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.threshold-control,
+.swipe-size-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.threshold-control label,
+.swipe-size-control label {
+  font-size: 14px;
+  font-weight: 500;
+  min-width: 80px;
+}
+
+.threshold-control input[type="range"],
+.swipe-size-control input[type="range"] {
+  flex: 1;
+  min-width: 80px;
+}
+
+.threshold-control span,
+.swipe-size-control span {
+  font-size: 14px;
+  min-width: 45px;
+  text-align: left;
+  font-weight: bold;
+  color: #333;
+}
+
+.apply-all-button {
+  padding: 10px 20px;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.apply-all-button:hover:not(.disabled) {
+  background: #45a049;
+}
+
+.apply-all-button.disabled,
+.apply-all-button:disabled {
+  background: #ccc;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.gapfill-tools {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.gapfill-tools label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-left: 12px;
+}
+
+.gapfill-tool-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.gapfill-tool-buttons-row {
+  display: flex;
+  gap: 5px;
+}
+
+.gapfill-tool-button {
+  width: 50px;
+  height: 40px;
+  border: 2px solid #ccc;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: all 0.2s;
+  border-radius: 4px;
+}
+
+.gapfill-tool-button.special {
+  width: 105px;
+}
+
+.gapfill-tool-button:hover {
+  background: #f0f0f0;
+  border-color: #999;
+}
+
+.gapfill-tool-button.active {
+  background: #4CAF50;
+  border-color: #45a049;
+}
+
+.gapfill-hint {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+.highlight-color-control {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.highlight-color-control label {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.highlight-color-control input[type="color"] {
+  width: 40px;
+  height: 30px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  border-radius: 3px;
+}

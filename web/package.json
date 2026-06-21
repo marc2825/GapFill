@@ -1,0 +1,38 @@
+{
+  "name": "gapfill-paint-app",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "test": "node --experimental-strip-types --test src/tests/*.test.mjs src/tests/GapFill/*.test.mjs",
+    "check:preset-assets": "node --experimental-strip-types scripts/check-preset-assets.mjs",
+    "check:image-metadata": "node scripts/check-image-metadata.mjs",
+    "preview": "vite preview",
+    "postinstall": "node scripts/copy-ort-wasm.mjs"
+  },
+  "dependencies": {
+    "onnxruntime-web": "^1.22.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.33.0",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@vitejs/plugin-react": "^6.0.2",
+    "eslint": "^9.33.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.39.1",
+    "vite": "^8.0.16"
+  }
+}

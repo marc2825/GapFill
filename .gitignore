@@ -9,6 +9,19 @@
 /ml/results/
 /ml/saved_models/
 
+# Generated ML files
+*.npy
+*.pth
+*.h5
+events.out.tfevents.*
+
+# Web dependencies and build artifacts
+node_modules/
+dist/
+dist-ssr/
+/web/public/ort-wasm/
+/web/public/preset-images/C/
+
 # Python environments, caches, and test artifacts
 .venv/
 __pycache__/
@@ -19,13 +32,29 @@ __pycache__/
 .coverage
 htmlcov/
 
-# Generated ML files (including custom output directories)
-*.npy
-*.pth
-*.h5
-events.out.tfevents.*
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
-# Local tooling and OS metadata
-.codex/
+# Local env and machine files
+.env
+.env.*
+*.local
 *:Zone.Identifier
 .DS_Store
+.codex/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

@@ -45,7 +45,7 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-The main dependencies are PyTorch, NumPy, pandas, OpenCV, SciPy, h5py,
+The main dependencies are PyTorch, ONNX, NumPy, pandas, OpenCV, SciPy, h5py,
 TensorBoard, and tqdm.
 
 For GPU training, ensure that the installed PyTorch build is compatible with the
@@ -53,6 +53,18 @@ CUDA version available on the machine.
 
 
 ## Input Data
+
+The dataset used to train the released GapFill model is not distributed for
+copyright reasons. All training images used by the project were used with
+permission from
+[©IIS-P / Ponnomichi Production Committee](https://ponnomichi-pr.com/), but
+that permission does not include redistribution. Users must therefore prepare
+their own appropriately licensed input data. See
+[`ASSET_LICENSE.md`](../ASSET_LICENSE.md) for the complete notice.
+
+**No license is granted to use, copy, modify, reuse, or redistribute the
+project's training image materials. Separate permission from the copyright
+holder is required.**
 
 Prepare **paired line-art and colored images**. Corresponding files must have the
 same filename, including the extension.
@@ -252,7 +264,30 @@ torchrun --nproc_per_node=2 -m src.train \
 The training pipeline uses `DistributedSampler` and updates its epoch before each training epoch.
 
 
-## 4. Evaluate and Visualize
+## 4. Export to ONNX for the Web App
+
+Export the best checkpoint produced by training to the web app's default ONNX path:
+
+```bash
+python -m src.export_onnx
+```
+
+Default conversion:
+
+```text
+input:  saved_models/gapfill/checkpoints/best_model.pth
+output: ../web/public/models/unet32.onnx
+docs:  ../web/public/models/model_info.json
+shape:  [1, 2, 32, 32]
+```
+
+Use `--model_path` and `--output_path` to override either path. The default
+`crop_size` is `32`, matching the browser inference code in `web/src`. The
+export is a self-contained ONNX file; `model_info.json` is generated alongside
+it for documentation and is not required by the web app at runtime.
+
+
+## 5. Evaluate and Visualize
 
 ### **GapFill** Model
 
@@ -317,10 +352,11 @@ Important defaults include:
 | Training patches | `patches/` |
 | Model output | `saved_models/gapfill/` |
 | Best checkpoint | `saved_models/gapfill/checkpoints/best_model.pth` |
+| Web ONNX export | `../web/public/models/unet32.onnx` |
 | GapFill evaluation output | `results/gapfill/` |
 | Greedy evaluation output | `results/greedy/` |
 | Patch size | `32` |
-| Batch size | `64` |
+| Batch size | `256` |
 | Training split | `0.8` |
 | HDF5 storage | Enabled |
 

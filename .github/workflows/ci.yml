@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: Web
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.12.0
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Check ONNX model
+        run: test -s public/models/unet32.onnx
+
+      - name: Check preset assets
+        run: npm run check:preset-assets
+
+      - name: Check image metadata
+        run: npm run check:image-metadata
+
+      - name: Build web app
+        run: npm run build
+        env:
+          GAPFILL_INCLUDE_TASK_C: "false"
+
+      - name: Confirm Task C is excluded from the public build
+        run: |
+          test ! -e dist/preset-images/C
+          ! grep -R -q "coloring_full.png" dist/assets
