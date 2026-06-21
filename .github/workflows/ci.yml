@@ -53,3 +53,37 @@ jobs:
         run: |
           test ! -e dist/preset-images/C
           ! grep -R -q "coloring_full.png" dist/assets
+
+  krita-plugin:
+    name: Krita plugin
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: krita-plugin/requirements-dev.txt
+
+      - name: Install dependencies
+        run: python -m pip install -r krita-plugin/requirements-dev.txt
+
+      - name: Run tests
+        working-directory: krita-plugin
+        run: pytest
+
+      - name: Run lint
+        working-directory: krita-plugin
+        run: ruff check .
+
+      - name: Build importable plugin
+        run: python krita-plugin/scripts/build_plugin.py
+
+      - name: Inspect package
+        run: |
+          unzip -t krita-plugin/dist/gapfill-krita.zip
+          unzip -l krita-plugin/dist/gapfill-krita.zip | grep -q 'gapfill_krita/resources/models/unet32.onnx'
