@@ -31,6 +31,9 @@ __pycache__/
 .ruff_cache/
 .coverage
 htmlcov/
+/krita-plugin/dist/
+/krita-plugin/vendor/
+/krita-plugin/pykrita/gapfill_krita/_vendor/
 
 # Logs
 logs/
