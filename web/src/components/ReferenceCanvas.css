@@ -1,0 +1,108 @@
+.reference-canvas-container {
+  width: 100%;
+  margin-bottom: 20px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.reference-canvas-header {
+  background: #4CAF50;
+  color: white;
+  padding: 8px 12px;
+  font-weight: bold;
+  font-size: 14px;
+  border-radius: 6px 6px 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.reference-title {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.zoom-hint {
+  font-size: 10px;
+  color: #666;
+  font-weight: normal;
+  font-style: italic;
+  text-align: left;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.zoom-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 12px;
+  background: #f0f0f0;
+  border-top: 1px solid #ddd;
+}
+
+.zoom-hints {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  font-family: monospace;
+  line-height: 1.2;
+}
+
+.zoom-button {
+  background: white;
+  border: 1px solid #ccc;
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.zoom-button:hover {
+  background: #f0f0f0;
+  border-color: #999;
+}
+
+.reset-button {
+  background: #4CAF50;
+  color: white;
+  border-color: #4CAF50;
+  font-weight: bold;
+}
+
+.reset-button:hover {
+  background: #45a049;
+  border-color: #45a049;
+}
+
+.reference-canvas-wrapper {
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  background: #fff;
+  border-radius: 0 0 6px 6px;
+  overflow: auto;
+}
+
+.reference-canvas {
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: white;
+  max-width: 100%;
+  max-height: 600px;
+}
+
+.reference-canvas:hover {
+  border-color: #4CAF50;
+}
+
+/* Color picker popup styles are already defined in Canvas.css */
