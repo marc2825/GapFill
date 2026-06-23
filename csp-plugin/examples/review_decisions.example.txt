@@ -1,0 +1,4 @@
+# Gap ID = apply | skip | mark_only | unreviewed
+0=apply
+1=skip
+2=mark_only
