@@ -6,6 +6,7 @@ interface UseKeyboardShortcutsParams {
   zoomStep: number;
   blackLightMode: boolean;
   gapFillMode: boolean;
+  overflowFillMode: boolean;
   setBlackLightMode: Dispatch<SetStateAction<boolean>>;
   setZoom: Dispatch<SetStateAction<number>>;
   onUndo: () => Promise<void> | void;
@@ -17,6 +18,7 @@ function useKeyboardShortcuts({
   zoomStep,
   blackLightMode,
   gapFillMode,
+  overflowFillMode,
   setBlackLightMode,
   setZoom,
   onUndo,
@@ -48,7 +50,7 @@ function useKeyboardShortcuts({
             event.preventDefault();
             break;
           case 'b':
-            if (!gapFillMode) {
+            if (!gapFillMode && !overflowFillMode) {
               setBlackLightMode(!blackLightMode);
             }
             event.preventDefault();
@@ -91,7 +93,7 @@ function useKeyboardShortcuts({
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [blackLightMode, gapFillMode, onRedo, onUndo, setBlackLightMode, setZoom, zoom, zoomStep]);
+  }, [blackLightMode, gapFillMode, onRedo, onUndo, overflowFillMode, setBlackLightMode, setZoom, zoom, zoomStep]);
 }
 
 export default useKeyboardShortcuts;

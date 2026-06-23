@@ -4,6 +4,7 @@ import type { GapFillRegion } from '../types/GapFill';
 import { useCanvasInteractions } from '../hooks/useCanvasInteractions';
 import { useCanvasRenderer } from '../hooks/useCanvasRenderer';
 import { useGapDetection } from '../hooks/GapFill/useGapDetection';
+import { useOverflowFill } from '../overflow/useOverflowFill';
 import { GapMagnifier } from './GapFill/GapMagnifier';
 import './Canvas.css';
 
@@ -13,6 +14,10 @@ interface CanvasProps {
   activeTool: string;
   brushSettings: BrushSettings;
   gapFillMode: boolean;
+  overflowFillMode: boolean;
+  overflowLikelihoodThreshold: number;
+  onOverflowStatusChange: (status: string) => void;
+  onOverflowLinkedGapCountChange: (count: number) => void;
   gapFillThreshold: number;
   gapFillTool: string;
   swipeBrushSize: number;
@@ -30,6 +35,7 @@ interface CanvasProps {
   canvasSize: { width: number; height: number };
   highlightColor: string;
   onGapsChange?: (gaps: GapFillRegion[]) => void;
+  historyIndex: number;
   disabled?: boolean;
   isStarted?: boolean;
 }
@@ -40,6 +46,10 @@ const Canvas: FC<CanvasProps> = ({
   activeTool,
   brushSettings,
   gapFillMode,
+  overflowFillMode,
+  overflowLikelihoodThreshold,
+  onOverflowStatusChange,
+  onOverflowLinkedGapCountChange,
   gapFillThreshold,
   gapFillTool,
   swipeBrushSize,
@@ -57,6 +67,7 @@ const Canvas: FC<CanvasProps> = ({
   canvasSize,
   highlightColor,
   onGapsChange,
+  historyIndex,
   disabled = false,
   isStarted = true,
 }) => {
@@ -111,6 +122,19 @@ const Canvas: FC<CanvasProps> = ({
     fallbackColor: brushSettings.color,
     onGapsChange,
   });
+  const overflowFill = useOverflowFill({
+    layers,
+    activeLayerId,
+    enabled: overflowFillMode,
+    gapThreshold: gapFillThreshold,
+    likelihoodThreshold: overflowLikelihoodThreshold,
+    brushSettings,
+    historyIndex,
+    onLayerUpdate,
+    onAddToHistory,
+    onStatusChange: onOverflowStatusChange,
+    onLinkedGapCountChange: onOverflowLinkedGapCountChange,
+  });
   const interaction = useCanvasInteractions({
     canvasRef,
     minimapCanvasRef,
@@ -121,6 +145,10 @@ const Canvas: FC<CanvasProps> = ({
     activeTool,
     brushSettings,
     gapFillMode,
+    overflowFillMode,
+    onOverflowHover: overflowFill.handleHover,
+    onOverflowBucketFill: overflowFill.handleBucketFill,
+    onOverflowStandardBucketFill: overflowFill.handleStandardBucketFill,
     gapFillTool,
     gaps,
     scaledGapRadius,
@@ -152,11 +180,14 @@ const Canvas: FC<CanvasProps> = ({
     pan,
     blackLightMode,
     gapFillMode,
+    overflowFillMode,
     gaps,
     precomputedGapCanvas,
     highlightColor,
     scaledGapRadius,
     hoveredGap: interaction.hoveredGap,
+    overflowHighlightedRegions: overflowFill.highlightedRegions,
+    overflowPropagationFlash: overflowFill.propagationFlash,
     isCtrlBPressed: interaction.isCtrlBPressed,
     swipeGaps: interaction.swipeGaps,
     swipeMode: interaction.swipeMode,
@@ -185,6 +216,7 @@ const Canvas: FC<CanvasProps> = ({
       ref={containerRef}
       data-tool={activeTool}
       data-gapfill={gapFillMode}
+      data-overflow-fill={overflowFillMode}
       data-gapfill-tool={gapFillTool}
       data-swipe-mode={
         interaction.swipeMode && !interaction.colorSelectionMode
@@ -208,6 +240,12 @@ const Canvas: FC<CanvasProps> = ({
         onPointerCancel={interaction.handlePointerCancel}
         onContextMenu={interaction.handleRightClick}
       />
+
+      {overflowFillMode && overflowFill.propagationSuppressed && (
+        <div className="overflow-retry-badge">
+          Undo retry: propagation off
+        </div>
+      )}
       <canvas
         ref={overlayCanvasRef}
         width={viewportSize.width}

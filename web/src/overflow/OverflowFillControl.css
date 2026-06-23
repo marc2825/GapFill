@@ -1,0 +1,77 @@
+.overflow-control {
+  margin-top: 16px;
+  padding: 12px;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: #f0f0f0;
+}
+
+.overflow-toggle-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.overflow-toggle-label {
+  font-weight: 600;
+}
+
+.overflow-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 78px;
+  padding: 6px 10px;
+  border: 1px solid #666;
+  border-radius: 999px;
+  background: #3a3a3a;
+  color: #f0f0f0;
+  cursor: pointer;
+}
+
+.overflow-toggle.active {
+  border-color: #ff6b6b;
+  background: #6b2424;
+}
+
+.overflow-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+
+.overflow-threshold-control {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 5px;
+}
+
+.overflow-threshold-control input {
+  width: 100%;
+}
+
+.overflow-status {
+  padding: 8px;
+  border-radius: 6px;
+  background: #1f1f1f;
+  color: #d8d8d8;
+  line-height: 1.35;
+}
+
+.overflow-hint {
+  color: #bdbdbd;
+  font-size: 12px;
+}
+
+.overflow-warning {
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffd166;
+  font-weight: 600;
+}

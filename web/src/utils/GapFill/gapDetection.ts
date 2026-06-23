@@ -21,7 +21,7 @@ const YIELD_EVERY_PIXELS = 0x40000;
 const ABORT_CHECK_EVERY_PIXELS = 0x10000;
 const YIELD_EVERY_GAP_REGIONS = 64;
 
-interface DetectedGapRegion {
+export interface DetectedGapRegion {
   center: Point;
   pixels: Point[];
   kind: 'transparent' | 'guide';
@@ -118,6 +118,73 @@ async function detectGapRegions(
   return regions;
 }
 
+function buildGapCandidates(
+  pixels: Uint8ClampedArray,
+  width: number,
+  height: number,
+  lineArtCanvas?: HTMLCanvasElement,
+  guidesCanvas?: HTMLCanvasElement,
+): Uint8Array {
+  const lineArtMask = createOpaquePixelMask(width, height, [lineArtCanvas]);
+  const guidesMask = createOpaquePixelMask(width, height, [guidesCanvas]);
+  return buildGapCandidateMap(
+    pixels,
+    lineArtMask,
+    guidesMask,
+  );
+}
+
+async function detectGapRegionsFromPixels(
+  pixels: Uint8ClampedArray,
+  width: number,
+  height: number,
+  threshold: number,
+  lineArtCanvas?: HTMLCanvasElement,
+  guidesCanvas?: HTMLCanvasElement,
+  signal?: AbortSignal,
+): Promise<DetectedGapRegion[]> {
+  const candidates = buildGapCandidates(
+    pixels,
+    width,
+    height,
+    lineArtCanvas,
+    guidesCanvas,
+  );
+
+  return detectGapRegions(
+    candidates,
+    width,
+    height,
+    Math.max(0, Math.floor(threshold)),
+    signal,
+  );
+}
+
+export async function detectGapRegionsForCanvas(
+  canvas: HTMLCanvasElement,
+  threshold: number,
+  lineArtCanvas?: HTMLCanvasElement,
+  guidesCanvas?: HTMLCanvasElement,
+  signal?: AbortSignal,
+): Promise<DetectedGapRegion[]> {
+  throwIfAborted(signal);
+
+  const context = canvas.getContext('2d');
+  if (!context) return [];
+
+  const { width, height } = canvas;
+  const imageData = context.getImageData(0, 0, width, height);
+  return detectGapRegionsFromPixels(
+    imageData.data,
+    width,
+    height,
+    threshold,
+    lineArtCanvas,
+    guidesCanvas,
+    signal,
+  );
+}
+
 async function predictGapColor({
   canvas,
   lineArtCanvas,
@@ -202,20 +269,14 @@ export async function detectGaps(
   const pixels = imageData.data;
   const width = canvas.width;
   const height = canvas.height;
-  const maxRegionSize = Math.max(0, Math.floor(threshold));
   const fallback = resolveGapFillFallbackColor(fallbackColor);
-  const lineArtMask = createOpaquePixelMask(width, height, [lineArtCanvas]);
-  const guidesMask = createOpaquePixelMask(width, height, [guidesCanvas]);
-  const candidates = buildGapCandidateMap(
+  const regions = await detectGapRegionsFromPixels(
     pixels,
-    lineArtMask,
-    guidesMask,
-  );
-  const regions = await detectGapRegions(
-    candidates,
     width,
     height,
-    maxRegionSize,
+    threshold,
+    lineArtCanvas,
+    guidesCanvas,
     signal,
   );
 

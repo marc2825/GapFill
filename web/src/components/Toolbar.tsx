@@ -14,6 +14,7 @@ interface ToolbarProps {
   blackLightMode: boolean;
   onBlackLightToggle: () => void;
   gapFillMode: boolean;
+  overflowFillMode?: boolean;
   showEncloseAndFill?: boolean;
   showLeftoverPen?: boolean;
   showBucketTool?: boolean;
@@ -51,6 +52,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
   blackLightMode,
   onBlackLightToggle,
   gapFillMode,
+  overflowFillMode = false,
   showEncloseAndFill = true,
   showLeftoverPen = true,
   showBucketTool = true,
@@ -92,13 +94,21 @@ const Toolbar: React.FC<ToolbarProps> = ({
           }
           
           const toolId = tool.id;
+          const toolsDisabled = gapFillMode || overflowFillMode;
+          const isOverflowBucket = overflowFillMode && toolId === 'fill';
           return (
             <div key={tool.id} className="tool-button-wrapper">
               <button
-                className={`tool-button ${activeTool === toolId ? 'active' : ''} ${gapFillMode ? 'disabled' : ''}`}
-                onClick={() => !gapFillMode && onToolChange(toolId)}
-                title={gapFillMode ? 'Disabled in GapFill Mode' : tool.name}
-                disabled={gapFillMode}
+                className={`tool-button ${(activeTool === toolId || isOverflowBucket) ? 'active' : ''} ${toolsDisabled ? 'disabled' : ''}`}
+                onClick={() => !toolsDisabled && onToolChange(toolId)}
+                title={
+                  gapFillMode
+                    ? 'Disabled in GapFill Mode'
+                    : overflowFillMode
+                      ? 'Paint Bucket is fixed in Overflow Fill'
+                      : tool.name
+                }
+                disabled={toolsDisabled}
               >
                 <span className="tool-icon">{tool.icon}</span>
               </button>
@@ -178,7 +188,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
               className={`horizontal-switch ${blackLightMode ? 'active' : ''}`}
               onClick={onBlackLightToggle}
               title={`Black Light Mode (${(shortcuts.blackLight && shortcuts.blackLight[0]) ? shortcuts.blackLight[0] : 'Ctrl+B'})`}
-              disabled={gapFillMode}
+              disabled={gapFillMode || overflowFillMode}
             >
               <div className="switch-track">
                 <div className="switch-thumb"></div>

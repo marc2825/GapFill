@@ -5,6 +5,7 @@ interface UseCanvasNavigationOptions {
   canvasRef: RefObject<HTMLCanvasElement | null>;
   containerRef: RefObject<HTMLDivElement | null>;
   gapFillMode: boolean;
+  overflowFillMode?: boolean;
   screenMousePosition: Point | null;
   zoom: number;
   pan: Point;
@@ -25,6 +26,7 @@ export function useCanvasNavigation({
   canvasRef,
   containerRef,
   gapFillMode,
+  overflowFillMode = false,
   screenMousePosition,
   zoom,
   pan,
@@ -104,6 +106,7 @@ export function useCanvasNavigation({
 
       if (
         !gapFillMode &&
+        !overflowFillMode &&
         !event.ctrlKey &&
         !event.metaKey &&
         !event.altKey
@@ -147,6 +150,7 @@ export function useCanvasNavigation({
     onPanChange,
     onToolChange,
     onZoomChange,
+    overflowFillMode,
     pan,
     screenMousePosition,
     zoom,

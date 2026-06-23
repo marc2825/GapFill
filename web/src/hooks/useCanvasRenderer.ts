@@ -2,6 +2,11 @@ import { useEffect, useRef } from 'react';
 import type { RefObject } from 'react';
 import type { Layer, Point } from '../types';
 import type { GapFillRegion } from '../types/GapFill';
+import type { OverflowPropagationFlash } from '../overflow/types';
+import {
+  drawOverflowRegionBoundary,
+  drawOverflowRegionFlash,
+} from '../overflow/rendering';
 
 interface CanvasRendererOptions {
   canvasRef: RefObject<HTMLCanvasElement | null>;
@@ -16,11 +21,14 @@ interface CanvasRendererOptions {
   pan: Point;
   blackLightMode: boolean;
   gapFillMode: boolean;
+  overflowFillMode: boolean;
   gaps: GapFillRegion[];
   precomputedGapCanvas: HTMLCanvasElement | null;
   highlightColor: string;
   scaledGapRadius: number;
   hoveredGap: GapFillRegion | null;
+  overflowHighlightedRegions: Point[][];
+  overflowPropagationFlash: OverflowPropagationFlash | null;
   isCtrlBPressed: boolean;
   swipeGaps: Set<string>;
   swipeMode: boolean;
@@ -239,6 +247,35 @@ function drawGapOverlay(options: CanvasRendererOptions): void {
     });
   }
 
+  if (
+    options.overflowFillMode &&
+    options.overflowHighlightedRegions.length > 0 &&
+    !options.isCtrlBPressed
+  ) {
+    for (const region of options.overflowHighlightedRegions) {
+      drawOverflowRegionBoundary(
+        overlayContext,
+        region,
+        options.highlightColor,
+        Math.max(1 / options.zoom, 1.25 / Math.sqrt(options.zoom)),
+      );
+    }
+  }
+
+  if (
+    options.overflowFillMode &&
+    options.overflowPropagationFlash?.visible &&
+    !options.isCtrlBPressed
+  ) {
+    for (const region of options.overflowPropagationFlash.regions) {
+      drawOverflowRegionFlash(
+        overlayContext,
+        region,
+        Math.max(1 / options.zoom, 1.4 / Math.sqrt(options.zoom)),
+      );
+    }
+  }
+
   if (options.swipePath.length > 1) {
     overlayContext.strokeStyle = 'rgba(255, 255, 0, 0.3)';
     overlayContext.lineWidth = options.swipeBrushSize;
@@ -411,6 +448,7 @@ export function useCanvasRenderer(options: CanvasRendererOptions): void {
     options.canvasSize,
     options.colorSelectionMode,
     options.gapFillMode,
+    options.overflowFillMode,
     options.leftoverPenPath,
     options.gaps,
     options.highlightColor,
@@ -419,6 +457,8 @@ export function useCanvasRenderer(options: CanvasRendererOptions): void {
     options.isDrawing,
     options.encloseAndFillPath,
     options.pan,
+    options.overflowHighlightedRegions,
+    options.overflowPropagationFlash,
     options.scaledGapRadius,
     options.swipeBrushSize,
     options.swipeGaps,

@@ -228,3 +228,16 @@ Preview the resulting static site locally:
 ```bash
 npm run preview -- --host 0.0.0.0
 ```
+
+## Hosted Demos
+
+- [GapFill Web Demo](https://gapfill-refactored.marckono2825-033.workers.dev/)
+- [Overflow Flood Fill Experimental Demo](https://overflow-floodfill-v1.marckono2825-033.workers.dev/)
+
+### GapFill Preview
+
+![GapFill UI preview](../docs/images/GapFill_UI_preview.gif)
+
+### Overflow Flood Fill Preview
+
+![Overflow Flood Fill preview](../docs/images/overflow_floodfill_preview.gif)

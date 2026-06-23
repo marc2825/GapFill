@@ -10,7 +10,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "test": "node --experimental-strip-types --test src/tests/*.test.mjs src/tests/GapFill/*.test.mjs",
+    "test": "node --experimental-strip-types --test src/tests/*.test.mjs src/tests/GapFill/*.test.mjs src/tests/overflow/*.test.mjs",
     "check:preset-assets": "node --experimental-strip-types scripts/check-preset-assets.mjs",
     "check:image-metadata": "node scripts/check-image-metadata.mjs",
     "preview": "vite preview",

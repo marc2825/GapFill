@@ -16,6 +16,10 @@ interface UseCanvasInteractionsOptions {
   activeTool: string;
   brushSettings: BrushSettings;
   gapFillMode: boolean;
+  overflowFillMode: boolean;
+  onOverflowHover: (point: Point) => void;
+  onOverflowBucketFill: (point: Point) => boolean;
+  onOverflowStandardBucketFill: () => void;
   gapFillTool: string;
   gaps: GapFillRegion[];
   scaledGapRadius: number;
@@ -78,6 +82,10 @@ export function useCanvasInteractions({
   activeTool,
   brushSettings,
   gapFillMode,
+  overflowFillMode,
+  onOverflowHover,
+  onOverflowBucketFill,
+  onOverflowStandardBucketFill,
   gapFillTool,
   gaps,
   scaledGapRadius,
@@ -133,6 +141,7 @@ export function useCanvasInteractions({
       canvasRef,
       containerRef,
       gapFillMode,
+      overflowFillMode,
       screenMousePosition,
       zoom,
       pan,
@@ -262,6 +271,39 @@ export function useCanvasInteractions({
     onAddToHistory([activeLayerId]);
   };
 
+  const fillBucketAtPoint = (point: Point): boolean => {
+    if (!activeLayerId) return false;
+
+    const activeLayer = layers.find((layer) => layer.id === activeLayerId);
+    if (!activeLayer) return false;
+
+    const fillColor =
+      brushSettings.color === 'transparent'
+        ? 'rgba(0,0,0,0)'
+        : brushSettings.color;
+
+    if (fillMultiLayer) {
+      floodFillWithReference(
+        activeLayer.canvas,
+        createCompositeCanvas(layers, canvasSize),
+        Math.round(point.x),
+        Math.round(point.y),
+        fillColor,
+      );
+    } else {
+      floodFill(
+        activeLayer.canvas,
+        Math.round(point.x),
+        Math.round(point.y),
+        fillColor,
+      );
+    }
+
+    onLayerUpdate(activeLayerId, activeLayer.canvas);
+    onAddToHistory([activeLayerId]);
+    return true;
+  };
+
   const handleRightClick = (
     event: ReactMouseEvent<HTMLCanvasElement>,
   ) => {
@@ -299,7 +341,7 @@ export function useCanvasInteractions({
 
     if (
       isSpacePressed ||
-      (activeTool === 'move' && !gapFillMode && !isZKeyPressed) ||
+      (activeTool === 'move' && !gapFillMode && !overflowFillMode && !isZKeyPressed) ||
       (gapFillMode &&
         gapFillTool === 'move' &&
         !isSpacePressed &&
@@ -312,7 +354,7 @@ export function useCanvasInteractions({
 
     if (
       isZKeyPressed ||
-      (activeTool === 'zoom' && !gapFillMode && !isSpacePressed) ||
+      (activeTool === 'zoom' && !gapFillMode && !overflowFillMode && !isSpacePressed) ||
       (gapFillMode && gapFillTool === 'zoom' && !isSpacePressed)
     ) {
       setIsZooming(true);
@@ -362,6 +404,16 @@ export function useCanvasInteractions({
 
     if (gapFillMode) return;
 
+    if (overflowFillMode) {
+      if (!onOverflowBucketFill(point)) {
+        const filled = fillBucketAtPoint(point);
+        if (filled) {
+          onOverflowStandardBucketFill();
+        }
+      }
+      return;
+    }
+
     if (activeTool === 'enclose-and-fill' && !colorSelectionMode) {
       setEncloseAndFillPath([point]);
       setIsDrawing(true);
@@ -377,32 +429,8 @@ export function useCanvasInteractions({
     setIsDrawing(true);
     setLastPoint(point);
 
-    if (activeTool === 'fill' && activeLayerId) {
-      const activeLayer = layers.find((layer) => layer.id === activeLayerId);
-      if (activeLayer) {
-        const fillColor =
-          brushSettings.color === 'transparent'
-            ? 'rgba(0,0,0,0)'
-            : brushSettings.color;
-        if (fillMultiLayer) {
-          floodFillWithReference(
-            activeLayer.canvas,
-            createCompositeCanvas(layers, canvasSize),
-            Math.round(point.x),
-            Math.round(point.y),
-            fillColor,
-          );
-        } else {
-          floodFill(
-            activeLayer.canvas,
-            Math.round(point.x),
-            Math.round(point.y),
-            fillColor,
-          );
-        }
-        onLayerUpdate(activeLayerId, activeLayer.canvas);
-        onAddToHistory([activeLayerId]);
-      }
+    if (activeTool === 'fill') {
+      fillBucketAtPoint(point);
     }
 
     if (activeTool === 'colorpicker') {
@@ -603,6 +631,10 @@ export function useCanvasInteractions({
           );
         }) || null;
       setHoveredGap(overGap);
+    }
+
+    if (overflowFillMode && !gapFillMode) {
+      onOverflowHover(point);
     }
 
     if (!isDrawing || !activeLayerId) return;

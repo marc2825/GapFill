@@ -32,17 +32,6 @@ for installation, data preparation, and usage instructions.
 | Web application (`web/`) | Interactive GapFill interface for detecting, inspecting, and filling gaps | [Web application README](web/README.md) |
 | Machine-learning pipeline (`ml/`) | Data preprocessing, model training, evaluation, and visualization | [ML pipeline README](ml/README.md) |
 
-## Notes on the Released Version
-
-The model distributed with this repository was retrained after the paper was
-submitted and achieved a small improvement in prediction accuracy. As a
-result, its predictions may be slightly better than those produced by the
-version used in the user study, particularly for Task B (previous 'wrong prediction').
-
-The codebase was also refactored in preparation for its public release. If you
-encounter any unexpected behavior or discrepancies, please do not hesitate to
-report them through [GitHub Issues](https://github.com/marc2825/GapFill/issues).
-
 ## Citation
 
 If you use GapFill in your research, please cite our paper:
@@ -60,6 +49,32 @@ If you use GapFill in your research, please cite our paper:
 ```
 
 Machine-readable citation metadata is available in [CITATION.cff](CITATION.cff).
+
+## Scope and Assumptions
+
+The released GapFill web demo currently targets **clean binary line art without
+anti-aliasing**. In practice, Line Art and Guides are expected to be transparent
+background layers whose visible pixels form crisp boundaries, and the active
+Coloring layer is expected to keep unpainted regions transparent.
+
+The following extensions are under active development and should be treated as
+experimental:
+
+- Krita add-on
+- CLIP STUDIO PAINT add-on
+- Overflow Flood Fill (Variation of GapFill)
+- Anti-aliased line-art support
+
+## Notes on the Released Version
+
+The model distributed with this repository was retrained after the paper was
+submitted and achieved a small improvement in prediction accuracy. As a
+result, its predictions may be slightly better than those produced by the
+version used in the user study, particularly for Task B (previous 'wrong prediction').
+
+The codebase was also refactored in preparation for its public release. If you
+encounter any unexpected behavior or discrepancies, please do not hesitate to
+report them through [GitHub Issues](https://github.com/marc2825/GapFill/issues).
 
 ## Image and Dataset Availability
 

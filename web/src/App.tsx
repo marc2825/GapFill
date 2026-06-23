@@ -34,6 +34,12 @@ function App() {
   });
   const [previousColor, setPreviousColor] = useState('#000000');
   const [blackLightMode, setBlackLightMode] = useState(false);
+  const [overflowFillMode, setOverflowFillMode] = useState(false);
+  const [overflowLikelihoodThreshold, setOverflowLikelihoodThreshold] =
+    useState(0.15);
+  const [overflowStatus, setOverflowStatus] =
+    useState('Overflow Fill off');
+  const [overflowLinkedGapCount, setOverflowLinkedGapCount] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState<Point>({ x: 0, y: 0 });
   const [referenceImage, setReferenceImage] = useState<string | null>(null);
@@ -183,6 +189,7 @@ function App() {
     zoomStep,
     blackLightMode,
     gapFillMode,
+    overflowFillMode,
     setBlackLightMode,
     setZoom,
     onUndo: undo,
@@ -268,14 +275,36 @@ function App() {
         }}
         blackLightMode={blackLightMode}
         onBlackLightToggle={() => {
-          if (!gapFillMode) {
+          if (!gapFillMode && !overflowFillMode) {
             setBlackLightMode(!blackLightMode);
           }
         }}
         gapFillMode={gapFillMode}
+        overflowFillMode={overflowFillMode}
+        overflowLikelihoodThreshold={overflowLikelihoodThreshold}
+        overflowStatus={overflowStatus}
+        overflowLinkedGapCount={overflowLinkedGapCount}
+        onOverflowFillToggle={() => {
+          setOverflowFillMode((currentMode) => {
+            const nextMode = !currentMode;
+            if (nextMode) {
+              setGapFillMode(false);
+              setActiveTool('fill');
+            }
+            return nextMode;
+          });
+        }}
+        onOverflowLikelihoodThresholdChange={setOverflowLikelihoodThreshold}
+        onOverflowStatusChange={setOverflowStatus}
+        onOverflowLinkedGapCountChange={setOverflowLinkedGapCount}
         shortcuts={shortcuts}
         gapFillThreshold={gapFillThreshold}
-        onGapFillToggle={handleGapFillToggle}
+        onGapFillToggle={() => {
+          if (!gapFillMode) {
+            setOverflowFillMode(false);
+          }
+          handleGapFillToggle();
+        }}
         onGapFillThresholdChange={setGapFillThreshold}
         onGapFillApplyAll={handleGapFillApplyAll}
         gapCount={currentGaps.length}
@@ -295,6 +324,7 @@ function App() {
         onZoomChange={setZoom}
         onPanChange={setPan}
         onAddToHistory={addToHistory}
+        historyIndex={historyIndex}
         onColorPick={(color: string) => setBrushSettings({ ...brushSettings, color })}
         fillMultiLayer={fillMultiLayer}
         onFillMultiLayerChange={setFillMultiLayer}

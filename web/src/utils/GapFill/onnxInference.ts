@@ -31,6 +31,27 @@ interface PredictColorParams {
   fallbackColor: string;
 }
 
+interface PredictProbabilityMapParams {
+  lineArtCanvas: HTMLCanvasElement;
+  guidesCanvas: HTMLCanvasElement;
+  coloredCanvas: HTMLCanvasElement;
+  gapCenter: { x: number; y: number };
+  gapPixels?: Array<{ x: number; y: number }>;
+  targetIsGuideGap?: boolean;
+}
+
+export interface ProbabilityMapInference {
+  probabilityMap: Float32Array;
+  patchBounds: ReturnType<typeof calculateCenteredPatchBounds>;
+  patchSize: number;
+}
+
+interface ProbabilityMapInferenceWithPatches extends ProbabilityMapInference {
+  coloredImageData: ReturnType<typeof extractCanvasPatchWithBounds>;
+  lineImageData: ReturnType<typeof extractCanvasPatchWithBounds>;
+  effectiveGuidesImageData: ReturnType<typeof extractCanvasPatchWithBounds>;
+}
+
 export class ONNXModelLoadError extends Error {
   constructor(cause: unknown) {
     super(
@@ -99,6 +120,121 @@ function loadModel(): Promise<OrtType.InferenceSession> {
   return modelLoadPromise;
 }
 
+async function runProbabilityMapInference({
+  lineArtCanvas,
+  guidesCanvas,
+  coloredCanvas,
+  gapCenter,
+  gapPixels,
+  targetIsGuideGap = false,
+}: PredictProbabilityMapParams): Promise<ProbabilityMapInferenceWithPatches> {
+  assertMatchingCanvasDimensions(
+    lineArtCanvas,
+    guidesCanvas,
+    coloredCanvas,
+  );
+
+  const session = modelSession || await loadModel();
+
+  const { x: cx, y: cy } = gapCenter;
+  const patchBounds = calculateCenteredPatchBounds(
+    coloredCanvas.width,
+    coloredCanvas.height,
+    cx,
+    cy,
+    MODEL_PATCH_SIZE,
+  );
+
+  // Keep the target gap at patch coordinate (16, 16), including near canvas
+  // edges, and zero-pad every part of the virtual patch outside each canvas.
+  const lineImageData = extractCanvasPatchWithBounds(
+    lineArtCanvas,
+    patchBounds,
+    MODEL_PATCH_SIZE,
+  );
+  const guidesImageData = extractCanvasPatchWithBounds(
+    guidesCanvas,
+    patchBounds,
+    MODEL_PATCH_SIZE,
+  );
+  const coloredImageData = extractCanvasPatchWithBounds(
+    coloredCanvas,
+    patchBounds,
+    MODEL_PATCH_SIZE,
+  );
+
+  const patchPixelCount = MODEL_PATCH_SIZE * MODEL_PATCH_SIZE;
+  const lineMask = new Float32Array(patchPixelCount);
+  const gapMask = buildGapMaskForPatch(
+    coloredImageData,
+    patchBounds,
+    { x: cx, y: cy },
+    gapPixels,
+  );
+  // A Guide gap is a transparent Coloring region above a visible Guide.
+  // Remove only that target from the Guide mask during prediction; all
+  // other Guide pixels remain boundaries.
+  const effectiveGuidesImageData = targetIsGuideGap
+    ? excludeTargetGapFromGuides(guidesImageData, gapMask)
+    : guidesImageData;
+
+  for (let i = 0; i < patchPixelCount; i++) {
+    const pixelIdx = i * 4;
+    const lineAlpha = lineImageData.data[pixelIdx + 3];
+    const guidesAlpha = effectiveGuidesImageData.data[pixelIdx + 3];
+    lineMask[i] = (lineAlpha > 0 || guidesAlpha > 0) ? 1.0 : 0.0;
+  }
+
+  const inputData = new Float32Array(MODEL_INPUT_CHANNELS * patchPixelCount);
+  for (let i = 0; i < patchPixelCount; i++) {
+    inputData[i] = lineMask[i];
+    inputData[patchPixelCount + i] = gapMask[i];
+  }
+
+  const inputTensor = new ort.Tensor('float32', inputData, [
+    1,
+    MODEL_INPUT_CHANNELS,
+    MODEL_PATCH_SIZE,
+    MODEL_PATCH_SIZE,
+  ]);
+
+  const feeds: Record<string, OrtType.Tensor> = {};
+  feeds[session.inputNames[0]] = inputTensor;
+
+  const outputMap = await session.run(feeds);
+  const outputTensor = outputMap[session.outputNames[0]];
+
+  if (!outputTensor) {
+    throw new Error('ONNX inference failed: no output tensor');
+  }
+
+  return {
+    probabilityMap: getValidatedProbabilityMap(
+      outputTensor.data,
+      outputTensor.dims,
+      [1, MODEL_OUTPUT_CHANNELS, MODEL_PATCH_SIZE, MODEL_PATCH_SIZE],
+    ),
+    patchBounds,
+    patchSize: MODEL_PATCH_SIZE,
+    coloredImageData,
+    lineImageData,
+    effectiveGuidesImageData,
+  };
+}
+
+export async function predictProbabilityMapWithONNX(
+  params: PredictProbabilityMapParams,
+): Promise<ProbabilityMapInference> {
+  try {
+    const { probabilityMap, patchBounds, patchSize } =
+      await runProbabilityMapInference(params);
+    return { probabilityMap, patchBounds, patchSize };
+  } catch (error) {
+    errorInDev('ONNX probability-map inference error:', error);
+    throw error;
+  }
+}
+
 // Implementation of Paper Sec. 4.1.2 and 4.2.1:
 // compute the suggested color shown by the UI using region correspondence.
 export async function predictColorWithONNX({
@@ -111,122 +247,19 @@ export async function predictColorWithONNX({
   fallbackColor
 }: PredictColorParams): Promise<string> {
   try {
-    assertMatchingCanvasDimensions(
-      lineArtCanvas,
-      guidesCanvas,
-      coloredCanvas,
-    );
-
-    const session = modelSession || await loadModel();
-    
-    const { x: cx, y: cy } = gapCenter;
-    const patchBounds = calculateCenteredPatchBounds(
-      coloredCanvas.width,
-      coloredCanvas.height,
-      cx,
-      cy,
-      MODEL_PATCH_SIZE,
-    );
-
-    // Implementation of Paper Sec. 4.1.2 and 4.2.1:
-    // keep the target gap at patch coordinate (16, 16), including near canvas
-    // edges, and zero-pad every part of the virtual patch outside each canvas.
-    const lineImageData = extractCanvasPatchWithBounds(
-      lineArtCanvas,
-      patchBounds,
-      MODEL_PATCH_SIZE,
-    );
-    const guidesImageData = extractCanvasPatchWithBounds(
-      guidesCanvas,
-      patchBounds,
-      MODEL_PATCH_SIZE,
-    );
-    const coloredImageData = extractCanvasPatchWithBounds(
-      coloredCanvas,
-      patchBounds,
-      MODEL_PATCH_SIZE,
-    );
-    
-    // Create binary masks
-    const patchPixelCount = MODEL_PATCH_SIZE * MODEL_PATCH_SIZE;
-    const lineMask = new Float32Array(patchPixelCount);
-    const gapMask = buildGapMaskForPatch(
+    const {
+      probabilityMap,
       coloredImageData,
-      patchBounds,
-      { x: cx, y: cy },
+      lineImageData,
+      effectiveGuidesImageData,
+    } = await runProbabilityMapInference({
+      lineArtCanvas,
+      guidesCanvas,
+      coloredCanvas,
+      gapCenter,
       gapPixels,
-    );
-    // A Guide gap is a transparent Coloring region above a visible Guide.
-    // Remove only that target from the Guide mask during prediction; all
-    // other Guide pixels remain boundaries.
-    const effectiveGuidesImageData = targetIsGuideGap
-      ? excludeTargetGapFromGuides(guidesImageData, gapMask)
-      : guidesImageData;
-    
-    for (let i = 0; i < patchPixelCount; i++) {
-      const pixelIdx = i * 4;
-      
-      // Line mask: 1 where there are non-transparent pixels in either Line Art OR Guides, 0 where both are transparent
-      const lineAlpha = lineImageData.data[pixelIdx + 3];
-      const guidesAlpha = effectiveGuidesImageData.data[pixelIdx + 3];
-      lineMask[i] = (lineAlpha > 0 || guidesAlpha > 0) ? 1.0 : 0.0;
-    }
-    
-    // Prepare input tensor: [1, 2, 32, 32]
-    const inputData = new Float32Array(MODEL_INPUT_CHANNELS * patchPixelCount);
-    
-    // Channel 0: line mask
-    for (let i = 0; i < patchPixelCount; i++) {
-      inputData[i] = lineMask[i];
-    }
-    
-    // Channel 1: gap mask
-    for (let i = 0; i < patchPixelCount; i++) {
-      inputData[patchPixelCount + i] = gapMask[i];
-    }
-    
-    const inputTensor = new ort.Tensor('float32', inputData, [
-      1,
-      MODEL_INPUT_CHANNELS,
-      MODEL_PATCH_SIZE,
-      MODEL_PATCH_SIZE,
-    ]);
-    
-    // Run inference
-    const feeds: Record<string, OrtType.Tensor> = {};
-    const inputName = session.inputNames[0];
-    feeds[inputName] = inputTensor;
-    
-    // console.log('ONNX Model inference:', {
-    //   inputName,
-    //   inputShape: inputTensor.dims,
-    //   gapCenter,
-    //   patchBounds: {
-    //     xStart: patchBounds.virtualX,
-    //     yStart: patchBounds.virtualY,
-    //     size: patchSize
-    //   }
-    // });
-    
-    const outputMap = await session.run(feeds);
-    const outputName = session.outputNames[0];
-    const outputTensor = outputMap[outputName];
-    
-    if (!outputTensor) {
-      throw new Error('ONNX inference failed: no output tensor');
-    }
-    const probMap = getValidatedProbabilityMap(
-      outputTensor.data,
-      outputTensor.dims,
-      [1, MODEL_OUTPUT_CHANNELS, MODEL_PATCH_SIZE, MODEL_PATCH_SIZE],
-    );
-    
-    // console.log('ONNX Model output:', {
-    //   outputName,
-    //   outputShape: outputTensor.dims,
-    //   probMapLength: probMap.length,
-    //   probMapSample: [probMap[0], probMap[100], probMap[500]].map(v => v?.toFixed(3))
-    // });
+      targetIsGuideGap,
+    });
     
     // Segment painted regions without crossing Line Art or Guides, select the
     // region with the highest mean model probability, then use its modal color.
@@ -239,7 +272,7 @@ export async function predictColorWithONNX({
       coloredImageData,
       segmentation.labels,
       segmentation.regionCount,
-      probMap,
+      probabilityMap,
       fallbackColor
     );
     

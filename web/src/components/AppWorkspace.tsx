@@ -8,6 +8,7 @@ import type { GapFillRegion } from '../types/GapFill';
 import type { ImagePreset } from '../config/presets';
 import type { ShortcutConfig } from '../types/shortcuts';
 import GapFillPanel from './GapFill/GapFillPanel';
+import OverflowFillControl from '../overflow/OverflowFillControl';
 
 interface AppWorkspaceProps {
   selectedPreset: string;
@@ -22,6 +23,14 @@ interface AppWorkspaceProps {
   blackLightMode: boolean;
   onBlackLightToggle: () => void;
   gapFillMode: boolean;
+  overflowFillMode: boolean;
+  overflowLikelihoodThreshold: number;
+  overflowStatus: string;
+  overflowLinkedGapCount: number;
+  onOverflowFillToggle: () => void;
+  onOverflowLikelihoodThresholdChange: (threshold: number) => void;
+  onOverflowStatusChange: (status: string) => void;
+  onOverflowLinkedGapCountChange: (count: number) => void;
   shortcuts: ShortcutConfig;
 
   gapFillThreshold: number;
@@ -47,6 +56,7 @@ interface AppWorkspaceProps {
   onZoomChange: (zoom: number) => void;
   onPanChange: (pan: Point) => void;
   onAddToHistory: AddToHistory;
+  historyIndex: number;
   onColorPick: (color: string) => void;
   fillMultiLayer: boolean;
   onFillMultiLayerChange: (enabled: boolean) => void;
@@ -71,6 +81,14 @@ function AppWorkspace({
   blackLightMode,
   onBlackLightToggle,
   gapFillMode,
+  overflowFillMode,
+  overflowLikelihoodThreshold,
+  overflowStatus,
+  overflowLinkedGapCount,
+  onOverflowFillToggle,
+  onOverflowLikelihoodThresholdChange,
+  onOverflowStatusChange,
+  onOverflowLinkedGapCountChange,
   shortcuts,
   gapFillThreshold,
   onGapFillToggle,
@@ -93,6 +111,7 @@ function AppWorkspace({
   onZoomChange,
   onPanChange,
   onAddToHistory,
+  historyIndex,
   onColorPick,
   fillMultiLayer,
   onFillMultiLayerChange,
@@ -120,6 +139,7 @@ function AppWorkspace({
         blackLightMode={blackLightMode}
         onBlackLightToggle={onBlackLightToggle}
         gapFillMode={gapFillMode}
+        overflowFillMode={overflowFillMode}
         showEncloseAndFill={currentPresetConfig?.enableEncloseAndFill !== false}
         showLeftoverPen={currentPresetConfig?.enableLeftoverPen !== false}
         showBucketTool={currentPresetConfig?.enableBucketTool !== false}
@@ -149,6 +169,15 @@ function AppWorkspace({
               highlightColor={highlightColor}
               onHighlightColorChange={onHighlightColorChange}
             />
+            <OverflowFillControl
+              enabled={overflowFillMode}
+              onToggle={onOverflowFillToggle}
+              likelihoodThreshold={overflowLikelihoodThreshold}
+              onLikelihoodThresholdChange={onOverflowLikelihoodThresholdChange}
+              status={overflowStatus}
+              linkedGapCount={overflowLinkedGapCount}
+              propagationSuppressed={overflowStatus.includes('Undo detected')}
+            />
           </div>
           <div className="resize-handle resize-handle-right"></div>
         </div>
@@ -165,6 +194,10 @@ function AppWorkspace({
             activeTool={activeTool}
             brushSettings={brushSettings}
             gapFillMode={gapFillMode}
+            overflowFillMode={overflowFillMode}
+            overflowLikelihoodThreshold={overflowLikelihoodThreshold}
+            onOverflowStatusChange={onOverflowStatusChange}
+            onOverflowLinkedGapCountChange={onOverflowLinkedGapCountChange}
             gapFillThreshold={gapFillThreshold}
             gapFillTool={gapFillTool}
             swipeBrushSize={swipeBrushSize}
@@ -182,6 +215,7 @@ function AppWorkspace({
             canvasSize={canvasSize}
             highlightColor={highlightColor}
             onGapsChange={onGapsChange}
+            historyIndex={historyIndex}
             disabled={selectedPreset !== 'debug' && (!isStarted || isDone)}
             isStarted={isStarted}
           />
