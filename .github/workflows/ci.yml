@@ -87,3 +87,20 @@ jobs:
         run: |
           unzip -t krita-plugin/dist/gapfill-krita.zip
           unzip -l krita-plugin/dist/gapfill-krita.zip | grep -q 'gapfill_krita/resources/models/unet32.onnx'
+
+  csp-core:
+    name: CSP Gap Assist core
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S csp-plugin -B csp-plugin/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build csp-plugin/build --config Release --parallel 2
+
+      - name: Run core and PNG end-to-end tests
+        run: ctest --test-dir csp-plugin/build -C Release --output-on-failure

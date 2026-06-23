@@ -1,0 +1,50 @@
+name: Build CSP Gap Assist core bundles
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "csp-v*"
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    name: ${{ matrix.platform }} core bundle
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x86_64
+          - os: windows-latest
+            platform: windows-x86_64
+          - os: macos-15
+            platform: macos-arm64
+          - os: macos-15-intel
+            platform: macos-x86_64
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S csp-plugin -B csp-plugin/build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build csp-plugin/build --config Release --parallel 2
+
+      - name: Test
+        run: ctest --test-dir csp-plugin/build -C Release --output-on-failure
+
+      - name: Stage SDK-independent harness
+        run: cmake --install csp-plugin/build --config Release --prefix csp-plugin/dist/gap-assist-csp-core
+
+      - name: Upload core bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: gap-assist-csp-core-${{ matrix.platform }}
+          path: csp-plugin/dist/gap-assist-csp-core
+          if-no-files-found: error
