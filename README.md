@@ -32,6 +32,14 @@ for installation, data preparation, and usage instructions.
 | Web application (`web/`) | Interactive GapFill interface for detecting, inspecting, and filling gaps | [Web application README](web/README.md) |
 | Machine-learning pipeline (`ml/`) | Data preprocessing, model training, evaluation, and visualization | [ML pipeline README](ml/README.md) |
 
+
+## Development Branches
+
+Other branches in this repository contain work in progress and may be incomplete or unstable.
+
+For a preview of **Overflow Flood Fill**, an experimental UI variant that uses the same GapFill model, see the [Overflow Flood Fill Preview](https://github.com/marc2825/GapFill/tree/feature/overflow-floodfill/web#overflow-flood-fill-preview).
+
+
 ## Notes on the Released Version
 
 The model distributed with this repository was retrained after the paper was
