@@ -10,7 +10,7 @@ CORE_SOURCES := $(wildcard src/core/*.cpp) \
 
 .PHONY: all test test-e2e clean
 
-all: build/gap_assist_cli build/gap_assist_tests build/gap_assist_host_contract_probe
+all: build/gap_assist_cli build/gap_assist_tests build/gap_assist_phase2_fixtures build/gap_assist_host_contract_probe
 
 build:
 	mkdir -p build
@@ -24,14 +24,18 @@ build/gap_assist_cli: $(CORE_SOURCES) src/cli/main.cpp build/lodepng.o | build
 build/gap_assist_tests: $(CORE_SOURCES) tests/test_main.cpp build/lodepng.o | build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
+build/gap_assist_phase2_fixtures: $(CORE_SOURCES) ../tests/parity/csp_phase2_fixture_reader.cpp build/lodepng.o | build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+
 build/gap_assist_host_contract_probe: $(CORE_SOURCES) src/plugin_entry/host_contract_probe.cpp build/lodepng.o | build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 build/gap_assist_cli_fixture: src/io/png_io.cpp tests/cli_fixture.cpp build/lodepng.o | build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
-test: build/gap_assist_tests
+test: build/gap_assist_tests build/gap_assist_phase2_fixtures
 	./build/gap_assist_tests
+	./build/gap_assist_phase2_fixtures ../tests/fixtures/gapfill/parity/csp_detection_current.csv
 
 test-e2e: all build/gap_assist_cli_fixture
 	./build/gap_assist_cli_fixture create build/e2e/input.png

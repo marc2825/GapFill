@@ -8,6 +8,33 @@ permissions:
   contents: read
 
 jobs:
+  gapfill-reference:
+    name: GapFill reference fixtures
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: scripts/gapfill_reference/requirements.txt
+
+      - name: Install reference dependencies
+        run: python -m pip install -r scripts/gapfill_reference/requirements.txt
+
+      - name: Validate fixture provenance and pinned model outputs
+        run: python -m scripts.gapfill_reference.validate
+
+      - name: Run independent reference tests
+        run: python -m unittest scripts.gapfill_reference.test_reference -v
+
+      - name: Characterize current ML and Krita pure behavior
+        run: python -m scripts.gapfill_reference.characterize_python
+
   web:
     name: Web
     runs-on: ubuntu-latest
@@ -74,11 +101,11 @@ jobs:
 
       - name: Run tests
         working-directory: krita-plugin
-        run: pytest
+        run: pytest tests ../tests/parity/test_krita_phase2_fixtures.py
 
       - name: Run lint
         working-directory: krita-plugin
-        run: ruff check .
+        run: ruff check . ../scripts/gapfill_reference
 
       - name: Build importable plugin
         run: python krita-plugin/scripts/build_plugin.py

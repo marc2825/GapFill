@@ -1,0 +1,161 @@
+{
+  "real": [
+    {
+      "annotation": "The coloring crop has a one-column unpainted vertical pixel run at the hair-tip boundary; the checked-in completed coloring fills it yellow. This crop is included for human review, not as an automatically inferred canonical mask or model color.",
+      "canonical_expected_output": null,
+      "classification": "UNRESOLVED_SPECIFICATION",
+      "crop_box_xyxy": [
+        426,
+        84,
+        458,
+        116
+      ],
+      "decision_ids": [
+        "D-01",
+        "REGION-CORRESPONDENCE"
+      ],
+      "evidence_ids": [
+        "MANUAL-ANNOTATION"
+      ],
+      "files": {
+        "coloring": "end_to_end/real/E101_ex2_ordinary_crop/coloring.png",
+        "coloring_full": "end_to_end/real/E101_ex2_ordinary_crop/coloring_full.png",
+        "guide": "end_to_end/real/E101_ex2_ordinary_crop/guide.png",
+        "line": "end_to_end/real/E101_ex2_ordinary_crop/line.png"
+      },
+      "id": "E101_ex2_ordinary_crop",
+      "provenance": {
+        "crop_method": "Pillow RGBA crop using the listed [left, top, right, bottom] box; no resizing or color conversion",
+        "repository_path": "web/public/preset-images/Ex2",
+        "review": "manual visual inspection of coloring, completed coloring, Line Art, and Guide crop at nearest-neighbor magnification",
+        "source_file_sha256": {
+          "coloring": "60bdd4dc841bc88975c42085ebcf5746f7ab732a3c39effeb64c081fa683ce43",
+          "coloring_full": "a30b51ceca7d6d9f5fe61dce3cfd0ed3515d2f4790622cb32e2d903a88e38ddc",
+          "guide": "9595755470c000bc6783edb53f51a142a10bf21564982df429058881524b05d1",
+          "line": "f53e8235ec73481ae540525a9577cef047b10f48ea3d7e4f0c115403b3ee4ec4"
+        }
+      },
+      "title": "Ex2 ordinary hair-tip gap crop"
+    },
+    {
+      "annotation": "The crop contains a visible Guide stroke adjacent to a single unpainted Coloring pixel; the completed coloring fills the pixel yellow. Whether that Guide belongs in model channel 0 and whether target Guide pixels are suppressed remain empirical decisions.",
+      "canonical_expected_output": null,
+      "classification": "UNRESOLVED_SPECIFICATION",
+      "crop_box_xyxy": [
+        521,
+        384,
+        553,
+        416
+      ],
+      "decision_ids": [
+        "GUIDE-DETECTION-COMPOSITION",
+        "GUIDE-MODEL-COMPOSITION",
+        "GUIDE-TARGET-SUPPRESSION"
+      ],
+      "evidence_ids": [
+        "MANUAL-ANNOTATION"
+      ],
+      "files": {
+        "coloring": "end_to_end/real/E102_ex2_guide_crop/coloring.png",
+        "coloring_full": "end_to_end/real/E102_ex2_guide_crop/coloring_full.png",
+        "guide": "end_to_end/real/E102_ex2_guide_crop/guide.png",
+        "line": "end_to_end/real/E102_ex2_guide_crop/line.png"
+      },
+      "id": "E102_ex2_guide_crop",
+      "provenance": {
+        "crop_method": "Pillow RGBA crop using the listed [left, top, right, bottom] box; no resizing or color conversion",
+        "repository_path": "web/public/preset-images/Ex2",
+        "review": "manual visual inspection of coloring, completed coloring, Line Art, and Guide crop at nearest-neighbor magnification",
+        "source_file_sha256": {
+          "coloring": "60bdd4dc841bc88975c42085ebcf5746f7ab732a3c39effeb64c081fa683ce43",
+          "coloring_full": "a30b51ceca7d6d9f5fe61dce3cfd0ed3515d2f4790622cb32e2d903a88e38ddc",
+          "guide": "9595755470c000bc6783edb53f51a142a10bf21564982df429058881524b05d1",
+          "line": "f53e8235ec73481ae540525a9577cef047b10f48ea3d7e4f0c115403b3ee4ec4"
+        }
+      },
+      "title": "Ex2 Guide-associated accessory gap crop"
+    }
+  ],
+  "schema": "gapfill-end-to-end-annotations-v1",
+  "synthetic": [
+    {
+      "annotation": "Detection is manually unambiguous. The final red color is an annotation for review, not an inference-derived truth.",
+      "classification": "STABLE",
+      "decision_ids": [
+        "DET-ENCLOSED",
+        "REGION-MODAL-COLOR"
+      ],
+      "dimensions": [
+        5,
+        5
+      ],
+      "evidence_ids": [
+        "PAPER-4.1.1",
+        "PAPER-4.2",
+        "MANUAL-ANNOTATION"
+      ],
+      "expected_gap_indices": [
+        12
+      ],
+      "files": {
+        "coloring": "end_to_end/synthetic/E001_synthetic_unambiguous/coloring.png",
+        "guide": "end_to_end/synthetic/E001_synthetic_unambiguous/guide.png",
+        "line": "end_to_end/synthetic/E001_synthetic_unambiguous/line.png"
+      },
+      "id": "E001_synthetic_unambiguous",
+      "reviewed_rgb": [
+        210,
+        30,
+        40
+      ],
+      "title": "One line-enclosed transparent pixel beside one dominant red region"
+    },
+    {
+      "annotation": "The enclosure is visually explicit, but Guide preprocessing remains empirical; no canonical model prediction is assigned.",
+      "classification": "EMPIRICAL_DECISION_REQUIRED",
+      "decision_ids": [
+        "GUIDE-DETECTION-COMPOSITION",
+        "GUIDE-MODEL-COMPOSITION"
+      ],
+      "dimensions": [
+        7,
+        7
+      ],
+      "evidence_ids": [
+        "PAPER-4.1.1",
+        "MANUAL-ANNOTATION"
+      ],
+      "files": {
+        "coloring": "end_to_end/synthetic/E002_synthetic_guide/coloring.png",
+        "guide": "end_to_end/synthetic/E002_synthetic_guide/guide.png",
+        "line": "end_to_end/synthetic/E002_synthetic_guide/line.png"
+      },
+      "id": "E002_synthetic_guide",
+      "title": "Guide-only enclosure with a nearby flat green region"
+    },
+    {
+      "annotation": "Both colors are locally plausible. This fixture intentionally has no canonical final RGB.",
+      "classification": "EMPIRICAL_DECISION_REQUIRED",
+      "decision_ids": [
+        "D-07",
+        "REGION-CORRESPONDENCE"
+      ],
+      "dimensions": [
+        5,
+        5
+      ],
+      "evidence_ids": [
+        "PAPER-HUMAN-CONTROL",
+        "MANUAL-ANNOTATION"
+      ],
+      "files": {
+        "coloring": "end_to_end/synthetic/E003_synthetic_ambiguous_color/coloring.png",
+        "guide": "end_to_end/synthetic/E003_synthetic_ambiguous_color/guide.png",
+        "line": "end_to_end/synthetic/E003_synthetic_ambiguous_color/line.png"
+      },
+      "id": "E003_synthetic_ambiguous_color",
+      "title": "One gap equally adjacent to red and blue regions"
+    }
+  ],
+  "warning": "Real-art annotations are human-reviewable observations, not outputs inferred from web, Krita, ML, or CSP."
+}

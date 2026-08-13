@@ -1,0 +1,1032 @@
+{
+  "cases": [
+    {
+      "coloring_rgba": {
+        "encoding": "palette_rgba8",
+        "palette": {
+          "B": [
+            20,
+            20,
+            220,
+            255
+          ],
+          "R": [
+            220,
+            20,
+            20,
+            255
+          ]
+        },
+        "rows": [
+          "RRBB",
+          "RRBB"
+        ]
+      },
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "decision_ids": [
+            "REGION-MEAN",
+            "REGION-MODAL-COLOR"
+          ],
+          "evidence_ids": [
+            "PAPER-4.2",
+            "MANUAL-ARITHMETIC"
+          ],
+          "include_label_zero": false,
+          "label_map": "reviewed_semantic",
+          "result": {
+            "region_means": {
+              "1": 0.2000000048428774,
+              "2": 0.7000000029802322
+            },
+            "rgb": [
+              20,
+              20,
+              220
+            ],
+            "selected_pixel_indices": [
+              2,
+              3,
+              6,
+              7
+            ],
+            "selected_region_id": 2
+          },
+          "tie_policy": "first_encountered",
+          "variant": "reviewed_semantic"
+        }
+      ],
+      "height": 2,
+      "id": "R001_manual_mean_winner",
+      "label_maps": {
+        "reviewed_semantic": [
+          [
+            1,
+            1,
+            2,
+            2
+          ],
+          [
+            1,
+            1,
+            2,
+            2
+          ]
+        ]
+      },
+      "probability_map": [
+        [
+          0.1,
+          0.3,
+          0.8,
+          0.6
+        ],
+        [
+          0.2,
+          0.2,
+          0.7,
+          0.7
+        ]
+      ],
+      "title": "Fixed labels and probabilities with a manually verifiable winner",
+      "width": 4
+    },
+    {
+      "coloring_rgba": {
+        "encoding": "palette_rgba8",
+        "palette": {
+          "G": [
+            40,
+            180,
+            40,
+            255
+          ],
+          "K": [
+            0,
+            0,
+            0,
+            255
+          ]
+        },
+        "rows": [
+          "KGG",
+          "KGG"
+        ]
+      },
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "REGION-LABEL-ZERO"
+          ],
+          "evidence_ids": [
+            "ML-POSTPROCESS"
+          ],
+          "include_label_zero": true,
+          "label_map": "line_labels",
+          "result": {
+            "region_means": {
+              "0": 0.9900000095367432,
+              "1": 0.4000000059604645
+            },
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "selected_pixel_indices": [
+              0,
+              3
+            ],
+            "selected_region_id": 0
+          },
+          "tie_policy": "first_encountered",
+          "variant": "include_label_zero"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "REGION-LABEL-ZERO"
+          ],
+          "evidence_ids": [
+            "PAPER-4.2",
+            "WEB-POSTPROCESS",
+            "KRITA-POSTPROCESS"
+          ],
+          "include_label_zero": false,
+          "label_map": "line_labels",
+          "result": {
+            "region_means": {
+              "1": 0.4000000059604645
+            },
+            "rgb": [
+              40,
+              180,
+              40
+            ],
+            "selected_pixel_indices": [
+              1,
+              2,
+              4,
+              5
+            ],
+            "selected_region_id": 1
+          },
+          "tie_policy": "first_encountered",
+          "variant": "exclude_label_zero"
+        }
+      ],
+      "height": 2,
+      "id": "R002_label_zero",
+      "label_maps": {
+        "line_labels": [
+          [
+            0,
+            1,
+            1
+          ],
+          [
+            0,
+            1,
+            1
+          ]
+        ]
+      },
+      "probability_map": [
+        [
+          0.99,
+          0.4,
+          0.4
+        ],
+        [
+          0.99,
+          0.4,
+          0.4
+        ]
+      ],
+      "title": "Label 0 has the highest artificial probability",
+      "width": 3
+    },
+    {
+      "coloring_rgba": {
+        "encoding": "palette_rgba8",
+        "palette": {
+          ".": [
+            0,
+            0,
+            0,
+            0
+          ],
+          "R": [
+            200,
+            30,
+            30,
+            255
+          ]
+        },
+        "rows": [
+          "RR.RR"
+        ]
+      },
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "REGION-CORRESPONDENCE"
+          ],
+          "evidence_ids": [
+            "ML-POSTPROCESS"
+          ],
+          "include_label_zero": true,
+          "label_map": "line_labels",
+          "result": {
+            "region_means": {
+              "1": 0.48000000715255736
+            },
+            "rgb": [
+              200,
+              30,
+              30
+            ],
+            "selected_pixel_indices": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "selected_region_id": 1
+          },
+          "tie_policy": "first_encountered",
+          "variant": "ml_line_labels"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "REGION-CORRESPONDENCE"
+          ],
+          "evidence_ids": [
+            "WEB-POSTPROCESS",
+            "KRITA-POSTPROCESS"
+          ],
+          "include_label_zero": false,
+          "label_map": "colored_components",
+          "result": {
+            "region_means": {
+              "1": 0.4000000059604645,
+              "2": 0.800000011920929
+            },
+            "rgb": [
+              200,
+              30,
+              30
+            ],
+            "selected_pixel_indices": [
+              3,
+              4
+            ],
+            "selected_region_id": 2
+          },
+          "tie_policy": "first_encountered",
+          "variant": "colored_components"
+        }
+      ],
+      "guide_alpha": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "height": 1,
+      "id": "R003_disconnected_same_rgb",
+      "label_maps": {
+        "colored_components": [
+          [
+            1,
+            1,
+            0,
+            2,
+            2
+          ]
+        ],
+        "line_labels": [
+          [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      "line_alpha": [
+        [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "probability_map": [
+        [
+          0.4,
+          0.4,
+          0.0,
+          0.8,
+          0.8
+        ]
+      ],
+      "title": "Two disconnected painted areas have the same RGB",
+      "width": 5
+    },
+    {
+      "classification": "EMPIRICAL_DECISION_REQUIRED",
+      "coloring_rgba": {
+        "encoding": "palette_rgba8",
+        "palette": {
+          "A": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "B": [
+            29,
+            0,
+            0,
+            255
+          ],
+          "C": [
+            30,
+            0,
+            0,
+            255
+          ],
+          "D": [
+            31,
+            0,
+            0,
+            255
+          ]
+        },
+        "rows": [
+          "ABCD"
+        ]
+      },
+      "decision_ids": [
+        "REGION-COLOR-TOLERANCE"
+      ],
+      "evidence_ids": [
+        "WEB-POSTPROCESS",
+        "KRITA-POSTPROCESS",
+        "CSP-OWNER"
+      ],
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "REGION-COLOR-TOLERANCE"
+          ],
+          "evidence_ids": [
+            "WEB-POSTPROCESS",
+            "KRITA-POSTPROCESS",
+            "CSP-OWNER"
+          ],
+          "include_label_zero": false,
+          "label_map": "seed_relative",
+          "result": {
+            "region_means": {
+              "1": 0.2000000054637591,
+              "2": 0.8999999761581421
+            },
+            "rgb": [
+              31,
+              0,
+              0
+            ],
+            "selected_pixel_indices": [
+              3
+            ],
+            "selected_region_id": 2
+          },
+          "tie_policy": "first_encountered",
+          "variant": "seed_relative"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "REGION-COLOR-TOLERANCE"
+          ],
+          "evidence_ids": [
+            "WEB-POSTPROCESS",
+            "KRITA-POSTPROCESS",
+            "CSP-OWNER"
+          ],
+          "include_label_zero": false,
+          "label_map": "neighbor_transitive",
+          "result": {
+            "region_means": {
+              "1": 0.37499999813735485
+            },
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "selected_pixel_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "selected_region_id": 1
+          },
+          "tie_policy": "first_encountered",
+          "variant": "neighbor_transitive"
+        }
+      ],
+      "guide_alpha": [
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "height": 1,
+      "id": "R004_tolerance_30_boundary",
+      "label_maps": {
+        "line_labels": [
+          [
+            1,
+            1,
+            1,
+            1
+          ]
+        ],
+        "neighbor_transitive": [
+          [
+            1,
+            1,
+            1,
+            1
+          ]
+        ],
+        "seed_relative": [
+          [
+            1,
+            1,
+            1,
+            2
+          ]
+        ]
+      },
+      "line_alpha": [
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "probability_map": [
+        [
+          0.1,
+          0.2,
+          0.3,
+          0.9
+        ]
+      ],
+      "segmentation_variants": [
+        "seed_relative",
+        "neighbor_transitive"
+      ],
+      "title": "Neighbor colors at Manhattan differences 29, 30, and 31",
+      "width": 4
+    },
+    {
+      "classification": "EMPIRICAL_DECISION_REQUIRED",
+      "coloring_rgba": {
+        "encoding": "palette_rgba8",
+        "palette": {
+          "A": [
+            0,
+            0,
+            0,
+            255
+          ],
+          "B": [
+            20,
+            0,
+            0,
+            255
+          ],
+          "C": [
+            40,
+            0,
+            0,
+            255
+          ]
+        },
+        "rows": [
+          "ABC"
+        ]
+      },
+      "decision_ids": [
+        "REGION-COLOR-TOLERANCE"
+      ],
+      "evidence_ids": [
+        "WEB-POSTPROCESS",
+        "KRITA-POSTPROCESS",
+        "CSP-OWNER"
+      ],
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "REGION-COLOR-TOLERANCE"
+          ],
+          "evidence_ids": [
+            "WEB-POSTPROCESS",
+            "KRITA-POSTPROCESS",
+            "CSP-OWNER"
+          ],
+          "include_label_zero": false,
+          "label_map": "seed_relative",
+          "result": {
+            "region_means": {
+              "1": 0.15000000223517418,
+              "2": 0.8999999761581421
+            },
+            "rgb": [
+              40,
+              0,
+              0
+            ],
+            "selected_pixel_indices": [
+              2
+            ],
+            "selected_region_id": 2
+          },
+          "tie_policy": "first_encountered",
+          "variant": "seed_relative"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "REGION-COLOR-TOLERANCE"
+          ],
+          "evidence_ids": [
+            "WEB-POSTPROCESS",
+            "KRITA-POSTPROCESS",
+            "CSP-OWNER"
+          ],
+          "include_label_zero": false,
+          "label_map": "neighbor_transitive",
+          "result": {
+            "region_means": {
+              "1": 0.39999999354283017
+            },
+            "rgb": [
+              0,
+              0,
+              0
+            ],
+            "selected_pixel_indices": [
+              0,
+              1,
+              2
+            ],
+            "selected_region_id": 1
+          },
+          "tie_policy": "first_encountered",
+          "variant": "neighbor_transitive"
+        }
+      ],
+      "guide_alpha": [
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "height": 1,
+      "id": "R005_transitive_color_chain",
+      "label_maps": {
+        "line_labels": [
+          [
+            1,
+            1,
+            1
+          ]
+        ],
+        "neighbor_transitive": [
+          [
+            1,
+            1,
+            1
+          ]
+        ],
+        "seed_relative": [
+          [
+            1,
+            1,
+            2
+          ]
+        ]
+      },
+      "line_alpha": [
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "probability_map": [
+        [
+          0.1,
+          0.2,
+          0.9
+        ]
+      ],
+      "segmentation_variants": [
+        "seed_relative",
+        "neighbor_transitive"
+      ],
+      "title": "Color chain 0 -> 20 -> 40 under tolerance 30",
+      "width": 3
+    },
+    {
+      "coloring_rgba": {
+        "encoding": "palette_rgba8",
+        "palette": {
+          "H": [
+            240,
+            20,
+            20,
+            255
+          ],
+          "L": [
+            20,
+            20,
+            240,
+            255
+          ]
+        },
+        "rows": [
+          "HL",
+          "LH"
+        ]
+      },
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "contract_role": "canonical",
+          "decision_ids": [
+            "D-06"
+          ],
+          "evidence_ids": [
+            "ML-POSTPROCESS",
+            "WEB-POSTPROCESS",
+            "MANUAL-TIE",
+            "AUDIT-K14",
+            "MAINTAINER-FREEZE-2026-08-13"
+          ],
+          "include_label_zero": false,
+          "label_map": "selected_region",
+          "result": {
+            "region_means": {
+              "1": 0.800000011920929
+            },
+            "rgb": [
+              240,
+              20,
+              20
+            ],
+            "selected_pixel_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "selected_region_id": 1
+          },
+          "tie_policy": "first_encountered",
+          "variant": "first_encountered_tie"
+        },
+        {
+          "canonical": false,
+          "classification": "NONCANONICAL_REFERENCE",
+          "contract_role": "noncanonical_reference",
+          "decision_ids": [
+            "D-06"
+          ],
+          "evidence_ids": [
+            "KRITA-POSTPROCESS"
+          ],
+          "include_label_zero": false,
+          "label_map": "selected_region",
+          "result": {
+            "region_means": {
+              "1": 0.800000011920929
+            },
+            "rgb": [
+              20,
+              20,
+              240
+            ],
+            "selected_pixel_indices": [
+              0,
+              1,
+              2,
+              3
+            ],
+            "selected_region_id": 1
+          },
+          "tie_policy": "lowest_rgb",
+          "variant": "lowest_rgb_tie"
+        }
+      ],
+      "height": 2,
+      "id": "R006_modal_tie",
+      "label_maps": {
+        "selected_region": [
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            1
+          ]
+        ]
+      },
+      "probability_map": [
+        [
+          0.8,
+          0.8
+        ],
+        [
+          0.8,
+          0.8
+        ]
+      ],
+      "title": "Selected region has a two-color modal tie",
+      "width": 2
+    },
+    {
+      "coloring_rgba": {
+        "encoding": "palette_rgba8",
+        "palette": {
+          "F": [
+            100,
+            120,
+            140,
+            255
+          ],
+          "a": [
+            101,
+            121,
+            141,
+            255
+          ],
+          "b": [
+            99,
+            119,
+            139,
+            255
+          ]
+        },
+        "rows": [
+          "aFFFb"
+        ]
+      },
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "decision_ids": [
+            "REGION-MODAL-COLOR"
+          ],
+          "evidence_ids": [
+            "PAPER-4.2",
+            "ML-POSTPROCESS",
+            "MANUAL-COUNT"
+          ],
+          "include_label_zero": false,
+          "label_map": "selected_region",
+          "result": {
+            "region_means": {
+              "1": 0.6000000238418579
+            },
+            "rgb": [
+              100,
+              120,
+              140
+            ],
+            "selected_pixel_indices": [
+              0,
+              1,
+              2,
+              3,
+              4
+            ],
+            "selected_region_id": 1
+          },
+          "tie_policy": "first_encountered",
+          "variant": "modal_flat_color"
+        }
+      ],
+      "height": 1,
+      "id": "R007_antialiased_colors",
+      "label_maps": {
+        "selected_region": [
+          [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      "probability_map": [
+        [
+          0.6,
+          0.6,
+          0.6,
+          0.6,
+          0.6
+        ]
+      ],
+      "title": "Dominant flat color with two anti-aliased edge colors",
+      "width": 5
+    },
+    {
+      "coloring_rgba": {
+        "encoding": "palette_rgba8",
+        "palette": {
+          "B": [
+            20,
+            20,
+            200,
+            255
+          ],
+          "R": [
+            200,
+            20,
+            20,
+            255
+          ]
+        },
+        "rows": [
+          "RRRBB",
+          "RRRBB"
+        ]
+      },
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "REGION-CORRESPONDENCE"
+          ],
+          "evidence_ids": [
+            "ML-POSTPROCESS"
+          ],
+          "include_label_zero": true,
+          "label_map": "line_labels",
+          "result": {
+            "region_means": {
+              "1": 0.38000000566244124
+            },
+            "rgb": [
+              200,
+              20,
+              20
+            ],
+            "selected_pixel_indices": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "selected_region_id": 1
+          },
+          "tie_policy": "first_encountered",
+          "variant": "ml_line_labels"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "REGION-CORRESPONDENCE"
+          ],
+          "evidence_ids": [
+            "WEB-POSTPROCESS",
+            "KRITA-POSTPROCESS"
+          ],
+          "include_label_zero": false,
+          "label_map": "colored_components",
+          "result": {
+            "region_means": {
+              "1": 0.10000000149011612,
+              "2": 0.800000011920929
+            },
+            "rgb": [
+              20,
+              20,
+              200
+            ],
+            "selected_pixel_indices": [
+              3,
+              4,
+              8,
+              9
+            ],
+            "selected_region_id": 2
+          },
+          "tie_policy": "first_encountered",
+          "variant": "colored_components"
+        }
+      ],
+      "height": 2,
+      "id": "R008_line_vs_colored_regions",
+      "label_maps": {
+        "colored_components": [
+          [
+            1,
+            1,
+            1,
+            2,
+            2
+          ],
+          [
+            1,
+            1,
+            1,
+            2,
+            2
+          ]
+        ],
+        "line_labels": [
+          [
+            1,
+            1,
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            1,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      "probability_map": [
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.8,
+          0.8
+        ],
+        [
+          0.1,
+          0.1,
+          0.1,
+          0.8,
+          0.8
+        ]
+      ],
+      "title": "Line-derived region spans two opaque color components",
+      "width": 5
+    }
+  ],
+  "probabilities": "float32 values listed in row-major rows",
+  "schema": "gapfill-postprocess-cases-v1"
+}

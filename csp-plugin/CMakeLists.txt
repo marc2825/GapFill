@@ -65,6 +65,13 @@ if(GAP_ASSIST_BUILD_TESTS)
   target_link_libraries(gap_assist_tests PRIVATE gap_assist_core)
   add_test(NAME gap_assist_core COMMAND gap_assist_tests)
 
+  add_executable(gap_assist_phase2_fixtures
+                 ../tests/parity/csp_phase2_fixture_reader.cpp)
+  target_link_libraries(gap_assist_phase2_fixtures PRIVATE gap_assist_core)
+  add_test(NAME gap_assist_phase2_fixtures
+           COMMAND gap_assist_phase2_fixtures
+                   "${CMAKE_CURRENT_SOURCE_DIR}/../tests/fixtures/gapfill/parity/csp_detection_current.csv")
+
   add_executable(gap_assist_cli_fixture tests/cli_fixture.cpp)
   target_link_libraries(gap_assist_cli_fixture PRIVATE gap_assist_core)
   set(GAP_ASSIST_FIXTURE_DIR "${CMAKE_CURRENT_BINARY_DIR}/e2e")

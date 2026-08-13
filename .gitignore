@@ -1,6 +1,7 @@
 # Large project assets
 /docs/videos_mp4/
-/scripts/
+/scripts/*
+!/scripts/gapfill_reference/
 
 # GapFill ML inputs and generated artifacts
 /ml/data/

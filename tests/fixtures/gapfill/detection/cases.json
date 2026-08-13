@@ -1,0 +1,6313 @@
+{
+  "bbox": "[x, y, width, height]",
+  "cases": [
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "contract_role": "canonical",
+          "decision_ids": [
+            "DET-ENCLOSED",
+            "D-05"
+          ],
+          "evidence_ids": [
+            "PAPER-4.1.1",
+            "ML-DETECT",
+            "AUDIT-STABLE-CORE"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "stable_default"
+        }
+      ],
+      "family": "detection",
+      "height": 5,
+      "id": "D001_one_pixel_enclosed",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            "XXXXX",
+            "XXXXX",
+            "XX.XX",
+            "XXXXX",
+            "XXXXX"
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              0,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 2,
+      "title": "One-pixel enclosed gap",
+      "width": 5
+    },
+    {
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "NONCANONICAL_REFERENCE",
+          "contract_role": "noncanonical_reference",
+          "decision_ids": [
+            "D-01"
+          ],
+          "evidence_ids": [
+            "PAPER-4.1.1"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "strict"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  2
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 2,
+                "pixel_indices": [
+                  32,
+                  47
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "strict_below_threshold"
+        },
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "contract_role": "canonical",
+          "decision_ids": [
+            "D-01"
+          ],
+          "evidence_ids": [
+            "PAPER-APPENDIX-A",
+            "ML-SIZE",
+            "CURRENT-IMPLEMENTATIONS",
+            "MAINTAINER-FREEZE-2026-08-13"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  2
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 2,
+                "pixel_indices": [
+                  32,
+                  47
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              },
+              {
+                "bbox": [
+                  6,
+                  2,
+                  2,
+                  2
+                ],
+                "centroid": [
+                  6,
+                  2
+                ],
+                "id": 1,
+                "kind": "transparent",
+                "pixel_count": 3,
+                "pixel_indices": [
+                  36,
+                  51,
+                  52
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "inclusive_threshold"
+        }
+      ],
+      "family": "detection",
+      "height": 7,
+      "id": "D002_threshold_triplet",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            "XXXXXXXXXXXXXXX",
+            "XXXXXXXXXXXXXXX",
+            "XX.XXX.XXXX..XX",
+            "XX.XXX..XXX..XX",
+            "XXXXXXXXXXXXXXX",
+            "XXXXXXXXXXXXXXX",
+            "XXXXXXXXXXXXXXX"
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              0,
+              255,
+              255,
+              255,
+              0,
+              255,
+              255,
+              255,
+              255,
+              0,
+              0,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              0,
+              255,
+              255,
+              255,
+              0,
+              0,
+              255,
+              255,
+              255,
+              0,
+              0,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              0,
+              0,
+              0,
+              255,
+              0,
+              0,
+              0,
+              0,
+              255,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              0,
+              0,
+              0,
+              255,
+              255,
+              0,
+              0,
+              0,
+              255,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 3,
+      "title": "Components of size T-1, T, and T+1",
+      "width": 15
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "contract_role": "canonical",
+          "decision_ids": [
+            "D-02"
+          ],
+          "evidence_ids": [
+            "PAPER-4.1.1",
+            "AUDIT-G03",
+            "MAINTAINER-FREEZE-2026-08-13"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": []
+          },
+          "variant": "reject_open_edge"
+        },
+        {
+          "canonical": false,
+          "classification": "NONCANONICAL_REFERENCE",
+          "contract_role": "noncanonical_reference",
+          "decision_ids": [
+            "D-02"
+          ],
+          "evidence_ids": [
+            "ML-DETECT",
+            "WEB-DETECT"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "allow",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  0,
+                  2,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  0,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  10
+                ],
+                "touches_image_edge": true,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "allow_small_edge_component"
+        }
+      ],
+      "family": "detection",
+      "height": 5,
+      "id": "D003_edge_touching_small",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            "XXXXX",
+            "XXXXX",
+            ".XXXX",
+            "XXXXX",
+            "XXXXX"
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              0,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              255,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 2,
+      "title": "Small transparent component touching the image edge",
+      "width": 5
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "contract_role": "canonical",
+          "decision_ids": [
+            "DET-ENCLOSED",
+            "D-05"
+          ],
+          "evidence_ids": [
+            "PAPER-4.1.1",
+            "AUDIT-STABLE-CORE"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  3,
+                  3,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  3,
+                  3
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  24
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "stable_small_interior"
+        }
+      ],
+      "family": "detection",
+      "height": 7,
+      "id": "D004_exterior_and_interior",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            ".......",
+            ".......",
+            "..XXX..",
+            "..X.X..",
+            "..XXX..",
+            ".......",
+            "......."
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              255,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              0,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              255,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              0,
+              0,
+              0,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              0,
+              255,
+              0,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              0,
+              0,
+              0,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 2,
+      "title": "Large exterior plus a one-pixel enclosed interior",
+      "width": 7
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "contract_role": "canonical",
+          "decision_ids": [
+            "D-05"
+          ],
+          "evidence_ids": [
+            "ML-DETECT",
+            "CURRENT-DEFAULTS",
+            "AUDIT-STABLE-CORE",
+            "MAINTAINER-FREEZE-2026-08-13"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              },
+              {
+                "bbox": [
+                  3,
+                  3,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  3,
+                  3
+                ],
+                "id": 1,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  18
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "four_neighbor_default"
+        },
+        {
+          "canonical": false,
+          "classification": "NONCANONICAL_REFERENCE",
+          "contract_role": "noncanonical_reference",
+          "decision_ids": [
+            "D-05"
+          ],
+          "evidence_ids": [
+            "CSP-OPTION"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 8,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  2,
+                  2
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 2,
+                "pixel_indices": [
+                  12,
+                  18
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "eight_neighbor_optional"
+        }
+      ],
+      "family": "detection",
+      "height": 5,
+      "id": "D005_diagonal_connectivity",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            "XXXXX",
+            "XXXXX",
+            "XX.XX",
+            "XXX.X",
+            "XXXXX"
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              0,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 3,
+      "title": "Diagonal candidate pixels under four/eight connectivity",
+      "width": 5
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "contract_role": "canonical",
+          "decision_ids": [
+            "DET-ENCLOSED",
+            "BOUNDARY-LINE-TRAINING"
+          ],
+          "evidence_ids": [
+            "PAPER-4.1.1",
+            "ML-DETECT"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  3,
+                  3,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  3,
+                  3
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  24
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "stable_line_enclosure"
+        }
+      ],
+      "family": "detection",
+      "height": 7,
+      "id": "D006_line_art_enclosure",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            ".......",
+            ".......",
+            ".......",
+            ".......",
+            ".......",
+            ".......",
+            "......."
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              255,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              0,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              255,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              0,
+              0,
+              0,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              0,
+              255,
+              0,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              0,
+              0,
+              0,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 2,
+      "title": "Ordinary line-art enclosure over transparent Coloring",
+      "width": 7
+    },
+    {
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "GUIDE-DETECTION-COMPOSITION"
+          ],
+          "evidence_ids": [
+            "PAPER-4.1.1"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  3,
+                  3,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  3,
+                  3
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  24
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "guide_as_boundary"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "GUIDE-DETECTION-COMPOSITION"
+          ],
+          "evidence_ids": [
+            "WEB-DETECT",
+            "KRITA-DETECT"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "typed_candidate",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  3,
+                  3,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  3,
+                  3
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  24
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "guide_as_typed_candidate"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "GUIDE-DETECTION-COMPOSITION"
+          ],
+          "evidence_ids": [
+            "ML-TRAINING",
+            "CSP-CURRENT"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "ignored",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": []
+          },
+          "variant": "guide_ignored"
+        }
+      ],
+      "family": "detection",
+      "height": 7,
+      "id": "D007_guide_enclosure",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            ".......",
+            ".......",
+            ".......",
+            ".......",
+            ".......",
+            ".......",
+            "......."
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              255,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              0,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              255,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 2,
+      "title": "Guide-only enclosure over transparent Coloring",
+      "width": 7
+    },
+    {
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "GUIDE-DETECTION-COMPOSITION"
+          ],
+          "evidence_ids": [
+            "PAPER-4.1.1",
+            "AUDIT-K12"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": []
+          },
+          "variant": "guide_as_boundary"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "GUIDE-DETECTION-COMPOSITION"
+          ],
+          "evidence_ids": [
+            "WEB-DETECT",
+            "KRITA-DETECT"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "typed_candidate",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "guide",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "guide_as_typed_candidate"
+        }
+      ],
+      "family": "detection",
+      "height": 5,
+      "id": "D008_isolated_guide_pixel_open",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            ".....",
+            ".....",
+            ".....",
+            ".....",
+            "....."
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 1,
+      "title": "Isolated Guide pixel in an otherwise open transparent image",
+      "width": 5
+    },
+    {
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "GUIDE-DETECTION-COMPOSITION"
+          ],
+          "evidence_ids": [
+            "PAPER-4.1.1"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": []
+          },
+          "variant": "guide_as_boundary"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "GUIDE-DETECTION-COMPOSITION",
+            "D-02"
+          ],
+          "evidence_ids": [
+            "WEB-DETECT"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "allow",
+            "guide_policy": "typed_candidate",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  0,
+                  1,
+                  3
+                ],
+                "centroid": [
+                  2,
+                  1
+                ],
+                "id": 0,
+                "kind": "guide",
+                "pixel_count": 3,
+                "pixel_indices": [
+                  2,
+                  7,
+                  12
+                ],
+                "touches_image_edge": true,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "typed_candidate_allow_edge"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "GUIDE-DETECTION-COMPOSITION",
+            "D-02"
+          ],
+          "evidence_ids": [
+            "KRITA-DETECT"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "typed_candidate",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": []
+          },
+          "variant": "typed_candidate_reject_edge"
+        }
+      ],
+      "family": "detection",
+      "height": 5,
+      "id": "D009_guide_stroke_to_exterior",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            ".....",
+            ".....",
+            ".....",
+            ".....",
+            "....."
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 3,
+      "title": "Guide stroke connected to the exterior",
+      "width": 5
+    },
+    {
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "GUIDE-DETECTION-COMPOSITION"
+          ],
+          "evidence_ids": [
+            "PAPER-4.1.1"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  3,
+                  3,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  3,
+                  3
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  24
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "combined_boundaries"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "GUIDE-DETECTION-COMPOSITION"
+          ],
+          "evidence_ids": [
+            "ML-TRAINING"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "ignored",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": []
+          },
+          "variant": "line_only"
+        }
+      ],
+      "family": "detection",
+      "height": 7,
+      "id": "D010_mixed_line_guide_enclosure",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            ".......",
+            ".......",
+            ".......",
+            ".......",
+            ".......",
+            ".......",
+            "......."
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              255,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              255,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              0,
+              0,
+              0,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              0,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              0,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 2,
+      "title": "Enclosure assembled from Line Art and Guide strokes",
+      "width": 7
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "contract_role": "canonical",
+          "decision_ids": [
+            "D-03"
+          ],
+          "evidence_ids": [
+            "PAPER-4.1.1",
+            "WEB-DETECT",
+            "KRITA-DETECT",
+            "MAINTAINER-FREEZE-2026-08-13"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  1,
+                  1
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "exact_zero"
+        },
+        {
+          "canonical": false,
+          "classification": "NONCANONICAL_REFERENCE",
+          "contract_role": "noncanonical_reference",
+          "decision_ids": [
+            "D-03"
+          ],
+          "evidence_ids": [
+            "CSP-ALPHA-OPTION"
+          ],
+          "policy": {
+            "alpha_policy": "at_most",
+            "alpha_threshold": 127,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  1,
+                  1
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              },
+              {
+                "bbox": [
+                  3,
+                  1,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  3,
+                  1
+                ],
+                "id": 1,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  14
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              },
+              {
+                "bbox": [
+                  5,
+                  1,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  5,
+                  1
+                ],
+                "id": 2,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  16
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "alpha_at_most_127"
+        },
+        {
+          "canonical": false,
+          "classification": "NONCANONICAL_REFERENCE",
+          "contract_role": "noncanonical_reference",
+          "decision_ids": [
+            "D-03"
+          ],
+          "evidence_ids": [
+            "CSP-ALPHA-OPTION"
+          ],
+          "policy": {
+            "alpha_policy": "at_most",
+            "alpha_threshold": 254,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  1,
+                  1,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  1,
+                  1
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              },
+              {
+                "bbox": [
+                  3,
+                  1,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  3,
+                  1
+                ],
+                "id": 1,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  14
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              },
+              {
+                "bbox": [
+                  5,
+                  1,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  5,
+                  1
+                ],
+                "id": 2,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  16
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              },
+              {
+                "bbox": [
+                  7,
+                  1,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  7,
+                  1
+                ],
+                "id": 3,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  18
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "alpha_at_most_254"
+        }
+      ],
+      "family": "detection",
+      "height": 3,
+      "id": "D011_alpha_sweep",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "0": [
+              20,
+              30,
+              40,
+              0
+            ],
+            "1": [
+              20,
+              30,
+              40,
+              1
+            ],
+            "4": [
+              20,
+              30,
+              40,
+              254
+            ],
+            "7": [
+              20,
+              30,
+              40,
+              127
+            ],
+            "F": [
+              20,
+              30,
+              40,
+              255
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            "XXXXXXXXXXX",
+            "X0X1X7X4XFX",
+            "XXXXXXXXXXX"
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              0,
+              255,
+              0,
+              255,
+              0,
+              255,
+              0,
+              255,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0,
+              255,
+              0,
+              255,
+              0,
+              255,
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 1,
+      "title": "Candidate alpha values 0, 1, 127, 254, and 255",
+      "width": 11
+    },
+    {
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "BOUNDARY-RASTERIZATION"
+          ],
+          "evidence_ids": [
+            "ML-PATCH"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "training_gray_128"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "BOUNDARY-RASTERIZATION"
+          ],
+          "evidence_ids": [
+            "WEB-DETECT",
+            "KRITA-DETECT"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "any_alpha",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "any_nonzero_alpha"
+        }
+      ],
+      "family": "detection_faint_line",
+      "height": 5,
+      "id": "D012_faint_line_000",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            ".....",
+            ".....",
+            ".....",
+            ".....",
+            "....."
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              255,
+              255,
+              0
+            ],
+            [
+              0,
+              255,
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              255,
+              255,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              0,
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              255,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 1,
+      "title": "One enclosure pixel at gray 0 / alpha 255",
+      "width": 5
+    },
+    {
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "BOUNDARY-RASTERIZATION"
+          ],
+          "evidence_ids": [
+            "ML-PATCH"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "training_gray_128"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "BOUNDARY-RASTERIZATION"
+          ],
+          "evidence_ids": [
+            "WEB-DETECT",
+            "KRITA-DETECT"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "any_alpha",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "any_nonzero_alpha"
+        }
+      ],
+      "family": "detection_faint_line",
+      "height": 5,
+      "id": "D012_faint_line_127",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            ".....",
+            ".....",
+            ".....",
+            ".....",
+            "....."
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              128,
+              255,
+              0
+            ],
+            [
+              0,
+              255,
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              255,
+              255,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              0,
+              127,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              255,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 1,
+      "title": "One enclosure pixel at gray 127 / alpha 128",
+      "width": 5
+    },
+    {
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "BOUNDARY-RASTERIZATION"
+          ],
+          "evidence_ids": [
+            "ML-PATCH"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "training_gray_128"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "BOUNDARY-RASTERIZATION"
+          ],
+          "evidence_ids": [
+            "WEB-DETECT",
+            "KRITA-DETECT"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "any_alpha",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "any_nonzero_alpha"
+        }
+      ],
+      "family": "detection_faint_line",
+      "height": 5,
+      "id": "D012_faint_line_128",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            ".....",
+            ".....",
+            ".....",
+            ".....",
+            "....."
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              127,
+              255,
+              0
+            ],
+            [
+              0,
+              255,
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              255,
+              255,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              0,
+              128,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              255,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 1,
+      "title": "One enclosure pixel at gray 128 / alpha 127",
+      "width": 5
+    },
+    {
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "BOUNDARY-RASTERIZATION"
+          ],
+          "evidence_ids": [
+            "ML-PATCH"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": []
+          },
+          "variant": "training_gray_128"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "BOUNDARY-RASTERIZATION"
+          ],
+          "evidence_ids": [
+            "WEB-DETECT",
+            "KRITA-DETECT"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "any_alpha",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "any_nonzero_alpha"
+        }
+      ],
+      "family": "detection_faint_line",
+      "height": 5,
+      "id": "D012_faint_line_129",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            ".....",
+            ".....",
+            ".....",
+            ".....",
+            "....."
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              126,
+              255,
+              0
+            ],
+            [
+              0,
+              255,
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              255,
+              255,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              0,
+              129,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              255,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 1,
+      "title": "One enclosure pixel at gray 129 / alpha 126",
+      "width": 5
+    },
+    {
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "BOUNDARY-RASTERIZATION"
+          ],
+          "evidence_ids": [
+            "ML-PATCH"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": []
+          },
+          "variant": "training_gray_128"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "BOUNDARY-RASTERIZATION"
+          ],
+          "evidence_ids": [
+            "WEB-DETECT",
+            "KRITA-DETECT"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "any_alpha",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "any_nonzero_alpha"
+        }
+      ],
+      "family": "detection_faint_line",
+      "height": 5,
+      "id": "D012_faint_line_254",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            ".....",
+            ".....",
+            ".....",
+            ".....",
+            "....."
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              1,
+              255,
+              0
+            ],
+            [
+              0,
+              255,
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              255,
+              255,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              0,
+              254,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              255,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 1,
+      "title": "One enclosure pixel at gray 254 / alpha 1",
+      "width": 5
+    },
+    {
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "BOUNDARY-RASTERIZATION"
+          ],
+          "evidence_ids": [
+            "ML-PATCH"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": []
+          },
+          "variant": "training_gray_128"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "contract_role": "characterization_variant",
+          "decision_ids": [
+            "BOUNDARY-RASTERIZATION"
+          ],
+          "evidence_ids": [
+            "WEB-DETECT",
+            "KRITA-DETECT"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "any_alpha",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": []
+          },
+          "variant": "any_nonzero_alpha"
+        }
+      ],
+      "family": "detection_faint_line",
+      "height": 5,
+      "id": "D012_faint_line_255",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            ".....",
+            ".....",
+            ".....",
+            ".....",
+            "....."
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              255,
+              0,
+              255,
+              0
+            ],
+            [
+              0,
+              255,
+              255,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              0,
+              255,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              255,
+              0,
+              255
+            ],
+            [
+              255,
+              0,
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        }
+      },
+      "threshold": 1,
+      "title": "One enclosure pixel at gray 255 / alpha 0",
+      "width": 5
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "condition": "full image geometry is accessible before selection restriction",
+          "contract_role": "canonical",
+          "decision_ids": [
+            "D-04"
+          ],
+          "evidence_ids": [
+            "PAPER-4.1.1",
+            "AUDIT-G03",
+            "MAINTAINER-FREEZE-2026-08-13"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "whole",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  1,
+                  2,
+                  3,
+                  1
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 3,
+                "pixel_indices": [
+                  11,
+                  12,
+                  13
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "canonical_full_geometry_then_scope"
+        },
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "condition": "only clipped geometry is accessible and the component touches that boundary",
+          "contract_role": "canonical",
+          "decision_ids": [
+            "D-04"
+          ],
+          "evidence_ids": [
+            "CSP-SELECTION",
+            "MAINTAINER-FREEZE-2026-08-13"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "selected",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": []
+          },
+          "variant": "canonical_clipped_domain_conservative_reject"
+        },
+        {
+          "canonical": false,
+          "classification": "NONCANONICAL_REFERENCE",
+          "contract_role": "noncanonical_reference",
+          "decision_ids": [
+            "D-04"
+          ],
+          "evidence_ids": [
+            "PRODUCT-POLICY"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "allow",
+            "selection_policy": "selected",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": true
+              }
+            ]
+          },
+          "variant": "noncanonical_selection_edge_encloses"
+        }
+      ],
+      "family": "detection_selection",
+      "height": 5,
+      "id": "D013_selection_boundary",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            "XXXXX",
+            "XXXXX",
+            "X...X",
+            "XXXXX",
+            "XXXXX"
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              0,
+              0,
+              0,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              255,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      },
+      "threshold": 3,
+      "title": "Candidate clipped by a one-pixel selection",
+      "width": 5
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "contract_role": "canonical",
+          "decision_ids": [
+            "DET-ENCLOSED",
+            "D-04"
+          ],
+          "evidence_ids": [
+            "PAPER-4.1.1",
+            "CSP-SELECTION",
+            "MAINTAINER-FREEZE-2026-08-13"
+          ],
+          "policy": {
+            "alpha_policy": "exact_zero",
+            "alpha_threshold": 0,
+            "connectivity": 4,
+            "edge_policy": "reject",
+            "guide_policy": "boundary",
+            "line_policy": "training_gray_128",
+            "selection_boundary_policy": "reject",
+            "selection_policy": "selected",
+            "threshold_policy": "inclusive"
+          },
+          "result": {
+            "components": [
+              {
+                "bbox": [
+                  2,
+                  2,
+                  1,
+                  1
+                ],
+                "centroid": [
+                  2,
+                  2
+                ],
+                "id": 0,
+                "kind": "transparent",
+                "pixel_count": 1,
+                "pixel_indices": [
+                  12
+                ],
+                "touches_image_edge": false,
+                "touches_selection_edge": false
+              }
+            ]
+          },
+          "variant": "selection_contains_gap"
+        }
+      ],
+      "family": "detection_selection",
+      "height": 5,
+      "id": "D014_selection_contains_gap",
+      "rasters": {
+        "coloring_rgba": {
+          "encoding": "palette_rgba8",
+          "palette": {
+            ".": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "X": [
+              80,
+              100,
+              120,
+              255
+            ]
+          },
+          "rows": [
+            "XXXXX",
+            "XXXXX",
+            "XX.XX",
+            "XXXXX",
+            "XXXXX"
+          ]
+        },
+        "guide_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "line_alpha": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              0,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ],
+            [
+              255,
+              255,
+              255,
+              255,
+              255
+            ]
+          ]
+        },
+        "line_gray": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              255,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        },
+        "selection": {
+          "encoding": "rows_u8",
+          "rows": [
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ],
+            [
+              0,
+              255,
+              255,
+              255,
+              0
+            ],
+            [
+              0,
+              255,
+              255,
+              255,
+              0
+            ],
+            [
+              0,
+              255,
+              255,
+              255,
+              0
+            ],
+            [
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          ]
+        }
+      },
+      "threshold": 2,
+      "title": "Selection fully contains an enclosed gap and its neighbors",
+      "width": 5
+    }
+  ],
+  "centroid": "[floor(mean(x)), floor(mean(y))] for nonnegative coordinates",
+  "indexing": "row-major, pixel_index = y * width + x",
+  "schema": "gapfill-detection-cases-v1"
+}
