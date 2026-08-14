@@ -1,19 +1,25 @@
 #include <atomic>
+#include <chrono>
 #include <filesystem>
+#include <fstream>
 #include <functional>
 #include <iostream>
+#include <iterator>
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "cli/arguments.hpp"
 #include "core/correction_output.hpp"
 #include "core/gap_detection.hpp"
 #include "core/owner_regions.hpp"
 #include "core/quick_fix_pipeline.hpp"
 #include "core/smart_gap_propagation.hpp"
+#include "io/atomic_output.hpp"
 #include "io/png_io.hpp"
+#include "io/review_artifacts.hpp"
 #include "plugin_entry/gap_assist_command.hpp"
 #include "predictors/gap_color_predictor.hpp"
 #include "predictors/rule_based_predictor.hpp"
@@ -50,6 +56,48 @@ ga::GapCandidate makeGap(int id, std::uint32_t pixel, ga::Rgba color,
   gap.confidence = confidence;
   gap.confidenceBand = band;
   return gap;
+}
+
+ga::GapCandidate validGap(int id, int width, std::uint32_t pixel,
+                          ga::Rgba color = {1, 2, 3, 255}) {
+  auto gap = makeGap(id, pixel, color, 1.0, ga::ConfidenceBand::High);
+  const int x = static_cast<int>(pixel % static_cast<std::uint32_t>(width));
+  const int y = static_cast<int>(pixel / static_cast<std::uint32_t>(width));
+  gap.bbox = {x, y, 1, 1};
+  gap.centroid = {static_cast<double>(x), static_cast<double>(y)};
+  gap.apply = true;
+  gap.status = ga::ReviewStatus::Apply;
+  return gap;
+}
+
+template <typename Callable>
+void checkInvalidArgument(Callable&& callable) {
+  bool rejected = false;
+  try {
+    callable();
+  } catch (const std::invalid_argument&) {
+    rejected = true;
+  }
+  CHECK(rejected);
+}
+
+std::filesystem::path phase3TemporaryDirectory(const std::string& name) {
+  const auto nonce = std::chrono::steady_clock::now().time_since_epoch().count();
+  const auto path = std::filesystem::temp_directory_path() /
+                    ("gap-assist-phase3-" + name + "-" + std::to_string(nonce));
+  std::filesystem::create_directories(path);
+  return path;
+}
+
+void writeBytes(const std::filesystem::path& path, const std::string& bytes) {
+  std::ofstream output(path, std::ios::binary | std::ios::trunc);
+  output << bytes;
+  if (!output) throw TestFailure("Cannot write test fixture " + path.string());
+}
+
+std::string readBytes(const std::filesystem::path& path) {
+  std::ifstream input(path, std::ios::binary);
+  return {std::istreambuf_iterator<char>(input), std::istreambuf_iterator<char>()};
 }
 
 void detectsSmallTransparentRegion() {
@@ -173,7 +221,10 @@ void uncheckedGapIsNotInCorrectionLayer() {
   auto skip = makeGap(1, 1, {0, 255, 0, 255}, 0.2, ga::ConfidenceBand::Low);
   skip.apply = false;
   skip.status = ga::ReviewStatus::Skip;
-  const auto output = ga::CorrectionOutputGenerator().generate(source, {apply, skip}, {});
+  const ga::Settings settings;
+  const auto output = ga::CorrectionOutputGenerator().generate(
+      source, {apply, skip}, settings,
+      ga::captureCandidateContext(source, settings));
   CHECK(output.correctionLayer.atIndex(0) == ga::Rgba({255, 0, 0, 255}));
   CHECK(output.correctionLayer.atIndex(1).a == 0);
 }
@@ -185,7 +236,9 @@ void highlightContainsSkippedLowConfidenceGap() {
   gap.bbox = {7, 7, 1, 1};
   gap.centroid = {7, 7};
   gap.status = ga::ReviewStatus::Skip;
-  const auto output = ga::CorrectionOutputGenerator().generate(source, {gap}, {});
+  const ga::Settings settings;
+  const auto output = ga::CorrectionOutputGenerator().generate(
+      source, {gap}, settings, ga::captureCandidateContext(source, settings));
   CHECK(output.markedCount == 1);
   bool foundMarker = false;
   for (const auto pixel : output.highlightLayer.pixels()) foundMarker |= pixel.a != 0;
@@ -200,17 +253,24 @@ void appliedMediumGapIsNotAlsoHighlighted() {
   gap.centroid = {7, 7};
   gap.apply = true;
   gap.status = ga::ReviewStatus::Apply;
-  const auto output = ga::CorrectionOutputGenerator().generate(source, {gap}, {});
+  const ga::Settings settings;
+  const auto output = ga::CorrectionOutputGenerator().generate(
+      source, {gap}, settings, ga::captureCandidateContext(source, settings));
   CHECK(output.appliedCount == 1 && output.markedCount == 0);
 }
 
 void correctionLayerIsTransparentOutsideGapAndSourceUnchanged() {
-  const auto source = opaqueImage(4, 4, {9, 8, 7, 255});
+  auto source = opaqueImage(4, 4, {9, 8, 7, 255});
+  source.atIndex(5) = {};
   const auto original = source.pixels();
   auto gap = makeGap(0, 5, {1, 2, 3, 255}, 1.0, ga::ConfidenceBand::High);
+  gap.bbox = {1, 1, 1, 1};
+  gap.centroid = {1, 1};
   gap.apply = true;
   gap.status = ga::ReviewStatus::Apply;
-  const auto output = ga::CorrectionOutputGenerator().generate(source, {gap}, {});
+  const ga::Settings settings;
+  const auto output = ga::CorrectionOutputGenerator().generate(
+      source, {gap}, settings, ga::captureCandidateContext(source, settings));
   for (std::size_t index = 0; index < output.correctionLayer.size(); ++index)
     CHECK(output.correctionLayer.atIndex(index).a == (index == 5 ? 255 : 0));
   CHECK(source.pixels() == original);
@@ -280,6 +340,370 @@ void reviewModesAreControllable() {
   CHECK(one.current()->id == 1);
   CHECK(one.skipAndNext());
   CHECK(one.back());
+}
+
+void bulkDecisionsOnlyAffectUnreviewedCandidates() {
+  const auto makeSession = [] {
+    std::vector<ga::GapCandidate> gaps;
+    for (int id = 0; id < 4; ++id)
+      gaps.push_back(makeGap(id, static_cast<std::uint32_t>(id), {1, 2, 3, 255},
+                             0.95, ga::ConfidenceBand::High));
+    ga::ReviewSession session(std::move(gaps), ga::RunMode::OneByOne);
+    CHECK(session.setApply(1, true));
+    CHECK(session.skip(2));
+    CHECK(session.markOnly(3));
+    return session;
+  };
+
+  auto high = makeSession();
+  high.applyHighConfidence();
+  CHECK(high.gaps()[0].status == ga::ReviewStatus::Apply);
+  CHECK(high.gaps()[1].status == ga::ReviewStatus::Apply);
+  CHECK(high.gaps()[2].status == ga::ReviewStatus::Skip);
+  CHECK(high.gaps()[3].status == ga::ReviewStatus::MarkOnly);
+
+  auto selected = makeSession();
+  const std::vector<int> ids{0, 1, 2, 3};
+  selected.applySelected(ids);
+  CHECK(selected.gaps()[0].status == ga::ReviewStatus::Apply);
+  CHECK(selected.gaps()[1].status == ga::ReviewStatus::Apply);
+  CHECK(selected.gaps()[2].status == ga::ReviewStatus::Skip);
+  CHECK(selected.gaps()[3].status == ga::ReviewStatus::MarkOnly);
+
+  auto skipped = makeSession();
+  skipped.skipSelected(ids);
+  CHECK(skipped.gaps()[0].status == ga::ReviewStatus::Skip);
+  CHECK(skipped.gaps()[1].status == ga::ReviewStatus::Apply);
+  CHECK(skipped.gaps()[2].status == ga::ReviewStatus::Skip);
+  CHECK(skipped.gaps()[3].status == ga::ReviewStatus::MarkOnly);
+}
+
+void conflictingDecisionFileEntriesFail() {
+  auto gap = makeGap(0, 0, {1, 2, 3, 255}, 0.95, ga::ConfidenceBand::High);
+  ga::ReviewSession session({gap}, ga::RunMode::OneByOne);
+  const auto path =
+      std::filesystem::temp_directory_path() / "gap-assist-conflicting-decisions.txt";
+  {
+    std::ofstream output(path);
+    output << "0=skip\n0=apply\n";
+  }
+  bool rejected = false;
+  try {
+    ga::applyDecisionFile(path, session);
+  } catch (const std::runtime_error&) {
+    rejected = true;
+  }
+  std::filesystem::remove(path);
+  CHECK(rejected);
+}
+
+void identicalDecisionFileEntriesAreIdempotent() {
+  auto gap = makeGap(0, 0, {1, 2, 3, 255}, 0.95, ga::ConfidenceBand::High);
+  ga::ReviewSession session({gap}, ga::RunMode::OneByOne);
+  const auto directory = phase3TemporaryDirectory("identical-decisions");
+  const auto path = directory / "decisions.txt";
+  writeBytes(path, "0=skip\n0=skip\n");
+  ga::applyDecisionFile(path, session);
+  session.applyAllRemainingHighConfidence();
+  CHECK(session.gaps()[0].status == ga::ReviewStatus::Skip);
+  std::filesystem::remove_all(directory);
+}
+
+void forgedOpaqueCandidateFailsClosed() {
+  const auto source = opaqueImage(4, 4, {9, 8, 7, 255});
+  auto gap = makeGap(0, 5, {1, 2, 3, 255}, 1.0, ga::ConfidenceBand::High);
+  gap.apply = true;
+  gap.status = ga::ReviewStatus::Apply;
+  bool rejected = false;
+  try {
+    const ga::Settings settings;
+    static_cast<void>(ga::CorrectionOutputGenerator().generate(
+        source, {gap}, settings, ga::captureCandidateContext(source, settings)));
+  } catch (const std::invalid_argument&) {
+    rejected = true;
+  }
+  CHECK(rejected);
+  CHECK(source.atIndex(5) == ga::Rgba({9, 8, 7, 255}));
+}
+
+void forgedCandidateMatrixFailsClosed() {
+  const ga::Settings settings;
+  ga::Image source(4, 4);
+  const auto original = source.pixels();
+  const auto context = ga::captureCandidateContext(source, settings);
+  const auto generate = [&](const ga::Image& current,
+                            const std::vector<ga::GapCandidate>& gaps,
+                            const ga::CandidateContext& candidateContext =
+                                ga::CandidateContext{}) {
+    const auto& selectedContext = candidateContext.width == 0 ? context : candidateContext;
+    return ga::CorrectionOutputGenerator().generate(current, gaps, settings,
+                                                     selectedContext);
+  };
+
+  auto outOfRange = validGap(0, 4, 16);
+  checkInvalidArgument([&] { static_cast<void>(generate(source, {outOfRange})); });
+
+  auto duplicate = validGap(0, 4, 5);
+  duplicate.pixels.push_back(5);
+  duplicate.area = 2;
+  checkInvalidArgument([&] { static_cast<void>(generate(source, {duplicate})); });
+
+  const auto overlapA = validGap(0, 4, 5);
+  const auto overlapB = validGap(1, 4, 5);
+  checkInvalidArgument(
+      [&] { static_cast<void>(generate(source, {overlapA, overlapB})); });
+
+  auto duplicateId = validGap(0, 4, 5);
+  const auto sameId = validGap(0, 4, 6);
+  checkInvalidArgument(
+      [&] { static_cast<void>(generate(source, {duplicateId, sameId})); });
+
+  auto wrongArea = validGap(0, 4, 5);
+  wrongArea.area = 2;
+  checkInvalidArgument([&] { static_cast<void>(generate(source, {wrongArea})); });
+  auto wrongBox = validGap(0, 4, 5);
+  wrongBox.bbox.x = 0;
+  checkInvalidArgument([&] { static_cast<void>(generate(source, {wrongBox})); });
+  auto wrongCentroid = validGap(0, 4, 5);
+  wrongCentroid.centroid.x += 0.5;
+  checkInvalidArgument([&] { static_cast<void>(generate(source, {wrongCentroid})); });
+  auto nonfiniteCentroid = validGap(0, 4, 5);
+  nonfiniteCentroid.centroid.x = std::numeric_limits<double>::quiet_NaN();
+  checkInvalidArgument(
+      [&] { static_cast<void>(generate(source, {nonfiniteCentroid})); });
+
+  ga::Image wrongDimensions(5, 4);
+  checkInvalidArgument([&] {
+    static_cast<void>(generate(wrongDimensions, {validGap(0, 5, 6)}, context));
+  });
+
+  auto stale = source;
+  stale.atIndex(0) = {9, 8, 7, 255};
+  checkInvalidArgument(
+      [&] { static_cast<void>(generate(stale, {validGap(0, 4, 5)}, context)); });
+
+  auto changedSettings = settings;
+  changedSettings.samplingRadius += 1;
+  checkInvalidArgument([&] {
+    static_cast<void>(ga::CorrectionOutputGenerator().generate(
+        source, {validGap(0, 4, 5)}, changedSettings, context));
+  });
+
+  ga::Image partial = source;
+  partial.atIndex(5) = {1, 2, 3, 1};
+  const auto partialContext = ga::captureCandidateContext(partial, settings);
+  checkInvalidArgument([&] {
+    static_cast<void>(generate(partial, {validGap(0, 4, 5)}, partialContext));
+  });
+
+  CHECK(source.pixels() == original);
+}
+
+void candidateSelectionProvenanceFailsClosed() {
+  ga::Image source(4, 4);
+  ga::SelectionMask selection(4, 4);
+  selection.set(5 % 4, 5 / 4, 255);
+  ga::Settings settings;
+  settings.scope = ga::Scope::SelectionOnly;
+  const auto context = ga::captureCandidateContext(source, settings, &selection);
+  const auto original = source.pixels();
+
+  checkInvalidArgument([&] {
+    static_cast<void>(ga::CorrectionOutputGenerator().generate(
+        source, {validGap(0, 4, 6)}, settings, context, &selection));
+  });
+
+  auto changedSelection = selection;
+  changedSelection.set(0, 0, 255);
+  checkInvalidArgument([&] {
+    static_cast<void>(ga::CorrectionOutputGenerator().generate(
+        source, {validGap(0, 4, 5)}, settings, context, &changedSelection));
+  });
+  checkInvalidArgument([&] {
+    static_cast<void>(ga::CorrectionOutputGenerator().generate(
+        source, {validGap(0, 4, 5)}, settings, context));
+  });
+  CHECK(source.pixels() == original);
+}
+
+void settingsAndCliPrecedenceIsDeterministic() {
+  const auto directory = phase3TemporaryDirectory("arguments");
+  const auto settingsPath = directory / "settings.ini";
+  writeBytes(settingsPath,
+             "mode=quick_fix\n"
+             "gap_size=small\n"
+             "alpha_threshold=1\n"
+             "confidence=conservative\n"
+             "scope=whole\n"
+             "connectivity=4\n"
+             "create_highlight=true\n"
+             "predictor=rule_based\n");
+  const auto selection = (directory / "selection.png").string();
+  const std::vector<std::string> overrides{
+      "--input", "input.png", "--selection", selection, "--mode", "one",
+      "--gap-size", "17", "--alpha-threshold", "9", "--confidence",
+      "aggressive", "--connectivity", "8", "--predictor", "onnx",
+      "--no-highlight", "--debug"};
+  auto firstValues = overrides;
+  firstValues.insert(firstValues.begin(), {"--settings", settingsPath.string()});
+  auto secondValues = overrides;
+  secondValues.insert(secondValues.begin() + 4,
+                      {"--settings", settingsPath.string()});
+  auto thirdValues = overrides;
+  thirdValues.insert(thirdValues.end(), {"--settings", settingsPath.string()});
+  const auto first = ga::parseCliArguments(firstValues);
+  const auto second = ga::parseCliArguments(secondValues);
+  const auto third = ga::parseCliArguments(thirdValues);
+  const auto verify = [&](const ga::CliArguments& parsed) {
+    CHECK(parsed.settings.mode == ga::RunMode::OneByOne);
+    CHECK(parsed.settings.gapSizePreset == ga::GapSizePreset::Custom);
+    CHECK(parsed.settings.gapThreshold == 17 && parsed.settings.customGapThreshold == 17);
+    CHECK(parsed.settings.alphaThreshold == 9);
+    CHECK(parsed.settings.confidencePreset == ga::ConfidencePreset::Aggressive);
+    CHECK(parsed.settings.connectivity == ga::Connectivity::Eight);
+    CHECK(parsed.settings.scope == ga::Scope::SelectionOnly);
+    CHECK(parsed.settings.predictorOnnx);
+    CHECK(!parsed.settings.createHighlightLayer);
+    CHECK(parsed.settings.debugLogging);
+  };
+  verify(first);
+  verify(second);
+  verify(third);
+  CHECK(ga::serializeSettings(first.settings) == ga::serializeSettings(second.settings));
+  CHECK(ga::serializeSettings(second.settings) == ga::serializeSettings(third.settings));
+
+  const auto repeated = ga::parseCliArguments(
+      std::vector<std::string>{"--input", "input.png", "--mode", "quick",
+                               "--mode", "one", "--gap-size", "3",
+                               "--gap-size", "7"});
+  CHECK(repeated.settings.mode == ga::RunMode::OneByOne);
+  CHECK(repeated.settings.gapThreshold == 7);
+  std::filesystem::remove_all(directory);
+}
+
+void invalidConfigurationFailsCleanly() {
+  checkInvalidArgument([&] {
+    static_cast<void>(ga::parseCliArguments(std::vector<std::string>{
+        "--input", "input.png", "--alpha-threshold", "256"}));
+  });
+  checkInvalidArgument([&] {
+    static_cast<void>(ga::parseCliArguments(std::vector<std::string>{
+        "--input", "input.png", "--gap-size", "12junk"}));
+  });
+  const auto directory = phase3TemporaryDirectory("invalid-settings");
+  const auto path = directory / "settings.ini";
+  writeBytes(path, "mode=surprise\n");
+  bool rejected = false;
+  try {
+    static_cast<void>(ga::parseCliArguments(std::vector<std::string>{
+        "--input", "input.png", "--settings", path.string()}));
+  } catch (const std::runtime_error&) {
+    rejected = true;
+  }
+  CHECK(rejected);
+  std::filesystem::remove_all(directory);
+}
+
+void outputPathAliasesAndExistingPolicyAreEnforced() {
+  const auto directory = phase3TemporaryDirectory("path-policy");
+  const auto source = directory / "source.png";
+  writeBytes(source, "source");
+  const std::vector<std::uint8_t> bytes{'n', 'e', 'w'};
+
+  checkInvalidArgument([&] {
+    ga::validateOutputPlan(source, {{"correction", source, bytes}}, false);
+  });
+  const auto normalized = directory / "subdirectory" / ".." / "source.png";
+  checkInvalidArgument([&] {
+    ga::validateOutputPlan(source, {{"correction", normalized, bytes}}, false);
+  });
+  const auto relative = std::filesystem::relative(source, std::filesystem::current_path());
+  checkInvalidArgument([&] {
+    ga::validateOutputPlan(source, {{"correction", relative, bytes}}, false);
+  });
+
+  std::error_code linkError;
+  const auto symlink = directory / "source-symlink.png";
+  std::filesystem::create_symlink(source.filename(), symlink, linkError);
+  if (!linkError) {
+    checkInvalidArgument([&] {
+      ga::validateOutputPlan(source, {{"correction", symlink, bytes}}, true);
+    });
+  }
+  linkError.clear();
+  const auto hardlink = directory / "source-hardlink.png";
+  std::filesystem::create_hard_link(source, hardlink, linkError);
+  if (!linkError) {
+    checkInvalidArgument([&] {
+      ga::validateOutputPlan(source, {{"correction", hardlink, bytes}}, true);
+    });
+  }
+
+  const auto output = directory / "one.bin";
+  checkInvalidArgument([&] {
+    ga::validateOutputPlan(source,
+                           {{"correction", output, bytes},
+                            {"manifest", directory / "." / "one.bin", bytes}},
+                           false);
+  });
+  writeBytes(output, "old");
+  checkInvalidArgument([&] {
+    ga::validateOutputPlan(source, {{"correction", output, bytes}}, false);
+  });
+  ga::commitOutputPlan(source, {{"correction", output, bytes}}, true);
+  CHECK(readBytes(output) == "new");
+  CHECK(readBytes(source) == "source");
+  std::filesystem::remove_all(directory);
+}
+
+void atomicOutputFailuresRollbackAndCleanStaging() {
+  const auto directory = phase3TemporaryDirectory("atomic");
+  const auto source = directory / "source.bin";
+  const auto first = directory / "first.bin";
+  const auto second = directory / "second.bin";
+  const auto third = directory / "third-new.bin";
+  writeBytes(source, "source");
+  const std::vector<ga::OutputFile> outputs{
+      {"first", first, {'n', 'e', 'w', '1'}},
+      {"second", second, {'n', 'e', 'w', '2'}},
+      {"third", third, {'n', 'e', 'w', '3'}},
+  };
+
+  const std::vector<std::pair<ga::OutputCommitStage, int>> failures{
+      {ga::OutputCommitStage::TemporaryWrite, 3},
+      {ga::OutputCommitStage::BackupRename, 2},
+      {ga::OutputCommitStage::FinalRename, 3},
+      {ga::OutputCommitStage::Cleanup, 1},
+  };
+  for (const auto& [stage, failAt] : failures) {
+    writeBytes(first, "old1");
+    writeBytes(second, "old2");
+    int occurrences = 0;
+    bool rejected = false;
+    try {
+      ga::commitOutputPlan(
+          source, outputs, true,
+          [&](ga::OutputCommitStage current, const std::filesystem::path&) {
+            if (current == stage && ++occurrences == failAt)
+              throw std::runtime_error("injected output failure");
+          });
+    } catch (const std::runtime_error&) {
+      rejected = true;
+    }
+    CHECK(rejected);
+    CHECK(readBytes(source) == "source");
+    CHECK(readBytes(first) == "old1");
+    CHECK(readBytes(second) == "old2");
+    CHECK(!std::filesystem::exists(third));
+    for (const auto& entry : std::filesystem::directory_iterator(directory))
+      CHECK(entry.path().filename().string().find(".gap-assist-") ==
+            std::string::npos);
+  }
+
+  writeBytes(first, "old1");
+  checkInvalidArgument([&] { static_cast<void>(ga::encodePng(ga::Image())); });
+  CHECK(readBytes(first) == "old1");
+  std::filesystem::remove_all(directory);
 }
 
 void pngRoundTripPreservesRgba() {
@@ -445,6 +869,21 @@ int main() {
       {"missing color becomes mark only", noNearbyColorBecomesLowMarkOnly},
       {"prediction polling can cancel", predictionPollCanCancelImmediately},
       {"review modes are controllable", reviewModesAreControllable},
+      {"bulk decisions preserve explicit states",
+       bulkDecisionsOnlyAffectUnreviewedCandidates},
+      {"conflicting decisions fail", conflictingDecisionFileEntriesFail},
+      {"identical decisions are idempotent",
+       identicalDecisionFileEntriesAreIdempotent},
+      {"forged opaque candidate fails closed", forgedOpaqueCandidateFailsClosed},
+      {"forged candidate matrix fails closed", forgedCandidateMatrixFailsClosed},
+      {"candidate selection provenance fails closed",
+       candidateSelectionProvenanceFailsClosed},
+      {"settings and CLI precedence is deterministic",
+       settingsAndCliPrecedenceIsDeterministic},
+      {"invalid configuration fails cleanly", invalidConfigurationFailsCleanly},
+      {"output paths and existing policy are enforced",
+       outputPathAliasesAndExistingPolicyAreEnforced},
+      {"atomic output failures roll back", atomicOutputFailuresRollbackAndCleanStaging},
       {"PNG round trip", pngRoundTripPreservesRgba},
       {"cancel is nondestructive", cancelDoesNotModifyHost},
       {"missing layer capability is safe", missingLayerCapabilityFailsSafely},

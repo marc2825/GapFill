@@ -7,6 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 
 namespace gap_assist {
 namespace {
@@ -126,11 +127,8 @@ Image renderReviewContactSheet(const Image& source,
   return sheet;
 }
 
-void writeGapManifest(const std::filesystem::path& path,
-                      const ReviewSession& session, bool includeDebug) {
-  if (path.has_parent_path()) std::filesystem::create_directories(path.parent_path());
-  std::ofstream output(path, std::ios::trunc);
-  if (!output) throw std::runtime_error("Cannot write manifest: " + path.string());
+std::string serializeGapManifest(const ReviewSession& session, bool includeDebug) {
+  std::ostringstream output;
   const auto summary = session.summary();
   output << "{\n  \"summary\": {\"detected\": " << summary.detected
          << ", \"high\": " << summary.high << ", \"medium\": " << summary.medium
@@ -165,11 +163,22 @@ void writeGapManifest(const std::filesystem::path& path,
     output << '\n';
   }
   output << "  ]\n}\n";
+  return output.str();
+}
+
+void writeGapManifest(const std::filesystem::path& path,
+                      const ReviewSession& session, bool includeDebug) {
+  if (path.has_parent_path()) std::filesystem::create_directories(path.parent_path());
+  std::ofstream output(path, std::ios::trunc);
+  if (!output) throw std::runtime_error("Cannot write manifest: " + path.string());
+  output << serializeGapManifest(session, includeDebug);
+  if (!output) throw std::runtime_error("Cannot write manifest: " + path.string());
 }
 
 void applyDecisionFile(const std::filesystem::path& path, ReviewSession& session) {
   std::ifstream input(path);
   if (!input) throw std::runtime_error("Cannot read decisions: " + path.string());
+  std::unordered_map<int, std::string> decisions;
   for (std::string line; std::getline(input, line);) {
     if (line.empty() || line[0] == '#') continue;
     const auto separator = line.find('=');
@@ -177,6 +186,13 @@ void applyDecisionFile(const std::filesystem::path& path, ReviewSession& session
       throw std::runtime_error("Invalid decision line: " + line);
     const int id = std::stoi(line.substr(0, separator));
     const std::string decision = line.substr(separator + 1);
+    if (const auto found = decisions.find(id); found != decisions.end()) {
+      if (found->second != decision)
+        throw std::runtime_error("Conflicting duplicate decision for gap " +
+                                 std::to_string(id));
+      continue;
+    }
+    decisions.emplace(id, decision);
     bool accepted = false;
     if (decision == "apply") accepted = session.setApply(id, true);
     if (decision == "skip") accepted = session.skip(id);

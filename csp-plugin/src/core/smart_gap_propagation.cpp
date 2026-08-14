@@ -20,6 +20,7 @@ AnalysisResult SmartGapPropagation::analyze(
                            .cancelled = cancelled,
                            .cancellationPoll = cancellationPoll};
   applyPredictions(result.gaps, predictor.predict(input), settings);
+  result.candidateContext = captureCandidateContext(image, settings, selection);
   return result;
 }
 

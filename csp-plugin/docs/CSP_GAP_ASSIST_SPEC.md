@@ -49,6 +49,14 @@ a corrected preview, a review contact sheet, and a machine-readable manifest.
 Direct overwrite is opt-in, confirmed, and rejected when a one-step Undo cannot
 be guaranteed.
 
+For the PNG companion, output paths must be distinct from the input and one
+another. Existing destinations require `--force`; force never bypasses alias
+checks. All output content is encoded before same-directory staging and
+best-effort set rollback. Explicit per-gap Apply, Skip, or Mark Only decisions
+take precedence over bulk helpers, which act only on Unreviewed candidates.
+Configuration precedence is defaults, settings file, then CLI overrides; the
+last occurrence wins when the same CLI option is repeated.
+
 For the evaluated 2021 CELSYS filter SDK, the native host surface supports the
 Quick Fix subset only and commits through CSP's normal filter flow. Full review
 and separate correction/highlight outputs are provided by the PNG companion.
@@ -71,6 +79,8 @@ and separate correction/highlight outputs are provided by the PNG companion.
 | Unsafe host capabilities fail closed | `plugin_entry/gap_assist_command` | capability tests |
 | PNG input/review/output harness | `io`, `cli` | CTest/`make test-e2e` |
 | Persist non-image settings | `core/settings` | settings format + build tests |
+| Safe PNG output commit | `io/atomic_output`, `cli` | alias/force/failure-injection tests |
+| Candidate snapshot validation | `core/candidate_context`, `core/correction_output` | forged/stale candidate tests |
 | No network or telemetry | no network dependency/API in first-party code | source review/CI |
 
 ## Deliberately excluded from this version

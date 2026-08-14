@@ -19,6 +19,12 @@ int main(int argc, char** argv) {
       ga::savePng(path, image);
       return 0;
     }
+    if (command == "create-selection") {
+      ga::Image image(32, 32);
+      image.at(16, 16) = {255, 255, 255, 255};
+      ga::savePng(path, image);
+      return 0;
+    }
     if (command == "verify") {
       const auto image = ga::loadPng(path);
       if (image.width() != 32 || image.height() != 32)

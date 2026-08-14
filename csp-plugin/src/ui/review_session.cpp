@@ -75,18 +75,21 @@ bool ReviewSession::markOnly(int gapId) {
 }
 
 void ReviewSession::applySelected(std::span<const int> ids) {
-  for (const int id : ids) setApply(id, true);
+  for (const int id : ids) {
+    auto* gap = find(id);
+    if (gap != nullptr && gap->status == ReviewStatus::Unreviewed) setApply(id, true);
+  }
 }
 
 void ReviewSession::skipSelected(std::span<const int> ids) {
-  for (const int id : ids) skip(id);
+  for (const int id : ids) {
+    auto* gap = find(id);
+    if (gap != nullptr && gap->status == ReviewStatus::Unreviewed) skip(id);
+  }
 }
 
 void ReviewSession::applyHighConfidence() {
-  for (auto& gap : gaps_) {
-    if (gap.confidenceBand == ConfidenceBand::High && gap.suggestedColor.has_value())
-      setApply(gap.id, true);
-  }
+  applyAllRemainingHighConfidence();
 }
 
 void ReviewSession::applyAllRemainingHighConfidence() {

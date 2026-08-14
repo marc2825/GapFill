@@ -26,7 +26,7 @@ QuickFixResult QuickFixPipeline::run(
   ReviewSession review(std::move(analysis.gaps), RunMode::QuickFix);
   const auto summary = review.summary();
   auto output = CorrectionOutputGenerator().generate(
-      source, review.gaps(), settings, true);
+      source, review.gaps(), settings, analysis.candidateContext, selection, true);
   return {std::move(output.correctedComposite), summary.detected,
           output.appliedCount, summary.high, summary.medium, summary.low};
 }

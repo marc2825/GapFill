@@ -113,6 +113,9 @@ class SelectionMask {
     }
     values_[static_cast<std::size_t>(y) * width_ + x] = value;
   }
+  [[nodiscard]] const std::vector<std::uint8_t>& values() const noexcept {
+    return values_;
+  }
 
  private:
   int width_{};

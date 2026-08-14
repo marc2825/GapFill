@@ -4,6 +4,7 @@
 #include <functional>
 
 #include "core/gap_detection.hpp"
+#include "core/candidate_context.hpp"
 #include "core/owner_regions.hpp"
 #include "predictors/gap_color_predictor.hpp"
 
@@ -11,6 +12,7 @@ namespace gap_assist {
 
 struct AnalysisResult {
   std::vector<GapCandidate> gaps;
+  CandidateContext candidateContext;
 };
 
 class SmartGapPropagation {

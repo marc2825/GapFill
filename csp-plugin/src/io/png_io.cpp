@@ -1,6 +1,7 @@
 #include "io/png_io.hpp"
 
 #include <cstring>
+#include <fstream>
 #include <limits>
 #include <stdexcept>
 #include <string>
@@ -32,19 +33,30 @@ Image loadPng(const std::filesystem::path& path) {
   return image;
 }
 
-void savePng(const std::filesystem::path& path, const Image& image) {
+std::vector<std::uint8_t> encodePng(const Image& image) {
   if (image.empty()) throw std::invalid_argument("Cannot encode an empty PNG image.");
-  if (path.has_parent_path()) std::filesystem::create_directories(path.parent_path());
   static_assert(sizeof(Rgba) == 4, "Rgba must remain tightly packed for PNG I/O.");
   const auto* bytes =
       reinterpret_cast<const unsigned char*>(image.pixels().data());
-  const unsigned error = lodepng::encode(path.string(), bytes,
+  std::vector<unsigned char> encoded;
+  const unsigned error = lodepng::encode(encoded, bytes,
                                          static_cast<unsigned>(image.width()),
                                          static_cast<unsigned>(image.height()));
   if (error != 0) {
-    throw std::runtime_error("Cannot encode PNG " + path.string() + ": " +
-                             lodepng_error_text(error));
+    throw std::runtime_error("Cannot encode PNG: " +
+                             std::string(lodepng_error_text(error)));
   }
+  return encoded;
+}
+
+void savePng(const std::filesystem::path& path, const Image& image) {
+  const auto encoded = encodePng(image);
+  if (path.has_parent_path()) std::filesystem::create_directories(path.parent_path());
+  std::ofstream output(path, std::ios::binary | std::ios::trunc);
+  if (!output) throw std::runtime_error("Cannot write PNG " + path.string());
+  output.write(reinterpret_cast<const char*>(encoded.data()),
+               static_cast<std::streamsize>(encoded.size()));
+  if (!output) throw std::runtime_error("Cannot write PNG " + path.string());
 }
 
 SelectionMask loadSelectionPng(const std::filesystem::path& path, int expectedWidth,

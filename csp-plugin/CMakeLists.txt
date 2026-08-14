@@ -14,6 +14,8 @@ target_include_directories(lodepng PUBLIC third_party/lodepng)
 set_target_properties(lodepng PROPERTIES CXX_EXTENSIONS OFF)
 
 set(GAP_ASSIST_CORE_SOURCES
+  src/cli/arguments.cpp
+  src/core/candidate_context.cpp
   src/core/correction_output.cpp
   src/core/gap_detection.cpp
   src/core/owner_regions.cpp
@@ -21,6 +23,7 @@ set(GAP_ASSIST_CORE_SOURCES
   src/core/settings.cpp
   src/core/smart_gap_propagation.cpp
   src/io/png_io.cpp
+  src/io/atomic_output.cpp
   src/io/review_artifacts.cpp
   src/plugin_entry/gap_assist_command.cpp
   src/predictors/gap_color_predictor.cpp
@@ -61,6 +64,7 @@ if(GAP_ASSIST_BUILD_TESTS)
     message(FATAL_ERROR "GAP_ASSIST_BUILD_TESTS requires GAP_ASSIST_BUILD_TOOLS")
   endif()
   enable_testing()
+  find_package(Python3 REQUIRED COMPONENTS Interpreter)
   add_executable(gap_assist_tests tests/test_main.cpp)
   target_link_libraries(gap_assist_tests PRIVATE gap_assist_core)
   add_test(NAME gap_assist_core COMMAND gap_assist_tests)
@@ -79,13 +83,20 @@ if(GAP_ASSIST_BUILD_TESTS)
            COMMAND gap_assist_cli_fixture create "${GAP_ASSIST_FIXTURE_DIR}/input.png")
   set_tests_properties(gap_assist_fixture_create PROPERTIES FIXTURES_SETUP png_fixture)
   add_test(NAME gap_assist_cli_smoke
-           COMMAND gap_assist_cli --input "${GAP_ASSIST_FIXTURE_DIR}/input.png" --apply-high)
+           COMMAND gap_assist_cli --input "${GAP_ASSIST_FIXTURE_DIR}/input.png"
+                                  --apply-high --force)
   set_tests_properties(gap_assist_cli_smoke PROPERTIES FIXTURES_REQUIRED png_fixture
                        FIXTURES_SETUP cli_output)
   add_test(NAME gap_assist_fixture_verify
            COMMAND gap_assist_cli_fixture verify
                    "${GAP_ASSIST_FIXTURE_DIR}/input.gap-corrections.png")
   set_tests_properties(gap_assist_fixture_verify PROPERTIES FIXTURES_REQUIRED cli_output)
+
+  add_test(NAME gap_assist_phase3_cli_safety
+           COMMAND "${Python3_EXECUTABLE}"
+                   "${CMAKE_CURRENT_SOURCE_DIR}/tests/phase3_cli_safety.py"
+                   "$<TARGET_FILE:gap_assist_cli>"
+                   "$<TARGET_FILE:gap_assist_cli_fixture>")
 endif()
 
 if(GAP_ASSIST_BUILD_TOOLS)

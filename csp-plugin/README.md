@@ -67,9 +67,25 @@ The source PNG is never overwritten. Default outputs are:
 - `coloring.gap-review.png` — before/after contact sheet.
 - `coloring.gap-manifest.json` — IDs, geometry, prediction, confidence, and status.
 
+Every active output must be distinct from the input and from every other output,
+including filesystem aliases such as existing symbolic or hard links. Existing
+outputs are refused by default; pass `--force` to replace them. `--force` never
+permits an alias. Gap Assist encodes every artifact before staging same-directory
+temporary files, keeps recoverable backups while installing replacements, and
+rolls the set back when a staged write or rename fails. This is process-level
+best-effort rollback, not a crash-proof multi-file filesystem transaction; a
+process or machine failure can leave a hidden `.gap-assist-backup-*` recovery
+file, and directory durability is not guaranteed because directories are not
+`fsync`ed.
+
 Edit a decisions file using `examples/review_decisions.example.txt`, then rerun
 with `--decisions decisions.txt`. `--apply-high` accepts all remaining high-
-confidence candidates. Import the correction PNG into CSP as a new raster layer
+confidence Unreviewed candidates; explicit Apply, Skip, and Mark Only decisions
+always win. Exact duplicate decisions are accepted idempotently, while
+contradictory duplicates fail. Settings precedence is built-in defaults, then
+the settings file, then explicit command-line overrides, independent of where
+`--settings` appears. Repeated instances of the same CLI option use the last
+occurrence. Import the correction PNG into CSP as a new raster layer
 above the coloring layer. Import the highlight PNG only when desired.
 
 Use `--help` for every option. A nontransparent selection-mask PNG may be passed

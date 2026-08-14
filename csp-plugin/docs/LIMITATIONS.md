@@ -43,6 +43,16 @@ not assumptions in this repository.
   the responsibility of the eventual SDK adapter or CSP export/import.
 - Processing is linear and cancellable but currently single-threaded to keep host
   integration deterministic. Peak working memory is proportional to image size.
+- The PNG companion validates source/output identity and stages encoded artifacts
+  beside their destinations. Its rollback protects ordinary reported write and
+  rename failures, but it is not an OS-level multi-file transaction. Abrupt
+  process/OS loss can leave a hidden recovery backup, and directory entries are
+  not explicitly synchronized to stable storage. Real Windows filesystem and
+  antivirus/interruption behavior remains part of platform qualification.
+- Candidate application is bound to the pure engine's source, selection, image
+  geometry, and candidate-producing settings snapshot. The future CSP host
+  adapter must still ensure that its document/layer snapshot remains unchanged
+  between host read and final host commit.
 
 ## Not planned for this CSP MVP
 

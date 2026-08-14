@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <filesystem>
+#include <string>
 
 #include "core/image_types.hpp"
 
@@ -36,6 +37,7 @@ struct Settings {
 [[nodiscard]] ConfidenceThresholds thresholdsFor(ConfidencePreset preset);
 [[nodiscard]] ConfidenceBand classifyConfidence(double confidence,
                                                 ConfidencePreset preset);
+[[nodiscard]] std::string serializeSettings(const Settings& settings);
 
 class SettingsStore {
  public:

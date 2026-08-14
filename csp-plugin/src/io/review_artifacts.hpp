@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <string>
 #include <vector>
 
 #include "core/image_types.hpp"
@@ -13,6 +14,8 @@ namespace gap_assist {
                                              int columns = 4);
 void writeGapManifest(const std::filesystem::path& path,
                       const ReviewSession& session, bool includeDebug = false);
+[[nodiscard]] std::string serializeGapManifest(const ReviewSession& session,
+                                               bool includeDebug = false);
 void applyDecisionFile(const std::filesystem::path& path, ReviewSession& session);
 
 }  // namespace gap_assist

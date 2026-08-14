@@ -2,6 +2,7 @@
 
 #include <vector>
 
+#include "core/candidate_context.hpp"
 #include "core/image_types.hpp"
 #include "core/settings.hpp"
 
@@ -19,7 +20,8 @@ class CorrectionOutputGenerator {
  public:
   [[nodiscard]] GeneratedOutputs generate(
       const Image& source, const std::vector<GapCandidate>& gaps,
-      const Settings& settings,
+      const Settings& settings, const CandidateContext& context,
+      const SelectionMask* selection = nullptr,
       bool includeCorrectedComposite = true) const;
 
  private:

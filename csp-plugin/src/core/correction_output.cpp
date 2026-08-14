@@ -3,6 +3,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <limits>
+#include <stdexcept>
+#include <unordered_set>
 
 namespace gap_assist {
 namespace {
@@ -30,11 +33,69 @@ Rgba markerColor(const GapCandidate& gap) {
   return {0, 210, 255, 150};
 }
 
+void validateCandidates(const Image& source, const std::vector<GapCandidate>& gaps,
+                        const Settings& settings, const CandidateContext& context,
+                        const SelectionMask* selection) {
+  validateCandidateContext(context, source, settings, selection);
+  std::unordered_set<int> ids;
+  std::unordered_set<std::uint32_t> occupied;
+  for (const auto& gap : gaps) {
+    if (!ids.insert(gap.id).second)
+      throw std::invalid_argument("Candidate IDs must be unique.");
+    if (gap.pixels.empty() || gap.area != gap.pixels.size())
+      throw std::invalid_argument("Candidate area does not match its unique pixels.");
+
+    int minX = std::numeric_limits<int>::max();
+    int minY = std::numeric_limits<int>::max();
+    int maxX = -1;
+    int maxY = -1;
+    std::uint64_t sumX = 0;
+    std::uint64_t sumY = 0;
+    std::unordered_set<std::uint32_t> local;
+    for (const auto pixel : gap.pixels) {
+      if (pixel >= source.size())
+        throw std::invalid_argument("Candidate pixel index is outside the source.");
+      if (!local.insert(pixel).second)
+        throw std::invalid_argument("Candidate pixel indices must be unique.");
+      if (!occupied.insert(pixel).second)
+        throw std::invalid_argument("Candidate pixel sets must not overlap.");
+      if (source.atIndex(pixel).a != 0)
+        throw std::invalid_argument(
+            "Candidate target is no longer a fully transparent Coloring pixel.");
+      const int x = static_cast<int>(pixel % static_cast<std::uint32_t>(source.width()));
+      const int y = static_cast<int>(pixel / static_cast<std::uint32_t>(source.width()));
+      if (settings.scope == Scope::SelectionOnly &&
+          (selection == nullptr || !selection->selected(x, y))) {
+        throw std::invalid_argument("Candidate target is outside the application scope.");
+      }
+      minX = std::min(minX, x);
+      minY = std::min(minY, y);
+      maxX = std::max(maxX, x);
+      maxY = std::max(maxY, y);
+      sumX += static_cast<std::uint64_t>(x);
+      sumY += static_cast<std::uint64_t>(y);
+    }
+    const Rect expectedBox{minX, minY, maxX - minX + 1, maxY - minY + 1};
+    if (gap.bbox.x != expectedBox.x || gap.bbox.y != expectedBox.y ||
+        gap.bbox.width != expectedBox.width || gap.bbox.height != expectedBox.height)
+      throw std::invalid_argument("Candidate bounding box does not match its pixels.");
+    const double area = static_cast<double>(gap.area);
+    const double expectedX = static_cast<double>(sumX) / area;
+    const double expectedY = static_cast<double>(sumY) / area;
+    if (!std::isfinite(gap.centroid.x) || !std::isfinite(gap.centroid.y) ||
+        std::abs(gap.centroid.x - expectedX) > 1e-9 ||
+        std::abs(gap.centroid.y - expectedY) > 1e-9)
+      throw std::invalid_argument("Candidate centroid does not match its pixels.");
+  }
+}
+
 }  // namespace
 
 GeneratedOutputs CorrectionOutputGenerator::generate(
     const Image& source, const std::vector<GapCandidate>& gaps,
-    const Settings& settings, bool includeCorrectedComposite) const {
+    const Settings& settings, const CandidateContext& context,
+    const SelectionMask* selection, bool includeCorrectedComposite) const {
+  validateCandidates(source, gaps, settings, context, selection);
   GeneratedOutputs output{Image(source.width(), source.height()),
                           settings.createHighlightLayer
                               ? Image(source.width(), source.height())
@@ -44,7 +105,6 @@ GeneratedOutputs CorrectionOutputGenerator::generate(
     if (shouldApply(gap)) {
       const auto color = *gap.suggestedColor;
       for (const auto pixel : gap.pixels) {
-        if (pixel >= source.size()) continue;
         output.correctionLayer.atIndex(pixel) = color;
         if (includeCorrectedComposite)
           output.correctedComposite.atIndex(pixel) = color;

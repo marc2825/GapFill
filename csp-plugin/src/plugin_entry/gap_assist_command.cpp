@@ -60,7 +60,8 @@ CommandResult GapAssistCommand::run(HostFilterContext& host,
     }
     CorrectionOutputGenerator generator;
     const auto output = generator.generate(
-        source, review.gaps(), settings,
+        source, review.gaps(), settings, analysis.candidateContext,
+        selection.has_value() ? &*selection : nullptr,
         settings.outputMode == OutputMode::OverwriteActiveLayer);
 
     if (settings.outputMode == OutputMode::CorrectionLayer &&
