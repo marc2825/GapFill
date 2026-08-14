@@ -101,11 +101,11 @@ jobs:
 
       - name: Run tests
         working-directory: krita-plugin
-        run: pytest tests ../tests/parity/test_krita_phase2_fixtures.py
+        run: pytest tests ../tests/parity/test_krita_phase2_fixtures.py ../tests/parity/test_krita_phase4_detection.py
 
       - name: Run lint
         working-directory: krita-plugin
-        run: ruff check . ../scripts/gapfill_reference
+        run: ruff check . ../scripts/gapfill_reference ../tests/parity/test_krita_phase2_fixtures.py ../tests/parity/test_krita_phase4_detection.py
 
       - name: Build importable plugin
         run: python krita-plugin/scripts/build_plugin.py

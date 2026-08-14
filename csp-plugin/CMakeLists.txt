@@ -76,6 +76,14 @@ if(GAP_ASSIST_BUILD_TESTS)
            COMMAND gap_assist_phase2_fixtures
                    "${CMAKE_CURRENT_SOURCE_DIR}/../tests/fixtures/gapfill/parity/csp_detection_current.csv")
 
+  add_executable(gap_assist_phase4_detection_probe
+                 ../tests/parity/csp_phase4_detection_probe.cpp)
+  target_link_libraries(gap_assist_phase4_detection_probe PRIVATE gap_assist_core)
+  add_test(NAME gap_assist_phase4_detection
+           COMMAND "${Python3_EXECUTABLE}"
+                   "${CMAKE_CURRENT_SOURCE_DIR}/../tests/parity/test_csp_phase4_detection.py"
+                   "$<TARGET_FILE:gap_assist_phase4_detection_probe>")
+
   add_executable(gap_assist_cli_fixture tests/cli_fixture.cpp)
   target_link_libraries(gap_assist_cli_fixture PRIVATE gap_assist_core)
   set(GAP_ASSIST_FIXTURE_DIR "${CMAKE_CURRENT_BINARY_DIR}/e2e")

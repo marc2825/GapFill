@@ -123,6 +123,59 @@ class SelectionMask {
   std::vector<std::uint8_t> values_;
 };
 
+// Binary, row-major, top-left-origin mask used only by pure detection geometry.
+// A true Coloring value means canonical alpha-zero gap membership. True Line or
+// Guide values are impassable boundaries. Raster/host threshold policy belongs
+// in the conversion that creates these masks, not in GapDetector.
+class BinaryMask {
+ public:
+  BinaryMask() = default;
+  BinaryMask(int width, int height, bool fill = false);
+
+  [[nodiscard]] int width() const noexcept { return width_; }
+  [[nodiscard]] int height() const noexcept { return height_; }
+  [[nodiscard]] std::size_t size() const noexcept { return values_.size(); }
+  [[nodiscard]] bool value(int x, int y) const;
+  [[nodiscard]] bool atIndex(std::size_t index) const;
+  void set(int x, int y, bool value);
+  [[nodiscard]] const std::vector<std::uint8_t>& values() const noexcept {
+    return values_;
+  }
+
+ private:
+  int width_{};
+  int height_{};
+  std::vector<std::uint8_t> values_;
+};
+
+struct DetectionGeometry {
+  explicit DetectionGeometry(int width = 0, int height = 0)
+      : coloringGap(width, height),
+        lineBoundary(width, height),
+        guideBoundary(width, height) {}
+
+  BinaryMask coloringGap;
+  BinaryMask lineBoundary;
+  BinaryMask guideBoundary;
+
+  [[nodiscard]] int width() const noexcept { return coloringGap.width(); }
+  [[nodiscard]] int height() const noexcept { return coloringGap.height(); }
+  [[nodiscard]] std::size_t size() const noexcept { return coloringGap.size(); }
+  void validate() const;
+};
+
+// Canonical active-Coloring conversion: only alpha == 0 becomes membership.
+[[nodiscard]] DetectionGeometry normalizeCanonicalColoringGeometry(
+    const Image& coloring);
+
+// Compatibility conversion for existing RGBA layer snapshots. Coloring remains
+// exact-zero; Line/Guide keep the current any-nonzero-alpha acquisition rule.
+// That boundary rasterization policy is empirical and deliberately outside the
+// normalized detector contract.
+[[nodiscard]] DetectionGeometry normalizeLegacyRgbaGeometry(
+    const Image& coloring, const Image* lineArt = nullptr,
+    const Image* guides = nullptr);
+
 enum class Connectivity { Four = 4, Eight = 8 };
 enum class ConfidenceBand { High, Medium, Low };
 enum class ReviewStatus { Unreviewed, Apply, Skip, MarkOnly };
@@ -132,7 +185,11 @@ enum class Scope { WholeLayer, SelectionOnly };
 
 struct GapCandidate {
   int id{};
+  // Full canonical component used for enclosure, metadata, and prediction.
   std::vector<std::uint32_t> pixels;
+  // Optional-selection application subset. Empty means the full component for
+  // whole-layer and legacy/manually-built candidates, avoiding a duplicate copy.
+  std::vector<std::uint32_t> applicationPixels;
   std::size_t area{};
   Rect bbox;
   PointF centroid;
@@ -144,6 +201,11 @@ struct GapCandidate {
   std::optional<int> sourceOwnerId;
   std::string debugInfo;
 };
+
+[[nodiscard]] inline const std::vector<std::uint32_t>& candidateApplicationPixels(
+    const GapCandidate& gap) noexcept {
+  return gap.applicationPixels.empty() ? gap.pixels : gap.applicationPixels;
+}
 
 [[nodiscard]] inline std::string toString(ConfidenceBand band) {
   switch (band) {

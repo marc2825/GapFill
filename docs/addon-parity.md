@@ -50,8 +50,8 @@ behavior nor a passing reader promotes them to truth.
 | --- | --- | --- | --- |
 | `D-01` | accept sizes `<= T` | ML/Web/Krita/CSP agree | G-03 |
 | `D-02` | reject image-edge components | ML/Web retain D003: confirmed divergence; Krita/CSP agree | G-03 |
-| `D-03` | only Coloring alpha 0 is a gap | Web/Krita/CSP default agree; ML stage does not implement RGBA membership; CSP alpha >0 option is a noncanonical extension | G-03 |
-| `D-04` | analyze full geometry, then restrict application; clipped-only boundary is indeterminate/rejected | CSP core clips first despite owning the full image: confirmed divergence; real CSP acquisition is an unverified host limitation; ML/Web/Krita pure stages do not implement selection scope | G-03, C-10 |
+| `D-03` | only Coloring alpha 0 is a gap | Phase 4 Krita/CSP normalized detectors agree; ML stage does not implement RGBA membership and the CSP compatibility setting no longer broadens detector membership | G-03 |
+| `D-04` | analyze full geometry, then restrict application; clipped-only boundary is indeterminate/rejected | Phase 4 Krita/CSP pure detectors expose full component geometry plus an application subset; real CSP acquisition remains an unverified host limitation; ML/Web have no selection stage | G-03, C-10 |
 | `D-05` | four-neighbor only | all defaults agree; optional CSP eight-neighbor mode is an intentional noncanonical extension | — |
 | `D-06` | exact RGB mode; tie uses first row-major encounter | ML/Web return red in R006; Krita returns sorted-lowest blue: confirmed divergence; CSP learned stage not implemented | K-14 |
 | `D-07` | explicit learned/fallback provenance; fallback confidence cleared, confirmation required, Apply-High excluded | Web/Krita fallback is untagged; CSP is untagged and may auto-Apply a High rule result: confirmed divergence; ML product policy not implemented | K-11, C-02, C-03 |
@@ -62,30 +62,31 @@ Abbreviations: `ML` is the checked-in Python pipeline; `Web` is the browser
 reference; `Krita` is its pure engine; `CSP-W` is whole-image CSP; `CSP-S` is
 selection-scoped CSP. Counts below are candidate component sizes, not colors.
 
-| Case | ML | Web | Krita | CSP-W / CSP-S | Status | Interpretation |
+| Case | ML | Web | Krita normalized | CSP normalized W / S | Status | Interpretation |
 | --- | --- | --- | --- | --- | --- | --- |
 | D001 enclosed 1 px | 1 | 1 | 1 | 1 / 1 | `AGREES` | Basic enclosed transparent component agrees. |
 | D002 sizes T-1/T/T+1 | 2,3 | 2,3 | 2,3 | 2,3 / 2,3 | `AGREES` | D-01 freezes inclusive `<= T`; all current code agrees. |
 | D003 image-edge 1 px | 1 | 1 | none | none / none | `CONFIRMED_IMPLEMENTATION_DIVERGENCE` | D-02 rejects the exterior-touching component; ML/Web retain it. |
 | D004 exterior plus inner | inner 1 | inner 1 | inner 1 | inner 1 / inner 1 | `AGREES` | Large exterior is excluded by size; inner gap agrees. |
 | D005 diagonal pair | 1,1 | 1,1 | 1,1 | 1,1 / 1,1 | `AGREES` | D-05 four-neighbor default agrees; optional CSP eight-neighbor mode is noncanonical. |
-| D006 Line Art enclosure | 1 | 1 | 1 | none / none | `CONFIRMED_IMPLEMENTATION_DIVERGENCE` | CSP receives coloring alpha only, so cannot reproduce the multi-layer definition. |
-| D007 Guide enclosure | none | 1 | 1 | none / none | `UNRESOLVED_SPECIFICATION` | Paper permits Guides; ML training is line-only; Web/Krita use a Guide candidate class. |
-| D008 lone Guide in open area | none | Guide 1 | Guide 1 | none / none | `CONFIRMED_IMPLEMENTATION_DIVERGENCE` | Treating the Guide pixel itself as a gap contradicts Guide-as-boundary topology. |
-| D009 Guide stroke to exterior | none | Guide 3 | none | none / none | `UNRESOLVED_SPECIFICATION` | Edge filtering and Guide candidate typing interact. |
-| D010 mixed Line/Guide enclosure | none | 1 | 1 | none / none | `UNRESOLVED_SPECIFICATION` | Paper supports the boundary combination; model training semantics do not settle it. |
-| D011 alpha 0/1/127/254/255 | all five | only 0 | only 0 | only 0 / only 0 | `CONFIRMED_IMPLEMENTATION_DIVERGENCE` | D-03 accepts only alpha 0. Web/Krita/CSP default agree; ML receives a prepared mask rather than implementing RGBA membership. |
-| D012 gray 0/127/128 | 1 | 1 | 1 | none / none | `CONFIRMED_IMPLEMENTATION_DIVERGENCE` | ML threshold is `<=128`; CSP lacks Line Art input. |
-| D012 gray 129/254 | none | 1 | 1 | none / none | `UNRESOLVED_SPECIFICATION` | Web/Krita use any nonzero alpha, unlike the ML grayscale threshold. |
-| D012 gray 255 | none | none | none | none / none | `AGREES` | Fully absent boundary agrees. |
-| D013 selection clips gap | whole: 3 | whole: 3 | whole: 3 | whole: 3 / selection: none | `CONFIRMED_IMPLEMENTATION_DIVERGENCE` | Under D-04, full geometry yields 3 then application intersects to the selected middle pixel. CSP core clips before analysis despite having the full image. A clipped-only host would conservatively return indeterminate/reject. |
-| D014 selection contains gap | whole: 1 | whole: 1 | whole: 1 | whole: 1 / selection: 1 | `DELIBERATE_PLATFORM_DIFFERENCE` | Results agree, but selection scope exists only in CSP. |
+| D006 Line Art enclosure | 1 | 1 | 1 | 1 / 1 | `PURE_CORE_AGREES` | Both add-on cores now accept normalized Line boundaries; the shipping CSP host path still supplies no Line mask. |
+| D007 Guide enclosure | none | 1 | 1 | 1 / 1 | `PHASE4_DETECTION_PROFILE` | By explicit Phase 4 direction, add-on detection selects the frozen `guide_as_boundary` variant. The manifest and ONNX Guide policy remain empirical. |
+| D008 lone Guide in open area | none | Guide 1 | none | none / none | `ADDON_DETECTION_CORRECTED` | Guide is a boundary, not a one-pixel paintable component. Web remains divergent. |
+| D009 Guide stroke to exterior | none | Guide 3 | none | none / none | `ADDON_DETECTION_CORRECTED` | Boundary composition leaves only open exterior geometry; Web's typed candidate remains divergent. |
+| D010 mixed Line/Guide enclosure | none | 1 | 1 | 1 / 1 | `PHASE4_DETECTION_PROFILE` | Add-on detection uses combined normalized boundaries; ML training still does not settle model-input semantics. |
+| D011 alpha 0/1/127/254/255 | all five | only 0 | only 0 | only 0 / only 0 | `ADDON_PURE_CORE_AGREES` | D-03 accepts only alpha 0. ML receives a prepared mask rather than implementing RGBA membership. |
+| D012 gray 0/127/128 | 1 | 1 | legacy RGBA: 1 | normalized input required | `RASTERIZATION_UNRESOLVED` | The detector consumes a binary boundary; ML grayscale and current Krita any-alpha conversions remain separate empirical policies. |
+| D012 gray 129/254 | none | 1 | legacy RGBA: 1 | normalized input required | `RASTERIZATION_UNRESOLVED` | Phase 4 deliberately does not promote either faint-line conversion to canonical. |
+| D012 gray 255 | none | none | none | normalized input required | `RASTERIZATION_UNRESOLVED` | An absent normalized boundary agrees; host conversion remains outside detector semantics. |
+| D013 selection clips gap | whole: 3 | whole: 3 | geometry: 3 / apply: 1 | geometry: 3 / apply: 1 | `ADDON_PURE_CORE_AGREES` | D-04 now finds `[11,12,13]` before restricting application to `[12]`; a clipped-only host must still reject as indeterminate. |
+| D014 selection contains gap | whole: 1 | whole: 1 | geometry/apply: 1 | geometry/apply: 1 | `ADDON_PURE_CORE_AGREES` | Full geometry and selection application agree. |
 
 The current ML detector is an executable preprocessing reference, not a full
 paper implementation: it is given a prepared binary mask and does not itself
-distinguish Coloring, Line Art, and Guide layers. Web and Krita share most
-detection semantics. CSP's detections match only where coloring alpha alone is
-sufficient.
+distinguish Coloring, Line Art, and Guide layers. Phase 4 gives Krita and CSP the
+same normalized pure geometry contract and exact candidate sets for the tested
+profile. The current CSP CLI/private adapter still supplies Coloring only, so the
+pure-core Line/Guide results are not a real-host support claim.
 
 ## Patch and tensor matrix
 
@@ -160,9 +161,9 @@ oracles. Exact inputs and outputs are in `policy/cases.json`.
 | Case | Canonical result | Current implementation status |
 | --- | --- | --- |
 | MP001 modal participation | pixels `[1,2,4]` vote once; alpha-zero, explicit exclusion, and out-of-region pixels do not; RGB is blue | contract coverage for D-06 participation; current tie mismatch remains isolated in R006. |
-| S001 full geometry then selection | component `[11,12,13]` is enclosed; only `[12]` is eligible for application | CSP core rejects after clipping first: confirmed D-04 divergence. ML/Web/Krita selection stages are not implemented. |
+| S001 full geometry then selection | component `[11,12,13]` is enclosed; only `[12]` is eligible for application | Phase 4 Krita/CSP normalized pure detectors agree exactly; ML/Web do not implement selection scope. |
 | S002 clipped acquisition boundary | geometry is indeterminate; reject; selection did not create enclosure | CSP's conservative rejection agrees for this conditional host limitation; real CSP acquisition remains unverified. |
-| S003 selection excludes enclosed gap | geometry remains enclosed, but application set is empty | agrees with D-04 scope semantics where implemented. |
+| S003 selection excludes enclosed gap | geometry remains enclosed, but application set is empty | Phase 4 add-on detectors omit it from processing/output without changing the geometry verdict. |
 | F001 learned High | provenance `learned`; remains Apply-High eligible | product provenance field is absent from current Web/Krita/CSP result contracts. |
 | F002 fallback High-like, unconfirmed | provenance `fallback`; effective learned confidence is null; Apply-High false; manual apply false | Web/Krita are untagged; CSP rule result may be High and Apply by default: confirmed D-07 divergence. |
 | F003 fallback High-like, confirmed | manual apply true after explicit confirmation; learned confidence stays null and Apply-High stays false | explicit source-aware confirmation contract is not implemented. |

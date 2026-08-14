@@ -5,7 +5,8 @@ GapFill for Krita ports the paper's gap-detection and region-correspondence colo
 ## Features
 
 - Detects small, enclosed, fully transparent components on the selected Coloring layer.
-- Treats transparent Coloring pixels covered by a Guide as independent Guide-gap components, without merging them into neighboring gaps.
+- Treats Line Art and Guide pixels as detection boundaries; only enclosed,
+  uncovered Coloring transparency is paintable gap geometry.
 - Excludes Line Art pixels and open components touching the document boundary.
 - Runs the same 2-channel, 32×32 U-Net model used by the web application and validates its full input/output contract.
 - Shows temporary suggested fills, circular highlights, and a fixed 5× hover magnifier.
@@ -47,10 +48,19 @@ Choose layers in the GapFill docker before scanning:
 
 - **Coloring** must be an unlocked RGBA/U8 paint layer. Unpainted pixels must be fully transparent.
 - **Line Art** must have a transparent background; its nonzero alpha pixels are boundaries and never gaps.
-- **Guides** are optional and must also have a transparent background. A Guide displayed below the Coloring layer can cover pixels that remain transparent on Coloring. Those pixels are detected as their own Guide-gap components and are filled on Coloring.
+- **Guides** are optional and must also have a transparent background. Their
+  nonzero-alpha pixels are detection boundaries, not paintable Guide-gap pixels.
+  A Guide-only or mixed Line/Guide enclosure may bound an ordinary transparent
+  Coloring gap; an isolated Guide in open transparency does not create a gap.
 - A white Background layer may remain visible below the other layers, but do not select it as Coloring, Line Art, or Guides. It is only visual backing and does not change the Coloring layer's transparency.
 
 The selected nodes are read in document coordinates. If layers are moved or transformed after scanning, rescan before applying suggestions.
+
+The pure detector first converts these RGBA snapshots into separate binary
+Coloring-membership, Line-boundary, and Guide-boundary masks. Coloring membership
+is exactly alpha zero. The current Krita conversion preserves the existing
+any-nonzero-alpha Line/Guide rule; the correct faint/anti-aliased host
+rasterization threshold remains an empirical question and is not an ONNX policy.
 
 ## Interaction
 

@@ -31,11 +31,19 @@ Next, Skip and Next, and Apply All Remaining High Confidence.
 
 ## Analysis and output
 
-- Input: RGBA active-raster-layer pixels and, when supported, a selection mask.
-- Transparent test: `alpha <= alphaThreshold` (default 0).
+- Pure detector input: equal-sized binary Coloring-membership, Line-boundary,
+  and Guide-boundary masks, plus an optional selection/application mask.
+- Canonical Coloring membership is exactly `alpha == 0` at normalization. The
+  legacy `alphaThreshold` setting remains serialized for compatibility and for
+  existing non-detector sampling code; it does not broaden canonical detection.
 - Area presets: Small 3 px, Medium 10 px, Large 30 px, or Custom.
-- Connectivity: four neighbors by default, optionally eight.
-- Open components touching an image or selection boundary are excluded.
+- Connectivity: four neighbors canonically and by default. The optional
+  eight-neighbor setting is an explicit noncanonical compatibility extension.
+- Components touching the image boundary are excluded. Enclosure and size are
+  determined in full accessible geometry before selection intersects the
+  component's application pixels; a selection edge cannot create enclosure.
+- True Line and Guide mask pixels are impassable boundaries and are not
+  paintable candidate pixels.
 - Opaque owner candidates must contain more pixels than the gap threshold.
 - The rule predictor samples an expanded gap neighborhood, clusters RGB into
   five-bit buckets, weights closer samples more strongly, and records the
@@ -81,6 +89,7 @@ and separate correction/highlight outputs are provided by the PNG companion.
 | Persist non-image settings | `core/settings` | settings format + build tests |
 | Safe PNG output commit | `io/atomic_output`, `cli` | alias/force/failure-injection tests |
 | Candidate snapshot validation | `core/candidate_context`, `core/correction_output` | forged/stale candidate tests |
+| Normalized geometry and D-04 binding | `core/image_types`, `core/gap_detection`, `core/candidate_context` | Phase 4 parity/provenance tests |
 | No network or telemetry | no network dependency/API in first-party code | source review/CI |
 
 ## Deliberately excluded from this version

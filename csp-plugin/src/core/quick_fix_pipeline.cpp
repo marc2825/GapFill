@@ -13,6 +13,16 @@ QuickFixResult QuickFixPipeline::run(
     const Image& source, Settings settings, const SelectionMask* selection,
     const std::atomic_bool* cancelled, const ProgressCallback& progress,
     const std::function<void()>& cancellationPoll) const {
+  const auto geometry = normalizeCanonicalColoringGeometry(source);
+  return run(source, geometry, settings, selection, cancelled, progress,
+             cancellationPoll);
+}
+
+QuickFixResult QuickFixPipeline::run(
+    const Image& source, const DetectionGeometry& geometry, Settings settings,
+    const SelectionMask* selection, const std::atomic_bool* cancelled,
+    const ProgressCallback& progress,
+    const std::function<void()>& cancellationPoll) const {
   settings.mode = RunMode::QuickFix;
   settings.outputMode = OutputMode::OverwriteActiveLayer;
   settings.createHighlightLayer = false;
@@ -21,12 +31,13 @@ QuickFixResult QuickFixPipeline::run(
 
   RuleBasedPredictor predictor;
   auto analysis = SmartGapPropagation().analyze(
-      source, settings, predictor, selection, cancelled, progress,
+      source, geometry, settings, predictor, selection, cancelled, progress,
       cancellationPoll);
   ReviewSession review(std::move(analysis.gaps), RunMode::QuickFix);
   const auto summary = review.summary();
   auto output = CorrectionOutputGenerator().generate(
-      source, review.gaps(), settings, analysis.candidateContext, selection, true);
+      source, review.gaps(), settings, analysis.candidateContext, selection, true,
+      &geometry);
   return {std::move(output.correctedComposite), summary.detected,
           output.appliedCount, summary.high, summary.medium, summary.low};
 }

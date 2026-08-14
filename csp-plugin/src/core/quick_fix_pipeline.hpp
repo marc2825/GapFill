@@ -24,6 +24,13 @@ struct QuickFixResult {
 class QuickFixPipeline {
  public:
   [[nodiscard]] QuickFixResult run(
+      const Image& source, const DetectionGeometry& geometry, Settings settings,
+      const SelectionMask* selection = nullptr,
+      const std::atomic_bool* cancelled = nullptr,
+      const ProgressCallback& progress = {},
+      const std::function<void()>& cancellationPoll = {}) const;
+
+  [[nodiscard]] QuickFixResult run(
       const Image& source, Settings settings,
       const SelectionMask* selection = nullptr,
       const std::atomic_bool* cancelled = nullptr,

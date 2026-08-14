@@ -41,11 +41,12 @@ std::vector<std::vector<std::uint32_t>> parseExpected(const std::string& value) 
 }
 
 std::vector<std::vector<std::uint32_t>> actualPixels(
-    const std::vector<gap_assist::GapCandidate>& gaps) {
+    const std::vector<gap_assist::GapCandidate>& gaps, bool application = false) {
   std::vector<std::vector<std::uint32_t>> components;
   components.reserve(gaps.size());
   for (const auto& gap : gaps) {
-    auto pixels = gap.pixels;
+    auto pixels = application ? gap_assist::candidateApplicationPixels(gap)
+                              : gap.pixels;
     std::sort(pixels.begin(), pixels.end());
     components.push_back(std::move(pixels));
   }
@@ -104,8 +105,19 @@ void runFixture(const std::vector<std::string>& fields, std::size_t lineNumber) 
   const auto expected = parseExpected(fields[8]);
   const auto* selectionPointer =
       settings.scope == gap_assist::Scope::SelectionOnly ? &selection : nullptr;
-  const auto actual = actualPixels(
-      gap_assist::GapDetector{}.detect(image, settings, selectionPointer, nullptr, {}));
+  const auto gaps =
+      gap_assist::GapDetector{}.detect(image, settings, selectionPointer, nullptr, {});
+  const auto actual = actualPixels(gaps);
+  if (caseId == "D013_selection_boundary" && scope == "selected") {
+    if (!expected.empty() || actual != parseExpected("11;12;13") ||
+        actualPixels(gaps, true) != parseExpected("12")) {
+      throw std::runtime_error(
+          caseId +
+          ": Phase 4 must replace the historical selection-clipped result with "
+          "full geometry [11,12,13] and application subset [12]");
+    }
+    return;
+  }
   if (actual != expected) {
     throw std::runtime_error(caseId +
                              ": CSP detection no longer matches the independently "
@@ -134,8 +146,8 @@ int main(int argc, char** argv) {
       runFixture(split(line, ','), lineNumber);
       ++caseCount;
     }
-    std::cout << "Phase 2 CSP fixture reader: " << caseCount
-              << " current-behavior scope/case rows matched (not canonical goldens)\n";
+    std::cout << "Phase 2 CSP characterization: 37/38 historical rows retained; "
+                 "D013 selected changed only by canonical D-04 (not golden data)\n";
     return 0;
   } catch (const std::exception& error) {
     std::cerr << error.what() << '\n';

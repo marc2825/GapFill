@@ -35,8 +35,9 @@ Rgba markerColor(const GapCandidate& gap) {
 
 void validateCandidates(const Image& source, const std::vector<GapCandidate>& gaps,
                         const Settings& settings, const CandidateContext& context,
-                        const SelectionMask* selection) {
-  validateCandidateContext(context, source, settings, selection);
+                        const SelectionMask* selection,
+                        const DetectionGeometry* geometry) {
+  validateCandidateContext(context, source, settings, selection, geometry);
   std::unordered_set<int> ids;
   std::unordered_set<std::uint32_t> occupied;
   for (const auto& gap : gaps) {
@@ -64,10 +65,6 @@ void validateCandidates(const Image& source, const std::vector<GapCandidate>& ga
             "Candidate target is no longer a fully transparent Coloring pixel.");
       const int x = static_cast<int>(pixel % static_cast<std::uint32_t>(source.width()));
       const int y = static_cast<int>(pixel / static_cast<std::uint32_t>(source.width()));
-      if (settings.scope == Scope::SelectionOnly &&
-          (selection == nullptr || !selection->selected(x, y))) {
-        throw std::invalid_argument("Candidate target is outside the application scope.");
-      }
       minX = std::min(minX, x);
       minY = std::min(minY, y);
       maxX = std::max(maxX, x);
@@ -79,13 +76,33 @@ void validateCandidates(const Image& source, const std::vector<GapCandidate>& ga
     if (gap.bbox.x != expectedBox.x || gap.bbox.y != expectedBox.y ||
         gap.bbox.width != expectedBox.width || gap.bbox.height != expectedBox.height)
       throw std::invalid_argument("Candidate bounding box does not match its pixels.");
-    const double area = static_cast<double>(gap.area);
-    const double expectedX = static_cast<double>(sumX) / area;
-    const double expectedY = static_cast<double>(sumY) / area;
+    const double expectedX = static_cast<double>(sumX / gap.area);
+    const double expectedY = static_cast<double>(sumY / gap.area);
     if (!std::isfinite(gap.centroid.x) || !std::isfinite(gap.centroid.y) ||
         std::abs(gap.centroid.x - expectedX) > 1e-9 ||
         std::abs(gap.centroid.y - expectedY) > 1e-9)
       throw std::invalid_argument("Candidate centroid does not match its pixels.");
+
+    const auto& targets = candidateApplicationPixels(gap);
+    if (targets.empty())
+      throw std::invalid_argument("Candidate has no pixels in the application scope.");
+    std::unordered_set<std::uint32_t> targetSet;
+    for (const auto pixel : targets) {
+      if (!targetSet.insert(pixel).second)
+        throw std::invalid_argument("Candidate application pixels must be unique.");
+      if (!local.contains(pixel))
+        throw std::invalid_argument(
+            "Candidate application pixels must be a subset of its full geometry.");
+      const int x = static_cast<int>(pixel % static_cast<std::uint32_t>(source.width()));
+      const int y = static_cast<int>(pixel / static_cast<std::uint32_t>(source.width()));
+      if (settings.scope == Scope::SelectionOnly &&
+          (selection == nullptr || !selection->selected(x, y))) {
+        throw std::invalid_argument("Candidate target is outside the application scope.");
+      }
+    }
+    if (settings.scope == Scope::WholeLayer && targets.size() != gap.pixels.size())
+      throw std::invalid_argument(
+          "Whole-layer candidates must apply to their complete geometry.");
   }
 }
 
@@ -94,8 +111,9 @@ void validateCandidates(const Image& source, const std::vector<GapCandidate>& ga
 GeneratedOutputs CorrectionOutputGenerator::generate(
     const Image& source, const std::vector<GapCandidate>& gaps,
     const Settings& settings, const CandidateContext& context,
-    const SelectionMask* selection, bool includeCorrectedComposite) const {
-  validateCandidates(source, gaps, settings, context, selection);
+    const SelectionMask* selection, bool includeCorrectedComposite,
+    const DetectionGeometry* geometry) const {
+  validateCandidates(source, gaps, settings, context, selection, geometry);
   GeneratedOutputs output{Image(source.width(), source.height()),
                           settings.createHighlightLayer
                               ? Image(source.width(), source.height())
@@ -104,7 +122,7 @@ GeneratedOutputs CorrectionOutputGenerator::generate(
   for (const auto& gap : gaps) {
     if (shouldApply(gap)) {
       const auto color = *gap.suggestedColor;
-      for (const auto pixel : gap.pixels) {
+      for (const auto pixel : candidateApplicationPixels(gap)) {
         output.correctionLayer.atIndex(pixel) = color;
         if (includeCorrectedComposite)
           output.correctedComposite.atIndex(pixel) = color;

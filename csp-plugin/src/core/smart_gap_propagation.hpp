@@ -18,6 +18,14 @@ struct AnalysisResult {
 class SmartGapPropagation {
  public:
   [[nodiscard]] AnalysisResult analyze(
+      const Image& image, const DetectionGeometry& geometry,
+      const Settings& settings, const GapColorPredictor& predictor,
+      const SelectionMask* selection = nullptr,
+      const std::atomic_bool* cancelled = nullptr,
+      const ProgressCallback& progress = {},
+      const std::function<void()>& cancellationPoll = {}) const;
+
+  [[nodiscard]] AnalysisResult analyze(
       const Image& image, const Settings& settings,
       const GapColorPredictor& predictor,
       const SelectionMask* selection = nullptr,

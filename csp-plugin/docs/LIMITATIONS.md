@@ -30,8 +30,12 @@ not assumptions in this repository.
 
 ## Current functional scope
 
-- Active raster layer only. Reference composites, line art, and guide layers are
-  reserved extension inputs and are not used by the rule predictor.
+- The public pure core accepts normalized Coloring, Line, and Guide detection
+  masks. The current CLI and 2021-SDK Quick Fix adapter can still acquire only
+  the active Coloring raster, so their Line/Guide masks are empty. Real host
+  multi-layer acquisition remains unverified and is not claimed by Phase 4.
+- Reference composites, Line Art, and Guides remain unused by the rule predictor;
+  detector geometry does not change its inference semantics.
 - The ONNX class is a local-only stub. Selecting ONNX visibly falls back to the
   rule predictor; no image is uploaded.
 - The CLI contact sheet is a static review artifact, not a native interactive CSP UI.
@@ -42,7 +46,10 @@ not assumptions in this repository.
 - RGBA8 PNG is the interchange format; document color depth/profile conversion is
   the responsibility of the eventual SDK adapter or CSP export/import.
 - Processing is linear and cancellable but currently single-threaded to keep host
-  integration deterministic. Peak working memory is proportional to image size.
+  integration deterministic. Detection uses adjacent-row run state and
+  threshold-bounded retained component pixels, while the three normalized masks
+  and returned candidates remain proportional to image size. Host cancellation
+  delivery still requires real CSP qualification.
 - The PNG companion validates source/output identity and stages encoded artifacts
   beside their destinations. Its rollback protects ordinary reported write and
   rename failures, but it is not an OS-level multi-file transaction. Abrupt

@@ -64,14 +64,35 @@ SnapshotFingerprint fingerprintSelection(const SelectionMask& selection) {
   return hash.finish();
 }
 
+SnapshotFingerprint fingerprintGeometry(const DetectionGeometry& geometry) {
+  geometry.validate();
+  FingerprintBuilder hash;
+  hash.add(geometry.width());
+  hash.add(geometry.height());
+  for (const auto value : geometry.coloringGap.values()) hash.addByte(value);
+  for (const auto value : geometry.lineBoundary.values()) hash.addByte(value);
+  for (const auto value : geometry.guideBoundary.values()) hash.addByte(value);
+  return hash.finish();
+}
+
 }  // namespace
 
 CandidateContext captureCandidateContext(const Image& source, const Settings& settings,
-                                         const SelectionMask* selection) {
+                                         const SelectionMask* selection,
+                                         const DetectionGeometry* geometry) {
+  const auto normalized =
+      geometry == nullptr ? normalizeCanonicalColoringGeometry(source)
+                          : DetectionGeometry{};
+  const auto& boundGeometry = geometry == nullptr ? normalized : *geometry;
+  if (boundGeometry.width() != source.width() ||
+      boundGeometry.height() != source.height())
+    throw std::invalid_argument(
+        "Candidate geometry dimensions do not match the source.");
   CandidateContext context;
   context.width = source.width();
   context.height = source.height();
   context.sourceFingerprint = fingerprintImage(source);
+  context.geometryFingerprint = fingerprintGeometry(boundGeometry);
   context.hasSelection = selection != nullptr;
   if (selection != nullptr) context.selectionFingerprint = fingerprintSelection(*selection);
   context.scope = settings.scope;
@@ -87,11 +108,21 @@ CandidateContext captureCandidateContext(const Image& source, const Settings& se
 
 void validateCandidateContext(const CandidateContext& context, const Image& source,
                               const Settings& settings,
-                              const SelectionMask* selection) {
+                              const SelectionMask* selection,
+                              const DetectionGeometry* geometry) {
+  const auto normalized =
+      geometry == nullptr ? normalizeCanonicalColoringGeometry(source)
+                          : DetectionGeometry{};
+  const auto& boundGeometry = geometry == nullptr ? normalized : *geometry;
   if (context.width != source.width() || context.height != source.height())
     throw std::invalid_argument("Candidate context dimensions do not match the source.");
   if (context.sourceFingerprint != fingerprintImage(source))
     throw std::invalid_argument("Candidate source snapshot is stale or does not match.");
+  if (boundGeometry.width() != source.width() ||
+      boundGeometry.height() != source.height())
+    throw std::invalid_argument("Candidate geometry dimensions do not match the source.");
+  if (context.geometryFingerprint != fingerprintGeometry(boundGeometry))
+    throw std::invalid_argument("Candidate detection geometry is stale or does not match.");
   if (context.scope != settings.scope || context.connectivity != settings.connectivity ||
       context.confidencePreset != settings.confidencePreset ||
       context.gapThreshold != settings.gapThreshold ||

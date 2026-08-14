@@ -15,7 +15,9 @@ and [SDK integration](docs/SDK_INTEGRATION.md).
 
 ## Implemented behavior
 
-- Small/Medium/Large/Custom gap detection with configurable alpha threshold.
+- Small/Medium/Large/Custom detection over exact-alpha-zero Coloring membership.
+- Normalized binary Line/Guide boundary inputs in the public pure core; current
+  CLI/native acquisition remains active-Coloring-only.
 - Four- or eight-neighbor connectivity and exclusion of open boundary regions.
 - Whole-layer and selection-only scopes.
 - Rule-based, distance-weighted nearby-color prediction with owner-region IDs.
@@ -89,8 +91,9 @@ occurrence. Import the correction PNG into CSP as a new raster layer
 above the coloring layer. Import the highlight PNG only when desired.
 
 Use `--help` for every option. A nontransparent selection-mask PNG may be passed
-with `--selection`; regions touching the selection boundary are treated as open
-and are excluded.
+with `--selection`; full-image geometry determines enclosure first, then only
+selected pixels of an enclosed component are eligible for correction. Selection
+edges never manufacture enclosure.
 
 ## CSP integration status
 

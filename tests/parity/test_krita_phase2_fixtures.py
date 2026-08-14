@@ -84,7 +84,16 @@ def test_shared_detection_fixtures_characterize_current_krita_behavior() -> None
             images.width,
             images.height,
         )
-        assert actual == row["observations"]["krita_current"], case["id"]
+        if case["id"] == "D008_isolated_guide_pixel_open":
+            boundary = next(
+                item["result"]["components"]
+                for item in case["expectations"]
+                if item["variant"] == "guide_as_boundary"
+            )
+            assert actual == boundary
+            assert row["observations"]["krita_current"] != boundary
+        else:
+            assert actual == row["observations"]["krita_current"], case["id"]
 
 
 def test_shared_patch_fixtures_characterize_current_krita_behavior() -> None:

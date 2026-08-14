@@ -22,7 +22,8 @@ class CorrectionOutputGenerator {
       const Image& source, const std::vector<GapCandidate>& gaps,
       const Settings& settings, const CandidateContext& context,
       const SelectionMask* selection = nullptr,
-      bool includeCorrectedComposite = true) const;
+      bool includeCorrectedComposite = true,
+      const DetectionGeometry* geometry = nullptr) const;
 
  private:
   static void drawMarker(Image& image, const GapCandidate& gap, Rgba color);

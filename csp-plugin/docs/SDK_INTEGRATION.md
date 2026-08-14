@@ -73,8 +73,9 @@ SDK-independent core/CLI bundles are separate and contain no CELSYS SDK material
 ## 5. Validation
 
 Run the SDK-independent tests first. Then test the native Quick Fix build in a
-disposable CSP document using multiple gap thresholds, custom alpha, both
-connectivities, selection-only, Preview, Cancel, OK, and Undo. Test Review List,
+disposable CSP document using multiple gap thresholds, exact-zero alpha
+membership, both connectivities, full-geometry selection scope, Preview, Cancel,
+OK, and Undo. Test Review List,
 One-by-One, Correction Layer, and Highlight Layer separately through the PNG
 companion; they are not native 2021-SDK capabilities.
 Use `docs/MANUAL_TEST_PLAN.md` to record the result rather than relying on an

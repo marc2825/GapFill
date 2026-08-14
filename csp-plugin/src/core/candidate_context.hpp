@@ -14,6 +14,7 @@ struct CandidateContext {
   int width{};
   int height{};
   SnapshotFingerprint sourceFingerprint{};
+  SnapshotFingerprint geometryFingerprint{};
   SnapshotFingerprint selectionFingerprint{};
   bool hasSelection{};
   Scope scope{Scope::WholeLayer};
@@ -28,9 +29,11 @@ struct CandidateContext {
 
 [[nodiscard]] CandidateContext captureCandidateContext(
     const Image& source, const Settings& settings,
-    const SelectionMask* selection = nullptr);
+    const SelectionMask* selection = nullptr,
+    const DetectionGeometry* geometry = nullptr);
 void validateCandidateContext(const CandidateContext& context, const Image& source,
                               const Settings& settings,
-                              const SelectionMask* selection = nullptr);
+                              const SelectionMask* selection = nullptr,
+                              const DetectionGeometry* geometry = nullptr);
 
 }  // namespace gap_assist

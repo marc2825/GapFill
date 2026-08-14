@@ -129,29 +129,31 @@ void excludesTransparentRegionConnectedToImageBoundary() {
   CHECK(ga::GapDetector().detect(image, settings).empty());
 }
 
-void respectsAlphaThreshold() {
+void canonicalDetectionRequiresExactZeroAlpha() {
   auto image = opaqueImage(5, 5);
   image.at(2, 2) = {0, 0, 0, 4};
   ga::Settings settings;
   settings.gapThreshold = 3;
-  settings.alphaThreshold = 3;
+  settings.alphaThreshold = 254;
   CHECK(ga::GapDetector().detect(image, settings).empty());
-  settings.alphaThreshold = 4;
+  image.at(2, 2).a = 0;
   CHECK(ga::GapDetector().detect(image, settings).size() == 1);
 }
 
-void selectionBoundaryIsTreatedAsOpen() {
+void selectionIsAppliedAfterFullGeometry() {
   auto image = opaqueImage(7, 7);
+  image.at(2, 3) = {};
   image.at(3, 3) = {};
+  image.at(4, 3) = {};
   ga::SelectionMask selection(7, 7);
   selection.set(3, 3, 255);
   ga::Settings settings;
   settings.scope = ga::Scope::SelectionOnly;
   settings.gapThreshold = 3;
-  CHECK(ga::GapDetector().detect(image, settings, &selection).empty());
-  for (int y = 2; y <= 4; ++y)
-    for (int x = 2; x <= 4; ++x) selection.set(x, y, 255);
-  CHECK(ga::GapDetector().detect(image, settings, &selection).size() == 1);
+  const auto gaps = ga::GapDetector().detect(image, settings, &selection);
+  CHECK(gaps.size() == 1);
+  CHECK(gaps[0].pixels == std::vector<std::uint32_t>({23, 24, 25}));
+  CHECK(gaps[0].applicationPixels == std::vector<std::uint32_t>({24}));
 }
 
 void connectivityCanBeEightNeighbor() {
@@ -167,7 +169,7 @@ void connectivityCanBeEightNeighbor() {
   CHECK(gaps.size() == 1 && gaps[0].area == 2);
 }
 
-void eightNeighborSelectionDiagonalIsOpen() {
+void noncanonicalEightNeighborDoesNotUseSelectionAsGeometry() {
   auto image = opaqueImage(7, 7);
   image.at(3, 3) = {};
   ga::SelectionMask selection(7, 7);
@@ -182,7 +184,70 @@ void eightNeighborSelectionDiagonalIsOpen() {
   settings.connectivity = ga::Connectivity::Four;
   CHECK(ga::GapDetector().detect(image, settings, &selection).size() == 1);
   settings.connectivity = ga::Connectivity::Eight;
-  CHECK(ga::GapDetector().detect(image, settings, &selection).empty());
+  CHECK(ga::GapDetector().detect(image, settings, &selection).size() == 1);
+}
+
+void lineAndGuideMasksAreCanonicalBoundaries() {
+  ga::DetectionGeometry guideRing(7, 7);
+  for (int y = 0; y < 7; ++y)
+    for (int x = 0; x < 7; ++x) guideRing.coloringGap.set(x, y, true);
+  for (int x = 2; x <= 4; ++x) {
+    guideRing.guideBoundary.set(x, 2, true);
+    guideRing.guideBoundary.set(x, 4, true);
+  }
+  for (int y = 2; y <= 4; ++y) {
+    guideRing.guideBoundary.set(2, y, true);
+    guideRing.guideBoundary.set(4, y, true);
+  }
+  ga::Settings settings;
+  settings.gapThreshold = 2;
+  const auto guideGaps = ga::GapDetector{}.detect(guideRing, settings);
+  CHECK(guideGaps.size() == 1);
+  CHECK(guideGaps[0].pixels == std::vector<std::uint32_t>({24}));
+
+  ga::DetectionGeometry isolatedGuide(5, 5);
+  for (int y = 0; y < 5; ++y)
+    for (int x = 0; x < 5; ++x) isolatedGuide.coloringGap.set(x, y, true);
+  isolatedGuide.guideBoundary.set(2, 2, true);
+  settings.gapThreshold = 1;
+  CHECK(ga::GapDetector{}.detect(isolatedGuide, settings).empty());
+
+  guideRing.lineBoundary.set(2, 2, true);
+  guideRing.guideBoundary.set(2, 2, false);
+  CHECK(ga::GapDetector{}.detect(guideRing, settings).size() == 1);
+}
+
+void largeStreamingTraversalCanCancel() {
+  ga::DetectionGeometry geometry(4096, 4096);
+  for (int y = 0; y < geometry.height(); ++y)
+    for (int x = 0; x < geometry.width(); ++x)
+      geometry.coloringGap.set(x, y, true);
+  ga::Settings settings;
+  settings.gapThreshold = 10;
+  CHECK(ga::GapDetector{}.detect(geometry, settings).empty());
+  std::atomic_bool cancelled{false};
+  bool interrupted = false;
+  try {
+    static_cast<void>(ga::GapDetector{}.detect(
+        geometry, settings, nullptr, &cancelled,
+        [&](std::size_t completed, std::size_t) {
+          if (completed >= 65) cancelled = true;
+        }));
+  } catch (const std::runtime_error&) {
+    interrupted = true;
+  }
+  CHECK(interrupted);
+}
+
+void checkerboardUsesBoundedIndependentComponents() {
+  ga::DetectionGeometry geometry(256, 256);
+  for (int y = 0; y < geometry.height(); ++y)
+    for (int x = 0; x < geometry.width(); ++x)
+      geometry.coloringGap.set(x, y, ((x + y) & 1) == 0);
+  ga::Settings settings;
+  settings.gapThreshold = 1;
+  const auto gaps = ga::GapDetector{}.detect(geometry, settings);
+  CHECK(gaps.size() == 32258);
 }
 
 void highConfidenceDefaultsToApply() {
@@ -198,6 +263,25 @@ void highConfidenceDefaultsToApply() {
   CHECK(analysis.gaps[0].status == ga::ReviewStatus::Apply);
   CHECK(analysis.gaps[0].suggestedColor == ga::Rgba({100, 120, 140, 255}));
   CHECK(analysis.gaps[0].sourceOwnerId.has_value());
+}
+
+void equivalentNormalizedGeometryPreservesRulePrediction() {
+  auto image = opaqueImage(9, 9, {100, 120, 140, 255});
+  image.at(4, 4) = {};
+  ga::Settings settings;
+  settings.gapThreshold = 3;
+  ga::RuleBasedPredictor predictor;
+  const auto legacy = ga::SmartGapPropagation{}.analyze(image, settings, predictor);
+  const auto geometry = ga::normalizeCanonicalColoringGeometry(image);
+  const auto normalized =
+      ga::SmartGapPropagation{}.analyze(image, geometry, settings, predictor);
+  CHECK(legacy.gaps.size() == 1 && normalized.gaps.size() == 1);
+  CHECK(legacy.gaps[0].pixels == normalized.gaps[0].pixels);
+  CHECK(legacy.gaps[0].suggestedColor == normalized.gaps[0].suggestedColor);
+  CHECK(legacy.gaps[0].confidence == normalized.gaps[0].confidence);
+  CHECK(legacy.gaps[0].confidenceBand == normalized.gaps[0].confidenceBand);
+  CHECK(legacy.gaps[0].sourceOwnerId == normalized.gaps[0].sourceOwnerId);
+  CHECK(legacy.gaps[0].debugInfo == normalized.gaps[0].debugInfo);
 }
 
 void mediumAndLowDoNotDefaultToApply() {
@@ -526,6 +610,45 @@ void candidateSelectionProvenanceFailsClosed() {
   CHECK(source.pixels() == original);
 }
 
+void fullGeometryCandidateAppliesOnlyInsideSelection() {
+  auto source = opaqueImage(5, 5);
+  for (int x = 1; x <= 3; ++x) source.at(x, 2) = {};
+  ga::SelectionMask selection(5, 5);
+  selection.set(2, 2, 255);
+  ga::Settings settings;
+  settings.scope = ga::Scope::SelectionOnly;
+  ga::GapCandidate gap;
+  gap.id = 0;
+  gap.pixels = {11, 12, 13};
+  gap.applicationPixels = {12};
+  gap.area = 3;
+  gap.bbox = {1, 2, 3, 1};
+  gap.centroid = {2, 2};
+  gap.suggestedColor = ga::Rgba{1, 2, 3, 255};
+  gap.apply = true;
+  gap.status = ga::ReviewStatus::Apply;
+  const auto output = ga::CorrectionOutputGenerator{}.generate(
+      source, {gap}, settings,
+      ga::captureCandidateContext(source, settings, &selection), &selection);
+  CHECK(output.correctionLayer.atIndex(11).a == 0);
+  CHECK(output.correctionLayer.atIndex(12) == ga::Rgba({1, 2, 3, 255}));
+  CHECK(output.correctionLayer.atIndex(13).a == 0);
+}
+
+void normalizedGeometryProvenanceFailsClosed() {
+  ga::Image source(4, 4);
+  ga::Settings settings;
+  auto geometry = ga::normalizeCanonicalColoringGeometry(source);
+  const auto context =
+      ga::captureCandidateContext(source, settings, nullptr, &geometry);
+  geometry.lineBoundary.set(1, 1, true);
+  checkInvalidArgument([&] {
+    static_cast<void>(ga::CorrectionOutputGenerator{}.generate(
+        source, {validGap(0, 4, 5)}, settings, context, nullptr, true,
+        &geometry));
+  });
+}
+
 void settingsAndCliPrecedenceIsDeterministic() {
   const auto directory = phase3TemporaryDirectory("arguments");
   const auto settingsPath = directory / "settings.ini";
@@ -844,7 +967,7 @@ void quickFixPipelineHonorsSelectionBoundary() {
   ga::Settings settings;
   settings.gapThreshold = 3;
   const auto result = ga::QuickFixPipeline().run(source, settings, &selection);
-  CHECK(result.detected == 0 && result.applied == 0);
+  CHECK(result.detected == 1 && result.applied == 0);
   CHECK(result.correctedComposite.at(4, 4).a == 0);
 }
 
@@ -855,12 +978,18 @@ int main() {
       {"detects small transparent region", detectsSmallTransparentRegion},
       {"excludes large transparent region", excludesLargeTransparentRegion},
       {"excludes boundary transparent region", excludesTransparentRegionConnectedToImageBoundary},
-      {"respects alpha threshold", respectsAlphaThreshold},
-      {"selection boundary is open", selectionBoundaryIsTreatedAsOpen},
+      {"canonical detection requires alpha zero", canonicalDetectionRequiresExactZeroAlpha},
+      {"selection follows full geometry", selectionIsAppliedAfterFullGeometry},
       {"supports eight-neighbor connectivity", connectivityCanBeEightNeighbor},
-      {"eight-neighbor selection diagonal is open",
-       eightNeighborSelectionDiagonalIsOpen},
+      {"eight-neighbor selection is not geometry",
+       noncanonicalEightNeighborDoesNotUseSelectionAsGeometry},
+      {"Line and Guide masks are boundaries", lineAndGuideMasksAreCanonicalBoundaries},
+      {"large traversal cancellation", largeStreamingTraversalCanCancel},
+      {"checkerboard components stay independent",
+       checkerboardUsesBoundedIndependentComponents},
       {"high confidence defaults to apply", highConfidenceDefaultsToApply},
+      {"normalized geometry preserves rule prediction",
+       equivalentNormalizedGeometryPreservesRulePrediction},
       {"medium and low default off", mediumAndLowDoNotDefaultToApply},
       {"unchecked gap excluded from correction", uncheckedGapIsNotInCorrectionLayer},
       {"highlight marks skipped low gap", highlightContainsSkippedLowConfidenceGap},
@@ -878,6 +1007,10 @@ int main() {
       {"forged candidate matrix fails closed", forgedCandidateMatrixFailsClosed},
       {"candidate selection provenance fails closed",
        candidateSelectionProvenanceFailsClosed},
+      {"selection limits application after geometry",
+       fullGeometryCandidateAppliesOnlyInsideSelection},
+      {"normalized geometry provenance fails closed",
+       normalizedGeometryProvenanceFailsClosed},
       {"settings and CLI precedence is deterministic",
        settingsAndCliPrecedenceIsDeterministic},
       {"invalid configuration fails cleanly", invalidConfigurationFailsCleanly},

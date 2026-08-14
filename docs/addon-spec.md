@@ -168,10 +168,10 @@ Evidence conflict:
 - Paper Section 4.1.1 permits combined Line Art/Guide boundaries.
 - ML training patches contain Line Art only.
 - the exported sidecar calls channel 0 “Line Art and Guides.”
-- web/Krita OR Line Art and Guide alpha, split Guide-visible transparent pixels
-  into a separate candidate type, and suppress target Guide pixels for a
+- Phase 2 web/Krita OR Line Art and Guide alpha, split Guide-visible transparent
+  pixels into a separate candidate type, and suppress target Guide pixels for a
   Guide-kind gap.
-- CSP has no separate Line Art or Guide input.
+- Phase 2 CSP had no separate Line Art or Guide detector input.
 
 Controlled results:
 
@@ -189,9 +189,13 @@ Controlled results:
   (target Guide present versus suppressed) also changes all 1024 values, with
   maximum delta `0.2577674389` and mean delta `0.0613388440`.
 
-The experiment proves sensitivity, not that either Guide variant is
-in-distribution or semantically correct. A reviewed labeled Guide corpus or
-retraining evidence is required before choosing.
+The experiment proves sensitivity, not that either Guide model-input variant is
+in-distribution or semantically correct. Phase 4 explicitly selects the existing
+`guide_as_boundary` variant for add-on *detection* only: Guide pixels are
+impassable and never paintable candidates. This implementation direction does
+not rewrite the frozen empirical classification and does not select an ONNX
+Guide-channel/suppression policy. Model semantics still require labeled evidence
+or retraining.
 
 ### Faint and anti-aliased boundaries
 
@@ -313,10 +317,11 @@ not rewritten as passing behavior.
   Coloring; Web and Krita use exact zero. Partial-alpha cleanup may be offered
   only as an explicitly named future extension.
 - **Type:** core algorithm semantics.
-- **Current differences:** Web, Krita, and CSP's default threshold agree. The ML
-  fixture reader receives an already prepared binary mask and does not implement
-  Coloring-alpha membership at this stage. CSP's configurable `alpha <= N`
-  setting is noncanonical when `N > 0`.
+- **Current differences:** Phase 4 Krita/CSP normalized detectors require exact
+  zero. The ML fixture reader receives an already prepared binary mask and does
+  not implement Coloring-alpha membership at this stage. CSP retains the old
+  serialized alpha setting for compatibility/sampling, but it no longer broadens
+  canonical detector membership.
 - **Coverage:** `D011_alpha_sweep` isolates alpha `0`, `1`, `127`, `254`, and
   `255`; only the alpha-zero pixel is canonical.
 
@@ -333,12 +338,12 @@ not rewritten as passing behavior.
   when outside geometry is unavailable.
 - **Type:** core enclosure semantics plus product/platform acquisition and
   application-scope policy.
-- **Current differences:** ML, Web, and the Krita pure detector do not implement
-  selection scope. CSP core has the full `Image` but clips candidates before
-  enclosure analysis, so it rejects `S001` instead of finding the full component
-  and applying only its selected pixel. Whether the real CSP SDK exposes full or
-  clipped geometry remains a host limitation requiring real-host verification;
-  clipped-only rejection agrees with the conservative conditional rule.
+- **Current differences:** Phase 4 Krita/CSP normalized pure detectors expose the
+  full component and its selection-limited application subset and reproduce
+  `S001`. ML/Web do not implement selection scope. Whether the real CSP SDK
+  exposes full or clipped geometry remains a host limitation requiring real-host
+  verification; clipped-only rejection agrees with the conservative conditional
+  rule.
 - **Coverage:** `D013_selection_boundary` retains separate conditional canonical
   geometry variants. Policy cases `S001` (full geometry then selected subset),
   `S002` (clipped-domain indeterminate), and `S003` (enclosed but outside scope)

@@ -20,9 +20,11 @@ plug-in hash, and test date.
 - [ ] A 30 px gap is detected by Large; a 31 px gap is excluded.
 - [ ] A custom threshold is honored.
 - [ ] A transparent region connected to the canvas edge is excluded.
-- [ ] Alpha threshold 0 excludes alpha 1; an increased threshold includes it.
+- [ ] Canonical detection includes alpha 0 and excludes alpha 1/127/254/255,
+      regardless of the retained legacy alpha setting.
 - [ ] Four- and eight-neighbor diagonal behavior matches the unit tests.
-- [ ] Selection Only excludes components touching the selection boundary.
+- [ ] Selection Only finds enclosure from full canvas geometry and writes only
+      the selected intersection; selection clipping does not create enclosure.
 
 ## Review behavior
 
