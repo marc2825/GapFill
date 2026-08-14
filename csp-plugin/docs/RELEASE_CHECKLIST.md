@@ -25,6 +25,10 @@ process. A CSP SDK-linked native binary has additional CELSYS requirements.
 ## Automated verification
 
 - [ ] `make test` or CTest passes all core tests.
+- [ ] Phase 5 tensor/ONNX/region/RGB parity passes against the pinned model.
+- [ ] The native package contains a supported ONNX Runtime adapter and verifies
+      model SHA-256/interface before host mutation; no stub/fallback is presented
+      as learned Quick Fix.
 - [ ] PNG end-to-end test passes.
 - [ ] Sanitizer run passes on a supported development platform.
 - [ ] Cross-platform core bundle workflow passes.

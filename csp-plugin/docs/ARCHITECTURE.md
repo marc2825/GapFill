@@ -9,7 +9,7 @@
         |                                                                   |
  QuickFixPipeline                                             HostFilterContext + GapAssistCommand
         |                                                                   |
-High-confidence corrected pixels                       ReviewSession + CorrectionOutputGenerator
+High-confidence learned pixels                         ReviewSession + CorrectionOutputGenerator
         |                                                                   |
 CSP Preview / OK / Cancel / Undo                        correction / highlight / manifest / preview
 ```
@@ -18,8 +18,9 @@ The same core is driven by `gap_assist_cli`, which replaces host pixels and UI
 with PNG I/O, a contact sheet, a JSON manifest, and a decisions file.
 
 `QuickFixPipeline` is the restricted-host path used by conventional filter APIs.
-It returns a corrected in-memory copy containing High-confidence fills only; the
-host owns Preview, OK/Cancel, committing the destination, and Undo.
+It returns a corrected in-memory copy containing High-confidence **learned**
+fills only; heuristic fallback never qualifies. The host owns Preview,
+OK/Cancel, committing the destination, and Undo.
 
 ## Core invariants
 
@@ -45,13 +46,30 @@ host owns Preview, OK/Cancel, committing the destination, and Undo.
 - Output is generated only after review acceptance.
 - Host mutation begins after all analysis and confirmation steps.
 - Overwrite is unavailable without both explicit confirmation and an Undo transaction.
+- Learned prediction uses a Line-only NCHW float32 `[1,2,32,32]` tensor. The
+  target gap is channel 1; Guides are detection boundaries but never enter the
+  trained model input.
+- Semantic regions are full-image four-connected fillable Line components.
+  Positive painted labels are scored by mean model probability in the cropped
+  patch; label 0 is excluded; the selected region contributes exact modal RGB
+  with a first-row-major tie break.
+- `PredictionProvenance` separates learned confidence from the uncalibrated
+  heuristic score. Only `Learned` can receive a confidence band or automatic
+  Apply state.
 
 ## Extension points
 
-`GapColorPredictor` may be implemented by a local ONNX backend without changing
-detection, review, or output. Optional reference, line, and guide images remain
-separate prediction inputs. Phase 4's binary Line/Guide detection boundaries do
-not settle the unresolved ONNX Guide-channel composition policy.
+`LearnedGapPredictor` implements canonical patching, output interpretation,
+region scoring, and modal color around a small `InferenceBackend`. The backend
+must report the frozen model SHA-256, one exact input/output name, float32 type,
+and fixed shapes before its synchronous `run` is accepted. Phase 5 tests this
+boundary with actual local ONNX Runtime output. `OnnxPredictorStub` remains an
+explicit unavailable distribution adapter until native runtime packaging is
+implemented; it never substitutes the rule predictor.
+
+Optional reference and Guide images remain separate inputs for future products,
+but the current learned contract consumes only Coloring and Line Art. Phase 4's
+Guide detection boundary does not imply Guide composition in the model.
 
 `HostFilterContext` isolates proprietary SDK types for a future richer host API.
 The evaluated 2021 filter SDK instead uses the narrower `QuickFixPipeline`, since
@@ -62,3 +80,8 @@ The public core exposes normalized multi-layer detection and a corresponding
 `SmartGapPropagation`/`QuickFixPipeline` overload. The current CLI and private
 2021 adapter still normalize only the active Coloring raster with empty Line and
 Guide masks because acquiring those layers is a later host-integration problem.
+
+Model calls are synchronous and cannot be interrupted. Cancellation is polled
+before contract validation, before and after each backend call, between gaps,
+and before returning. Results are accumulated privately and published only when
+the whole batch reaches the final cancellation boundary.

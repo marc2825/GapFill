@@ -3,11 +3,11 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
 
 from . import config
-
 
 DEFAULT_WEB_ONNX_PATH = config.ROOT_DIR.parent / "web" / "public" / "models" / "unet32.onnx"
 
@@ -32,6 +32,7 @@ def write_model_info(output_path: Path) -> Path:
         "name": "GapFill Nearest-Region U-Net",
         "version": "1.0",
         "model_file": output_path.name,
+        "sha256": hashlib.sha256(output_path.read_bytes()).hexdigest(),
         "opset_version": opset_version,
         "input_name": model_input.name,
         "input_type": "float32",
@@ -39,12 +40,21 @@ def write_model_info(output_path: Path) -> Path:
         "output_name": model_output.name,
         "output_type": "float32",
         "output_shape": get_tensor_shape(model_output),
-        "input_description": "2-channel binary masks: [line_art_mask, gap_mask]",
+        "input_description": (
+            "2-channel binary masks: [Line-only boundary mask, target gap mask]"
+        ),
         "output_description": "Probability map (0-1 values)",
         "channels": {
-            "0": "Line Art and Guides mask (1=boundary, 0=transparent)",
+            "0": (
+                "Canonical Line Art mask only (1=boundary, 0=transparent); "
+                "Guides are excluded because training did not supply them"
+            ),
             "1": "Target gap mask (1=gap region, 0=other)",
         },
+        "runtime_policy": (
+            "Guide-composed tensors remain characterized out-of-distribution "
+            "extensions, not canonical Phase 5 model input."
+        ),
     }
 
     info_path = output_path.with_name("model_info.json")

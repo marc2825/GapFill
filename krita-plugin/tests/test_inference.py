@@ -31,7 +31,9 @@ class Session:
 class InferenceTests(unittest.TestCase):
     def test_accepts_exact_model_contract(self):
         with tempfile.NamedTemporaryFile(suffix=".onnx") as model:
-            predictor = GapFillPredictor(model.name, session_factory=Session)
+            predictor = GapFillPredictor(
+                model.name, session_factory=Session, expected_model_sha256=None
+            )
             predictor.load()
             self.assertTrue(predictor.loaded)
 
@@ -41,7 +43,9 @@ class InferenceTests(unittest.TestCase):
             def factory(path, providers):
                 return Session(path, providers, (1, 32, 32))
 
-            predictor = GapFillPredictor(model.name, session_factory=factory)
+            predictor = GapFillPredictor(
+                model.name, session_factory=factory, expected_model_sha256=None
+            )
             with self.assertRaises(InvalidModelError):
                 predictor.load()
 
@@ -51,7 +55,11 @@ class InferenceTests(unittest.TestCase):
                 return [Metadata("input_mask", [1, 2, "height", "width"])]
 
         with tempfile.NamedTemporaryFile(suffix=".onnx") as model:
-            predictor = GapFillPredictor(model.name, session_factory=DynamicSession)
+            predictor = GapFillPredictor(
+                model.name,
+                session_factory=DynamicSession,
+                expected_model_sha256=None,
+            )
             with self.assertRaises(InvalidModelError):
                 predictor.load()
 

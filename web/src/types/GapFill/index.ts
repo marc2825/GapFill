@@ -5,4 +5,7 @@ export interface GapFillRegion {
   center: Point;
   pixels: Point[];
   predictedColor: string;
+  predictionProvenance: 'learned' | 'fallback';
+  learnedConfidence: number | null;
+  fallbackReason?: string;
 }

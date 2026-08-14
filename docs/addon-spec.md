@@ -1,18 +1,21 @@
 # GapFill behavioral specification and golden-fixture contract
 
-Phase: 2
+Current phase: 5
 
-Evidence freeze: 2026-08-13 (Asia/Tokyo)
+Golden-corpus freeze: 2026-08-13 (Asia/Tokyo)
 
-Production baseline: `30c7f02b698e8a9d61bc1a4e866fa5d8d7e8bfe5`
+Phase 5 learned-prediction resolution: 2026-08-14 (Asia/Tokyo)
+
+Phase 5 production baseline: `c52affd4816df7eeeea53985c3b39ba0c4e83b86`
 
 ## Status and scope
 
-This document establishes the independently reviewable contract that must
-precede production corrections. It does not assert that the web, Krita, CSP, or
-ML implementation is correct merely because it is executable or tested. Phase 2
-does not change production detection, inference, postprocessing, host behavior,
-or fallback policy.
+This document began as the independently reviewable Phase 2 contract. Phase 5
+now resolves the learned model-input, raster conversion, semantic-region,
+representative-color, and prediction-provenance questions recorded below. The
+frozen fixture files and their Phase 2 expectation classifications were not
+rewritten to manufacture agreement; current canonical Phase 5 coverage is
+layered on top through independent reference and cross-runtime tests.
 
 Every unresolved or canonical rule is assigned exactly one decision category:
 
@@ -55,7 +58,7 @@ Pinned primary evidence:
 | Detailed CHI paper, `docs/assets/GapFill_CHI.pdf` | `5e9919ced3f5e74b6d0f7d6d252600242a2e6c0c3893dbbf3bd2e237c5979751` |
 | WISS paper, `docs/assets/GapFill_WISS.pdf` | `c53c3f9039163ee1d9bef833dbe1a0308eeda9b5a8bcbd20f204a423a2bbd666` |
 | ONNX model, `web/public/models/unet32.onnx` | `8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78` |
-| ONNX sidecar, `web/public/models/model_info.json` | `70487679d7765f11224e0cffed0f0c002d91a7bcd188fca52502da39ef0c31e5` |
+| ONNX sidecar, `web/public/models/model_info.json` | `2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5` |
 | ML preprocessing | `ml/src/utils/flood_fill/core.py`, `nearest_same_color.py`, `patch_utils.py` |
 | ML postprocessing | `ml/src/utils/color_utils.py`, `ml/src/pipelines/inference_pipeline.py` |
 | Web executable reference | `web/src/utils/GapFill/` |
@@ -90,8 +93,9 @@ These conventions are `STABLE`:
 
 A candidate gap is conceptually an unpainted/transparent connected region that
 is enclosed by the relevant raster boundaries. `D-01` through `D-05` below
-freeze size, exterior-edge, alpha, selection, and connectivity semantics. Guide
-composition and boundary rasterization remain empirical questions.
+freeze size, exterior-edge, alpha, selection, and connectivity semantics. Phase
+4 defines Guides as detection boundaries. Phase 5 does not change that detector
+contract; its Line-only model-input policy is a separate decision.
 
 `D-05` — `STABLE`
 
@@ -125,12 +129,14 @@ multi-pixel target mask.
 
 ### Model tensor contract
 
-`MODEL-CHANNELS` — `STABLE` except for Guide composition
+`MODEL-CHANNELS` — `STABLE`
 
 - Layout: NCHW.
 - Input: float32 `[1,2,32,32]`, name `input_mask`.
-- Channel 0: binary boundary context derived from Line Art. Whether and how
-  Guides join this channel is explicitly unresolved.
+- Channel 0: binary boundary context derived from Line Art only. Guides never
+  join the canonical runtime tensor and target Guide suppression is therefore
+  inapplicable. Guide-composed tensors remain characterized out-of-distribution
+  extensions because no such patches occur in the checked-in training path.
 - Channel 1: binary mask of exactly the target gap pixels within the patch.
 - Output: float32 `[1,1,32,32]`, name `nearest_region_mask`.
 - Output meaning: a spatial likelihood map for sharing the target region's
@@ -138,12 +144,23 @@ multi-pixel target mask.
 
 ### Region score and representative color
 
-`REGION-MEAN` — `STABLE` once semantic regions are defined
+`REGION-MEAN` — `STABLE`
 
-For each eligible semantic region, calculate the arithmetic mean of the output
-likelihood over that region and select the region with the greatest mean. This
-does not define how eligible regions are segmented or whether label 0 is one;
-those remain empirical decisions.
+Semantic regions are four-connected fillable components of the full-image
+canonical Line mask. Labels are assigned from 1 in first row-major encounter
+order, then cropped into the same 32x32 virtual window as the model tensor;
+Line and virtual padding stay label 0. Label 0 is never eligible. A positive
+label is eligible only if its cropped area contains at least one Coloring pixel
+with alpha `1..255`. Score it by the float64 arithmetic mean of every valid
+model-output pixel carrying that label, including alpha-zero target pixels.
+Choose the greatest mean; exact ties retain the first label encountered in
+row-major order. Reject the whole output when any value is nonfinite or outside
+`[0,1]`, and fail when no painted eligible region exists.
+
+The fillable component connected to the image exterior is not special in model
+postprocessing: it receives an ordinary positive Line-region label. It is
+eligible only under the same painted-pixel rule. This does not change D-02,
+which rejects an exterior-touching *target gap* during detection.
 
 `REGION-MODAL-COLOR` — `STABLE` once the winning region is defined
 
@@ -153,21 +170,24 @@ region. `R001_manual_mean_winner` is hand-checkable: region means are 0.2 and
 selects `[100,120,140]` because it occurs three times while each edge color
 occurs once. Exact-tie behavior and participation are frozen by `D-06` below.
 
-## Empirical decisions and completed experiments
+## Phase 5 empirical resolutions and retained evidence
 
-All rules in this section remain `EMPIRICAL_DECISION_REQUIRED`. Experiments
-characterize what exists; none silently promotes a variant to canonical truth.
+Phase 2 deliberately left the following alternatives unresolved. Phase 5 used
+the paper, training source, checked-in artifact, controlled tensors, and
+human-readable fixed maps to select the canonical runtime rules. The old
+fixture variants remain unchanged as characterization evidence.
 
 ### Guide composition in detection and model channel 0
 
 Decision IDs: `GUIDE-DETECTION-COMPOSITION`,
 `GUIDE-MODEL-COMPOSITION`, `GUIDE-TARGET-SUPPRESSION`.
 
-Evidence conflict:
+Evidence and decision:
 
 - Paper Section 4.1.1 permits combined Line Art/Guide boundaries.
 - ML training patches contain Line Art only.
-- the exported sidecar calls channel 0 “Line Art and Guides.”
+- the former exported sidecar called channel 0 “Line Art and Guides,” although
+  the exporter/training implementation supplied only Line Art;
 - Phase 2 web/Krita OR Line Art and Guide alpha, split Guide-visible transparent
   pixels into a separate candidate type, and suppress target Guide pixels for a
   Guide-kind gap.
@@ -189,13 +209,20 @@ Controlled results:
   (target Guide present versus suppressed) also changes all 1024 values, with
   maximum delta `0.2577674389` and mean delta `0.0613388440`.
 
-The experiment proves sensitivity, not that either Guide model-input variant is
-in-distribution or semantically correct. Phase 4 explicitly selects the existing
-`guide_as_boundary` variant for add-on *detection* only: Guide pixels are
-impassable and never paintable candidates. This implementation direction does
-not rewrite the frozen empirical classification and does not select an ONNX
-Guide-channel/suppression policy. Model semantics still require labeled evidence
-or retraining.
+Phase 5 additionally runs controlled A-G comparisons for no Guide, an ordinary
+Guide delta, retained/suppressed target Guide, Guide closure, isolated/open
+Guide, and mixed Line/Guide closure. Every pair changes all 1024 output values;
+maximum deltas range from `0.2567824125` to `0.8656817973`. The mixed closure
+also changes the fixed red/blue selected region from red to blue. This proves
+model sensitivity, not distribution support.
+
+The canonical runtime tensor is therefore the training-faithful **Line-only**
+variant. Detection still composes Guides as impassable boundaries under Phase
+4, but prediction channel 0 excludes them. No target-Guide suppression occurs.
+Guide-composed model tensors are retained only as characterized runtime
+extensions and are not described as trained behavior. The checked-in sidecar
+and its exporter now state this policy. Retraining was not justified: the exact
+artifact remains usable under its actual training contract.
 
 ### Faint and anti-aliased boundaries
 
@@ -203,11 +230,19 @@ Decision ID: `BOUNDARY-RASTERIZATION`.
 
 `D012_faint_line_000/127/128/129/254/255` controls one pixel in an otherwise
 closed ring. The ML training rule treats grayscale `0`, `127`, and `128` as
-boundary and `129`, `254`, and `255` as fillable. Web/Krita use alpha `> 0`; in
-the paired raster, that treats every case except fully transparent `255/alpha 0`
-as boundary. The ONNX artifact sees only the resulting binary tensor; it cannot
-recover grayscale/opacity discarded during rasterization. Real Krita rendering,
-profiles, masks, blend modes, and layer visibility remain separate host tests.
+boundary and `129`, `254`, and `255` as fillable. The former Web/Krita model
+conversion used alpha `> 0` and therefore disagreed around that threshold.
+
+Phase 5 defines the host-neutral model conversion for logical straight-alpha
+byte RGBA: compute OpenCV-compatible byte luma
+`(4899R + 9617G + 1868B + 8192) >> 14`, composite it over byte white as
+`(luma*A + 255*(255-A) + 127) // 255`, then classify `0..128` inclusive as
+boundary. Fully transparent and very faint black are therefore absent;
+opaque gray 127/128 are boundary and 129 is fillable; opaque black is boundary;
+black alpha 126 is absent and alpha 127 is boundary. This is training-faithful
+in normalized byte space. Host rendering, profiles, masks, blend modes, and
+premultiplication remain Phase 6/host verification, and Phase 4 detection's
+separate normalized Line/Guide inputs are unchanged.
 
 ### Region correspondence alternatives
 
@@ -223,18 +258,27 @@ The competing variants are retained by name:
 
 `R003` distinguishes disconnected same-RGB areas. `R004` covers differences
 29/30/31. `R005` proves the 0 -> 20 -> 40 transitive chain. `R008` makes a
-line-derived region span red and blue colored components: ML chooses red while
-current web/Krita select blue from the fixed probability map. No majority vote
-is used to resolve this conflict.
+line-derived region span red and blue colored components: the Line-derived
+interpretation chooses red while the former Web/Krita path chose blue.
+
+Phase 5 selects `ml_line_labels`: the target masks used to train this model are
+Line-derived region labels, so model likelihood must be aggregated over those
+same semantic identities. Opaque-color components and RGB tolerance/transitive
+owner grouping answer different questions and are not model region
+correspondence. Full-image labeling before patch cropping preserves identities
+at patch edges. The old ML helper's inclusion of label 0 is corrected below;
+its historical result remains executable characterization.
 
 ### Label 0
 
 Decision ID: `REGION-LABEL-ZERO`.
 
 `R002_label_zero` assigns label 0 probability 0.99 and label 1 probability 0.4.
-The current ML helper scores label 0 and returns black; web/Krita exclude label 0
-and return green. The paper says “painted region” but does not define the label
-map's background semantics tightly enough to choose safely.
+The historical ML helper scores label 0 and returns black; former Web/Krita
+exclude it and return green. Phase 5 excludes label 0 because it denotes Line
+pixels and virtual padding, not a fillable painted semantic region. `R002`
+therefore selects positive label 1 and green. This is an actual postprocessing
+bug fix relative to the ML helper, not a change to model training or weights.
 
 ### Exact model artifact and runtime tolerance
 
@@ -257,6 +301,10 @@ asymmetric geometry, boundary-near geometry, target Guide present, and target
 Guide suppressed. Full 1024-value outputs are stored, not just hashes or shape
 checks.
 
+Only Line-only members are canonical runtime inputs after Phase 5. The retained
+Guide variants remain valuable sensitivity probes and artifact-integrity cases;
+their exact outputs do not make them in-distribution.
+
 | Semantic fixture | SHA-256 of little-endian float32 output |
 | --- | --- |
 | `M001_no_guide` | `f6803fa3410932809e07332311c2c467789a01a8f7cf83a82018ba15be936dc1` |
@@ -274,6 +322,14 @@ Node 22.22.1 and `onnxruntime-web` 1.22.0 WASM. All seven outputs passed
 `1.2516975402832031e-6`. The tolerance includes a small absolute floor for values
 near zero plus a relative float32 convolution allowance. It is an artifact
 parity bound, not an accuracy claim.
+
+Phase 5 reverified all seven cases with Python/Krita ONNX Runtime 1.28.0 CPU at
+maximum delta `0.0` from the frozen values and Web ONNX Runtime 1.22.0 WASM
+within the same unchanged tolerance. The CSP parity runner uses that local
+Python ONNX Runtime execution to feed the C++ `InferenceBackend`, then verifies
+the C++ tensor, selected M001 region 2, blue RGB `[20,20,240]`, and learned
+confidence `0.8431808595754662`. A distributable native CSP ONNX Runtime adapter
+is not part of Phase 5.
 
 ## Frozen maintainer decisions
 
@@ -378,9 +434,10 @@ not rewritten as passing behavior.
   Web preserve image encounter order. The maintainer selected that deterministic
   lineage rather than numeric sorting or container iteration.
 - **Type:** core postprocessing semantics.
-- **Current differences:** ML and Web return the first row-major red value in
-  `R006`; Krita numerically sorts the tied values and returns blue, a confirmed
-  K-14 divergence. CSP has no learned region postprocessing stage.
+- **Phase 5 result:** neutral, Web, Krita, and CSP pure implementations now
+  return the first row-major red value in `R006`. The historical Krita
+  sorted-lowest behavior remains only in the named Phase 2 characterizer. The
+  ML helper already preserves first encounter for a fixed scan order.
 - **Coverage:** independently reviewed `R006_modal_tie` contains two occurrences
   of each color in a 2x2 `red, blue / blue, red` raster. The canonical result is
   red; the sorted-lowest result is retained as noncanonical evidence.
@@ -400,10 +457,15 @@ not rewritten as passing behavior.
   that can report High for a color absent from its input. This is a safety policy,
   not a claim that every fallback is inaccurate.
 - **Type:** product safety/application policy.
-- **Current differences:** Web and Krita store learned and greedy fallback
-  colors in the same untagged result field. CSP lacks provenance, has no learned
-  implementation, and Quick Fix can make a High rule result Apply by default.
-  The ML pipeline has no product fallback/application policy at this stage.
+- **Phase 5 result:** Web and Krita results now carry explicit `learned` or
+  `fallback` provenance and a nullable learned confidence. Systematic model
+  failure fails the batch instead of relabeling every heuristic result as an
+  ordinary suggestion; a no-gap batch does not load the model. CSP distinguishes
+  `Learned` from `HeuristicFallback`, retains its old heuristic score only as
+  diagnostic metadata, clears effective learned confidence/band, and excludes
+  fallback from Quick Fix and every Apply-High helper. A fallback remains
+  manually applicable only through an explicit per-gap decision. The ML
+  research pipeline has no product fallback/application policy.
 - **Coverage:** policy contracts `F001` (successful learned High), `F002`
   (unconfirmed fallback with a High-like score), and `F003` (explicitly confirmed
   manual fallback) freeze provenance, confidence clearing, and Apply-High
@@ -429,7 +491,12 @@ tests/fixtures/gapfill/
   parity/csp_detection_current.csv
 tests/parity/
   test_krita_phase2_fixtures.py
+  test_krita_phase4_detection.py
+  test_krita_phase5_prediction.py
   csp_phase2_fixture_reader.cpp
+  csp_phase4_detection_probe.cpp
+  csp_phase5_prediction_probe.cpp
+  test_csp_phase5_prediction.py
 ```
 
 The JSON schema is deliberately limited to objects, arrays, strings, booleans,
@@ -488,10 +555,11 @@ characterization commands are:
 ```bash
 /tmp/gapfill-phase2-venv/bin/python -m scripts.gapfill_reference.validate
 /tmp/gapfill-phase2-venv/bin/python -m unittest scripts.gapfill_reference.test_reference -v
-/tmp/gapfill-phase2-venv/bin/python -m scripts.gapfill_reference.characterize_python
+/tmp/gapfill-phase2-venv/bin/python -m scripts.gapfill_reference.characterize_python --phase5
 (cd web && node --experimental-strip-types --test src/tests/GapFill/phase2Fixtures.test.mjs)
-(cd krita-plugin && python -m pytest -q tests ../tests/parity/test_krita_phase2_fixtures.py)
+(cd krita-plugin && python -m pytest -q tests ../tests/parity/test_krita_phase2_fixtures.py ../tests/parity/test_krita_phase4_detection.py ../tests/parity/test_krita_phase5_prediction.py)
 make -C csp-plugin test
+make -C csp-plugin test-phase5 PHASE5_PYTHON=/tmp/gapfill-phase2-venv/bin/python
 ```
 
 The equivalent CMake/CTest path is:
@@ -505,24 +573,16 @@ ctest --test-dir /tmp/gapfill-phase2-cmake -C Release --output-on-failure
 The `gap_assist_phase2_fixtures` entry receives the shared CSV path from the
 source tree.
 
-## Phase 3 entry conditions
+## Phase 5 status and next boundary
 
-Phase 3 may start only when:
+Phase 5 acceptance requires exact canonical Line-only tensor equality, the
+pinned seven-output tolerance, identical semantic-region/RGB decisions, explicit
+D-07 provenance, preserved Phase 3 safety and Phase 4 detection tests, and no
+model/golden-byte drift. The execution record is in `docs/addon-phase5.md` and
+the current cross-runtime matrix is in `docs/addon-parity.md`.
 
-1. this specification, manifest, and decisions `D-01` through `D-07` are
-   reviewed and frozen;
-2. every intended Phase 3 change cites a decision ID and does not depend on an
-   unresolved semantic choice;
-3. fixture validation, Python ML/Krita characterization, Web/WASM parity, Krita
-   shared-fixture tests, and CSP CSV parity are green;
-4. any regenerated ONNX value or tolerance change receives explicit review;
-5. known mismatches remain reported rather than converted into passing
-   canonical expectations;
-6. production subtree comparison confirms Phase 2 changed no production
-   implementation.
-
-These entry conditions are met by the freeze verification recorded in
-`docs/addon-parity.md`. Phase 3 may therefore begin in a later, explicitly
-authorized task and remains limited to the already planned CSP output/CLI safety
-work. Detection, model, Guide, region-correspondence, host, UI, and packaging
-behavior remain out of scope until their later phases and required decisions.
+Phase 6 is a separate host-integration task. It must not infer real Krita or CSP
+correctness from these pure tests: profile conversion, rendered layer bytes,
+selection/Undo, overlay/view transforms, stale scans, CELSYS layer acquisition,
+Preview/Undo, platform runtime packaging, and host cancellation remain outside
+this contract.

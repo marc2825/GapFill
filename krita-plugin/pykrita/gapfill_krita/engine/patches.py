@@ -9,6 +9,30 @@ from .types import GapRegion, LayerImages, RgbaImage
 PATCH_SIZE = 32
 
 
+def canonical_boundary_from_rgba(rgba: RgbaImage) -> np.ndarray:
+    """Return the training-faithful Line boundary for logical byte RGBA.
+
+    Straight-alpha pixels are composited over byte white after the fixed-point
+    grayscale conversion used by OpenCV. Values at or below 128 are boundary.
+    Profile/render conversion into these logical bytes remains a Phase 6 host
+    concern.
+    """
+
+    image = np.asarray(rgba)
+    if image.ndim != 3 or image.shape[2] != 4 or image.dtype != np.uint8:
+        raise ValueError("Canonical Line conversion requires uint8 RGBA pixels.")
+    values = image.astype(np.uint32)
+    luma = (
+        values[..., 0] * 4899
+        + values[..., 1] * 9617
+        + values[..., 2] * 1868
+        + 8192
+    ) >> 14
+    alpha = values[..., 3]
+    composited = (luma * alpha + 255 * (255 - alpha) + 127) // 255
+    return composited <= 128
+
+
 @dataclass(frozen=True)
 class PatchBounds:
     virtual_x: int
@@ -90,6 +114,32 @@ def build_model_patches(
     line_art = extract_patch(images.line_art, bounds, size)
     guides = extract_patch(images.guides, bounds, size)
     gap_mask = build_gap_mask(coloring, gap, images.width)
+    return coloring, line_art, guides, gap_mask
+
+
+def build_legacy_model_patches(
+    images: LayerImages, gap: GapRegion, size: int = PATCH_SIZE
+) -> tuple[ImagePatch, ImagePatch, ImagePatch, np.ndarray]:
+    """Reproduce the frozen Phase 2 Guide-composed characterization only."""
+
+    coloring, line_art, guides, gap_mask = build_model_patches(images, gap, size)
     if gap.kind.value == "guide":
         guides.rgba[gap_mask > 0, 3] = 0
     return coloring, line_art, guides, gap_mask
+
+
+def build_model_tensor(
+    images: LayerImages, gap: GapRegion, size: int = PATCH_SIZE
+) -> tuple[np.ndarray, PatchBounds]:
+    """Build the canonical Line-only NCHW float32 model input."""
+
+    images.validate()
+    _, line_art, _, gap_mask = build_model_patches(images, gap, size)
+    boundary = canonical_boundary_from_rgba(line_art.rgba).astype(np.float32)
+    tensor = np.stack((boundary, gap_mask), axis=0)[None, ...]
+    expected = (1, 2, size, size)
+    if tensor.shape != expected or tensor.dtype != np.float32:
+        raise ValueError(f"Generated invalid model input: {tensor.shape} / {tensor.dtype}.")
+    if not np.logical_or(tensor == 0.0, tensor == 1.0).all():
+        raise ValueError("Generated model input is not binary.")
+    return tensor, line_art.bounds

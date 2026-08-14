@@ -5,14 +5,18 @@ import unittest
 
 import numpy as np
 
-from .generate import FIXTURE_ROOT
+from .generate import FIXTURE_ROOT, REPOSITORY_ROOT
 from .reference import (
     DetectionPolicy,
+    build_canonical_model_tensor,
+    canonical_boundary_from_rgba,
+    canonical_line_labels,
     decode_palette_rgba,
     detect_components,
     evaluate_modal_color,
     evaluate_prediction_application,
     evaluate_selection_scope,
+    score_canonical_regions,
     score_regions,
 )
 from .validate import (
@@ -175,6 +179,115 @@ class ReferenceFixtureTests(unittest.TestCase):
                 self.assertIsNone(actual["effective_confidence_band"])
                 self.assertFalse(actual["apply_high_eligible"])
                 self.assertTrue(actual["requires_explicit_confirmation"])
+
+    def test_phase5_boundary_conversion_is_training_faithful(self) -> None:
+        # Transparent byte-RGBA is composited over white before the same
+        # inclusive grayscale-128 split used by ML training.
+        rgba = np.asarray(
+            [[
+                [0, 0, 0, 0],       # fully absent
+                [0, 0, 0, 1],       # very faint black
+                [127, 127, 127, 255],
+                [128, 128, 128, 255],
+                [129, 129, 129, 255],
+                [0, 0, 0, 255],     # fully opaque black
+                [0, 0, 0, 126],
+                [0, 0, 0, 127],
+            ]],
+            dtype=np.uint8,
+        )
+        self.assertEqual(
+            canonical_boundary_from_rgba(rgba).tolist(),
+            [[False, False, True, True, False, True, False, True]],
+        )
+
+    def test_phase5_model_tensor_is_line_only_and_exact(self) -> None:
+        line = np.zeros((7, 7, 4), dtype=np.uint8)
+        line[3, 2] = (0, 0, 0, 255)
+        tensor, bounds = build_canonical_model_tensor(line, [3 * 7 + 3], (3, 3))
+
+        self.assertEqual(tensor.shape, (1, 2, 32, 32))
+        self.assertEqual(tensor.dtype, np.float32)
+        self.assertEqual((bounds["virtual_x"], bounds["virtual_y"]), (-13, -13))
+        self.assertEqual(np.flatnonzero(tensor[0, 0]).tolist(), [16 * 32 + 15])
+        self.assertEqual(np.flatnonzero(tensor[0, 1]).tolist(), [16 * 32 + 16])
+
+    def test_phase5_model_sidecar_describes_the_frozen_artifact(self) -> None:
+        metadata = json.loads(
+            (
+                REPOSITORY_ROOT / "web" / "public" / "models" / "model_info.json"
+            ).read_text(encoding="utf-8")
+        )
+        self.assertEqual(
+            metadata["sha256"],
+            "8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78",
+        )
+        self.assertEqual(metadata["opset_version"], 18)
+        self.assertEqual(metadata["input_name"], "input_mask")
+        self.assertEqual(metadata["input_shape"], [1, 2, 32, 32])
+        self.assertEqual(metadata["output_name"], "nearest_region_mask")
+        self.assertEqual(metadata["output_shape"], [1, 1, 32, 32])
+        self.assertIn("Line Art mask only", metadata["channels"]["0"])
+        self.assertIn("Guides are excluded", metadata["channels"]["0"])
+
+    def test_phase5_line_regions_exclude_label_zero_and_color_fragments(self) -> None:
+        case = next(
+            item
+            for item in _load("postprocess/cases.json")["cases"]
+            if item["id"] == "R008_line_vs_colored_regions"
+        )
+        image = decode_palette_rgba(case["coloring_rgba"])
+        labels = np.asarray(case["label_maps"]["line_labels"], dtype=np.int32)
+        result = score_canonical_regions(
+            image,
+            labels,
+            np.asarray(case["probability_map"], dtype=np.float32),
+        )
+        self.assertEqual(result["selected_region_id"], 1)
+        self.assertEqual(result["selected_pixel_indices"], list(range(10)))
+        self.assertEqual(result["rgb"], [200, 20, 20])
+
+        label_zero = next(
+            item
+            for item in _load("postprocess/cases.json")["cases"]
+            if item["id"] == "R002_label_zero"
+        )
+        result = score_canonical_regions(
+            decode_palette_rgba(label_zero["coloring_rgba"]),
+            np.asarray(label_zero["label_maps"]["line_labels"], dtype=np.int32),
+            np.asarray(label_zero["probability_map"], dtype=np.float32),
+        )
+        self.assertEqual(result["selected_region_id"], 1)
+        self.assertEqual(result["rgb"], [40, 180, 40])
+
+    def test_phase5_scoring_and_modal_ties_are_fully_deterministic(self) -> None:
+        coloring = np.asarray(
+            [[[250, 0, 0, 0], [240, 20, 20, 255], [20, 20, 240, 255]]],
+            dtype=np.uint8,
+        )
+        labels = np.asarray([[9, 9, 3]], dtype=np.int32)
+        probabilities = np.asarray([[1.0, 0.0, 0.5]], dtype=np.float32)
+        result = score_canonical_regions(coloring, labels, probabilities)
+        # Alpha-zero index 0 participates in the semantic-region mean, matching
+        # the model's region-mask objective, but cannot vote for the RGB mode.
+        self.assertEqual(result["region_means"], {"9": 0.5, "3": 0.5})
+        self.assertEqual(result["selected_region_id"], 9)
+        self.assertEqual(result["rgb"], [240, 20, 20])
+
+        with self.assertRaises(ValueError):
+            score_canonical_regions(
+                coloring,
+                labels,
+                np.asarray([[0.0, np.nan, 0.5]], dtype=np.float32),
+            )
+
+    def test_phase5_full_image_labels_are_row_major_and_four_connected(self) -> None:
+        line = np.zeros((3, 3, 4), dtype=np.uint8)
+        line[:, 1] = (0, 0, 0, 255)
+        self.assertEqual(
+            canonical_line_labels(line).tolist(),
+            [[1, 0, 2], [1, 0, 2], [1, 0, 2]],
+        )
 
 
 if __name__ == "__main__":

@@ -162,6 +162,22 @@ def main() -> None:
         if "Applied: 0" not in marked.stdout:
             raise AssertionError("--apply-high overrode an explicit Mark")
 
+        onnx_paths = outputs(decision_dir, "onnx-unavailable")
+        unavailable = run(
+            cli,
+            "--input",
+            decision_source,
+            "--predictor",
+            "onnx",
+            *onnx_paths,
+            expect_success=False,
+        )
+        if "no ONNX Runtime adapter" not in unavailable.stderr:
+            raise AssertionError("unavailable learned backend was not explicit")
+        for path in onnx_paths[1::2]:
+            if Path(path).exists():
+                raise AssertionError("failed ONNX request created an output artifact")
+
         force_dir = root / "force"
         force_dir.mkdir()
         force_source = force_dir / "source.png"

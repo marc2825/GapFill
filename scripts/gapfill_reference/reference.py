@@ -301,6 +301,74 @@ def tensor_from_sparse(case: dict) -> np.ndarray:
     return tensor
 
 
+def canonical_boundary_from_rgba(rgba: np.ndarray) -> np.ndarray:
+    """Convert logical byte-RGBA Line pixels to the training boundary mask.
+
+    Phase 5 defines a host-neutral byte-space conversion: compute OpenCV's
+    fixed-point grayscale luma, composite that straight-alpha value over byte
+    white, and treat the inclusive range 0..128 as Line boundary.  Color-profile
+    conversion before these logical bytes exist remains a host concern.
+    """
+
+    image = np.asarray(rgba)
+    if image.ndim != 3 or image.shape[2] != 4 or image.dtype != np.uint8:
+        raise ValueError("Canonical Line conversion requires uint8 RGBA pixels.")
+    values = image.astype(np.uint32)
+    luma = (
+        values[..., 0] * 4899
+        + values[..., 1] * 9617
+        + values[..., 2] * 1868
+        + 8192
+    ) >> 14
+    alpha = values[..., 3]
+    composited = (luma * alpha + 255 * (255 - alpha) + 127) // 255
+    return composited <= 128
+
+
+def build_canonical_model_tensor(
+    line_rgba: np.ndarray,
+    gap_indices: Sequence[int],
+    center: tuple[int, int],
+    size: int = 32,
+) -> tuple[np.ndarray, dict]:
+    """Build the canonical Line-only NCHW float32 tensor."""
+
+    line = np.asarray(line_rgba)
+    if line.ndim != 3 or line.shape[2] != 4 or line.dtype != np.uint8:
+        raise ValueError("Canonical model input requires uint8 RGBA Line pixels.")
+    height, width = line.shape[:2]
+    bounds = centered_patch_bounds(width, height, center, size)
+    tensor = np.zeros((1, 2, size, size), dtype=np.float32)
+
+    boundary = canonical_boundary_from_rgba(line)
+    source_x = int(bounds["source_x"])
+    source_y = int(bounds["source_y"])
+    source_width = int(bounds["source_width"])
+    source_height = int(bounds["source_height"])
+    destination_x = int(bounds["destination_x"])
+    destination_y = int(bounds["destination_y"])
+    if source_width and source_height:
+        tensor[
+            0,
+            0,
+            destination_y : destination_y + source_height,
+            destination_x : destination_x + source_width,
+        ] = boundary[
+            source_y : source_y + source_height,
+            source_x : source_x + source_width,
+        ].astype(np.float32)
+
+    for raw_index in gap_indices:
+        index = int(raw_index)
+        if index < 0 or index >= width * height:
+            raise ValueError("Target gap index is outside the source image.")
+        x = index % width - int(bounds["virtual_x"])
+        y = index // width - int(bounds["virtual_y"])
+        if 0 <= x < size and 0 <= y < size:
+            tensor[0, 1, y, x] = 1.0
+    return tensor, bounds
+
+
 def connected_labels(mask: np.ndarray, connectivity: int = 4) -> np.ndarray:
     """Label nonzero pixels in row-major order; zero remains background."""
 
@@ -329,6 +397,12 @@ def connected_labels(mask: np.ndarray, connectivity: int = 4) -> np.ndarray:
                     labels[ny, nx] = next_label
                     queue.append((nx, ny))
     return labels
+
+
+def canonical_line_labels(line_rgba: np.ndarray) -> np.ndarray:
+    """Label full-image fillable Line regions; boundary remains label zero."""
+
+    return connected_labels(~canonical_boundary_from_rgba(line_rgba), connectivity=4)
 
 
 def segment_colored_components(
@@ -435,6 +509,73 @@ def score_regions(
         .tolist(),
         "region_means": means,
         "rgb": modal_rgb(selected_pixels, tie_policy),
+    }
+
+
+def score_canonical_regions(
+    rgba: np.ndarray,
+    labels: np.ndarray,
+    probabilities: np.ndarray,
+) -> dict:
+    """Apply the Phase 5 semantic-region score and D-06 color contract.
+
+    Labels are full-image Line-fill identities cropped into model coordinates.
+    Label zero is Line/padding and is never eligible.  A positive label is
+    eligible only when it has at least one painted Coloring pixel.  Every pixel
+    of an eligible semantic region participates in its model mean, while only
+    alpha-positive pixels vote for the exact RGB mode.
+    """
+
+    image = np.asarray(rgba)
+    label_map = np.asarray(labels)
+    probability_map = np.asarray(probabilities)
+    if image.ndim != 3 or image.shape[2] != 4 or image.dtype != np.uint8:
+        raise ValueError("Canonical color selection requires uint8 RGBA pixels.")
+    if image.shape[:2] != label_map.shape or label_map.shape != probability_map.shape:
+        raise ValueError("Postprocessing arrays must have matching dimensions.")
+    if not np.issubdtype(label_map.dtype, np.integer) or np.any(label_map < 0):
+        raise ValueError("Semantic labels must be nonnegative integers.")
+    if not np.issubdtype(probability_map.dtype, np.floating):
+        raise ValueError("Model probabilities must be floating point.")
+    if not np.isfinite(probability_map).all():
+        raise ValueError("Model probabilities must all be finite.")
+    if np.any(probability_map < 0.0) or np.any(probability_map > 1.0):
+        raise ValueError("Model probabilities must be within [0, 1].")
+
+    ordered_labels: list[int] = []
+    seen: set[int] = set()
+    for raw_label in label_map.reshape(-1):
+        label = int(raw_label)
+        if label > 0 and label not in seen:
+            seen.add(label)
+            ordered_labels.append(label)
+
+    means: dict[str, float] = {}
+    best_label: int | None = None
+    best_mean = float("-inf")
+    for label in ordered_labels:
+        mask = label_map == label
+        painted = mask & (image[..., 3] > 0)
+        if not painted.any():
+            continue
+        mean = float(np.asarray(probability_map[mask], dtype=np.float64).mean())
+        means[str(label)] = mean
+        if mean > best_mean:
+            best_mean = mean
+            best_label = label
+
+    if best_label is None:
+        raise ValueError("No painted semantic region is available for prediction.")
+    selected_mask = label_map == best_label
+    color_pixels = image[selected_mask & (image[..., 3] > 0)]
+    return {
+        "selected_region_id": best_label,
+        "selected_pixel_indices": np.flatnonzero(selected_mask.reshape(-1))
+        .astype(int)
+        .tolist(),
+        "region_means": means,
+        "confidence": best_mean,
+        "rgb": modal_rgb(color_pixels, "first_encountered"),
     }
 
 

@@ -20,6 +20,14 @@ Open `http://localhost:5173/`. `npm ci` runs the `postinstall` script, which
 copies the ONNX Runtime WASM binary into `public/ort-wasm/`. The app loads the
 committed model from `public/models/unet32.onnx`.
 
+The learned runtime uses a binary float32 `[1,2,32,32]` tensor: channel 0 is
+Line Art only after canonical byte-RGBA/white-composite/grayscale-128
+conversion, and channel 1 is exactly the target gap. Guides remain detection
+boundaries but are excluded from the trained model input. The output is scored
+over full-image Line-derived semantic-region labels; the winning region supplies
+exact modal RGB with a first-row-major tie break. Predictions record explicit
+learned/fallback provenance, and fallback carries no learned confidence.
+
 The web application has been tested with Google Chrome on Windows.
 
 ## Directory Layout
@@ -125,7 +133,10 @@ cd ../web
 The default `crop_size` is `32`, matching the web inference code. If you change
 the ML crop size, the browser inference patch size must be updated accordingly.
 The exporter writes a self-contained ONNX file and a sibling `model_info.json`.
-The JSON file documents the model interface but is not loaded by the web app.
+The JSON file documents the model interface and Line-only policy but is not
+loaded by the web app. Runtime code independently validates the session's exact
+input/output names and the output's float32 shape, finiteness, and `[0,1]`
+range. Repository validation pins the artifact SHA-256.
 
 ## Required Runtime Assets
 

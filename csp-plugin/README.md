@@ -1,10 +1,11 @@
 # Gap Assist for CLIP STUDIO PAINT
 
 Gap Assist is a post-process gap detector and reviewer for anime-style coloring.
-It analyzes an active raster layer after normal bucket/brush work, predicts a
-nearby color for small enclosed transparent regions, and either applies a native
-Quick Fix or produces a transparent companion correction image. It does not
-intercept CLIP STUDIO PAINT tools or canvas events.
+It analyzes a raster after normal bucket/brush work, predicts a color for small
+enclosed transparent regions, and produces reviewed corrections. It does not
+intercept CLIP STUDIO PAINT tools or canvas events. The public pure core now
+contains canonical learned preprocessing/postprocessing; a distributable CSP
+ONNX Runtime adapter is not yet included.
 
 This directory currently provides the complete SDK-independent C++20 core, a
 PNG review harness, host integration contracts, and automated tests. The final
@@ -20,14 +21,19 @@ and [SDK integration](docs/SDK_INTEGRATION.md).
   CLI/native acquisition remains active-Coloring-only.
 - Four- or eight-neighbor connectivity and exclusion of open boundary regions.
 - Whole-layer and selection-only scopes.
-- Rule-based, distance-weighted nearby-color prediction with owner-region IDs.
-- Conservative, Balanced, and Aggressive confidence bands.
+- Canonical Line-only 32×32 learned tensor construction, full-image Line-region
+  scoring, deterministic modal RGB, and a small validated inference-backend
+  interface independent of CELSYS.
+- Explicit Rule-Based heuristic fallback with owner-region IDs and a separate
+  diagnostic score; it has no learned confidence and never enters Apply-High.
+- Conservative, Balanced, and Aggressive bands for learned confidence only.
 - Quick Fix, Review List, and One-by-One review state machines.
 - Apply, skip, mark-only, apply-selected, and apply-high-confidence decisions.
 - Transparent correction, confidence-highlight, corrected-preview, JSON manifest,
   and before/after contact-sheet outputs.
 - Cancellation/progress hooks, settings persistence, and safe host capability checks.
-- A replaceable predictor interface and an explicit local ONNX stub/fallback.
+- A replaceable predictor interface; the public distribution stub rejects an
+  ONNX request because native ONNX Runtime packaging is still pending.
 - No network access, telemetry, or image-content logging.
 
 ## Build and test
@@ -38,8 +44,13 @@ Requirements are a C++20 compiler and either Make or CMake 3.20+.
 cd csp-plugin
 make -j2
 make test
+make test-phase5 PHASE5_PYTHON=/path/to/python-with-numpy-and-onnxruntime
 make test-e2e
 ```
+
+`test-phase5` executes the pinned model through local Python ONNX Runtime and
+feeds its output through the C++ backend contract. It is semantic/runtime parity
+coverage, not the distributable native CSP adapter.
 
 Equivalent CMake commands:
 
@@ -81,9 +92,11 @@ file, and directory durability is not guaranteed because directories are not
 `fsync`ed.
 
 Edit a decisions file using `examples/review_decisions.example.txt`, then rerun
-with `--decisions decisions.txt`. `--apply-high` accepts all remaining high-
-confidence Unreviewed candidates; explicit Apply, Skip, and Mark Only decisions
-always win. Exact duplicate decisions are accepted idempotently, while
+with `--decisions decisions.txt`. `--apply-high` accepts all remaining
+high-confidence Unreviewed **learned** candidates. Rule-Based heuristic
+suggestions are never bulk-applied and require an explicit per-gap Apply
+decision. Explicit Apply, Skip, and Mark Only decisions always win. Exact
+duplicate decisions are accepted idempotently, while
 contradictory duplicates fail. Settings precedence is built-in defaults, then
 the settings file, then explicit command-line overrides, independent of where
 `--settings` appears. Repeated instances of the same CLI option use the last
@@ -104,12 +117,14 @@ progress/cancellation, and the normal filter commit/Undo flow. It does not expos
 document-layer creation or the dynamic list/thumbnail UI required by the full
 Review List and One-by-One designs.
 
-Accordingly, the native Windows plug-in is a conventional **Quick Fix** filter:
-it applies High-confidence corrections only, through CSP's standard Preview,
-OK, and Cancel flow. Duplicate the coloring layer before running it when an
-editable, non-destructive copy is required. The full Review List, One-by-One,
-Correction Layer, and Highlight Layer workflow remains available through the PNG
-review companion described above.
+Accordingly, the intended native Windows surface is a conventional **Quick
+Fix** filter that may apply High-confidence **learned** corrections through
+CSP's standard Preview, OK, and Cancel flow. The current private adapter has not
+been connected to a packaged ONNX backend or separate Line input. D-07 prevents
+its Rule-Based heuristic from being auto-applied, so native learned Quick Fix is
+not release-ready and no automatic correction is claimed in Phase 5. Duplicate
+the coloring layer before future native qualification when an editable copy is
+required. The explicit-decision PNG companion remains the reviewable path.
 
 The local SDK adapter lives under the ignored `FilterPlugIn20210827` directory.
 It is intentionally not part of the public source tree because the SDK agreement

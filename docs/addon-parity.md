@@ -1,12 +1,40 @@
-# GapFill Phase 2 behavior characterization
+# GapFill Phase 2 characterization and Phase 5 learned parity
 
-Phase: 2
+Current phase: 5
 
-Evidence freeze: 2026-08-13 (Asia/Tokyo)
+Golden-corpus freeze: 2026-08-13 (Asia/Tokyo)
 
-Production baseline: `30c7f02b698e8a9d61bc1a4e866fa5d8d7e8bfe5`
+Phase 5 resolution: 2026-08-14 (Asia/Tokyo)
 
-## Purpose and interpretation
+Phase 5 production baseline: `c52affd4816df7eeeea53985c3b39ba0c4e83b86`
+
+## Phase 5 current learned-prediction result
+
+The reviewed current contract is Line-only NCHW float32 input, canonical
+straight-alpha RGBA-to-grayscale conversion, full-image four-connected Line
+regions, positive painted-label eligibility, mean likelihood over all valid
+region pixels, and exact modal RGB with first-row-major tie resolution. Guides
+remain Phase 4 detection boundaries but do not enter the trained model tensor.
+
+| Stage | Neutral | ML evidence | Web | Krita | CSP pure core |
+| --- | --- | --- | --- | --- | --- |
+| Boundary conversion | byte-exact 8-value oracle | inclusive grayscale 128 training rule | exact | exact | exact |
+| Patch/tensor | 13 Line-only cases | 13/13 exact | 13/13 exact | 13/13 exact | M001 exact plus shared construction tests |
+| ONNX artifact | 7/7 CPU, max delta 0 | frozen artifact | 7/7 WASM within unchanged tolerance | 7/7 CPU, max delta 0 | 7/7 CPU outputs drive C++ backend, max delta 0 |
+| Region/color | 8 fixed maps | Line labels support the choice; historical label-0 bug retained as evidence | 8/8 exact | 8/8 exact | fixed maps/unit coverage plus integrated M001 exact |
+| Integrated M001 | region 2, RGB `[20,20,240]`, mean `0.8431808595754662` | artifact output | same | same | same |
+| D-07 | policy oracle | no product policy | explicit learned/fallback | explicit learned/fallback | `Learned`/`HeuristicFallback`; heuristic excluded from Apply-High |
+
+The CSP row does not claim a shipping ONNX Runtime adapter. A local Python ONNX
+Runtime 1.28.0 CPU path executes the pinned artifact and feeds the tested C++
+backend boundary; native cross-platform runtime packaging remains a later gate.
+Real Krita and CELSYS hosts remain unverified.
+
+The Phase 2 tables below are preserved as the historical disagreement record.
+Where they say “current,” read that as the Phase 2 snapshot unless a Phase 5
+resolution explicitly supersedes it.
+
+## Historical Phase 2 purpose and interpretation
 
 This record compares the paper/manual interpretation, ML Python pipeline, web
 reference, Krita pure engine, and CSP pure core on independently controlled
@@ -28,8 +56,9 @@ Exact inputs and observations are in
 - `CONFIRMED_IMPLEMENTATION_DIVERGENCE`: behavior conflicts with a stable rule
   or an implementation omits inputs required by that rule.
 
-“Unavailable” is not a pass. CSP has no learned inference/postprocessing stage,
-and none of these pure tests verifies a real Krita or Clip Studio Paint host.
+In this Phase 2 snapshot, “Unavailable” is not a pass and CSP had no learned
+inference/postprocessing stage. None of these pure tests verifies a real Krita
+or Clip Studio Paint host.
 
 | Stage | Cases | Agrees | Platform difference | Unresolved | Confirmed divergence |
 | --- | ---: | ---: | ---: | ---: | ---: |
@@ -53,8 +82,8 @@ behavior nor a passing reader promotes them to truth.
 | `D-03` | only Coloring alpha 0 is a gap | Phase 4 Krita/CSP normalized detectors agree; ML stage does not implement RGBA membership and the CSP compatibility setting no longer broadens detector membership | G-03 |
 | `D-04` | analyze full geometry, then restrict application; clipped-only boundary is indeterminate/rejected | Phase 4 Krita/CSP pure detectors expose full component geometry plus an application subset; real CSP acquisition remains an unverified host limitation; ML/Web have no selection stage | G-03, C-10 |
 | `D-05` | four-neighbor only | all defaults agree; optional CSP eight-neighbor mode is an intentional noncanonical extension | — |
-| `D-06` | exact RGB mode; tie uses first row-major encounter | ML/Web return red in R006; Krita returns sorted-lowest blue: confirmed divergence; CSP learned stage not implemented | K-14 |
-| `D-07` | explicit learned/fallback provenance; fallback confidence cleared, confirmation required, Apply-High excluded | Web/Krita fallback is untagged; CSP is untagged and may auto-Apply a High rule result: confirmed divergence; ML product policy not implemented | K-11, C-02, C-03 |
+| `D-06` | exact RGB mode; tie uses first row-major encounter | Phase 5 neutral/Web/Krita/CSP pure paths return red in R006; the former Krita sorted-lowest result is retained only as historical characterization | K-14 closed in pure path |
+| `D-07` | explicit learned/fallback provenance; fallback confidence cleared, confirmation required, Apply-High excluded | Phase 5 Web/Krita/CSP carry provenance; CSP heuristic keeps only a diagnostic score and is excluded from every automatic/Apply-High path; ML has no product policy | K-11/C-02/C-03 pure-policy portions closed |
 
 ## Detection matrix
 
@@ -88,7 +117,7 @@ same normalized pure geometry contract and exact candidate sets for the tested
 profile. The current CSP CLI/private adapter still supplies Coloring only, so the
 pure-core Line/Guide results are not a real-host support claim.
 
-## Patch and tensor matrix
+## Patch and tensor matrix (Phase 2 snapshot, superseded for prediction)
 
 | Fixture family | ML | Web | Krita | CSP | Status |
 | --- | --- | --- | --- | --- | --- |
@@ -99,9 +128,10 @@ pure-core Line/Guide results are not a real-host support claim.
 | P006 Guide on target | target remains in channel 1 | target Guide pixel suppressed | target Guide pixel suppressed | unavailable | `UNRESOLVED_SPECIFICATION` |
 
 The stable tensor shape is NCHW float32 `[1,2,32,32]`, with the centered target
-at patch `(16,16)` and output `[1,1,32,32]`. Guide composition remains an
-empirical decision because the ML training path is line-only while the exported
-sidecar and host implementations describe/use Guides.
+at patch `(16,16)` and output `[1,1,32,32]`. Phase 5 resolves P005/P006 for
+runtime prediction in favor of the `training_line_only` variant: Guides are not
+ORed into channel 0 and no target-Guide suppression is performed. The table
+retains the former implementations as historical evidence.
 
 ## Exact ONNX artifact parity
 
@@ -114,23 +144,27 @@ float32 output values plus a byte-level float32 SHA-256. The pinned artifact is
 
 Python ONNX Runtime 1.28.0 CPU reproduced the stored outputs exactly. Web
 `onnxruntime-web` 1.22.0 WASM reproduced them at `atol=1e-6`, `rtol=1e-5`; the
-largest observed absolute difference was `1.2516975402832031e-6`. Krita's pure
-wrapper uses that artifact/runtime, but its public prediction API returns final
-RGB rather than the likelihood tensor; Phase 2 therefore checks Krita's tensor
-construction and postprocessing separately and checks the artifact directly
-through ONNX Runtime. CSP reports `LEARNED_STAGE_UNAVAILABLE`; its ONNX
-predictor is a stub and requests fall back to the separate rule predictor.
+largest observed absolute difference was `1.2516975402832031e-6`. Phase 5 adds
+direct seven-output checks through Krita's validated wrapper and the local CSP
+parity runner. The C++ learned path receives the exact output through its small
+backend interface; its shipping `OnnxPredictorStub` now fails explicitly rather
+than silently invoking the rule predictor.
 
-All seven cases remain `UNRESOLVED_SPECIFICATION`: numeric artifact parity says
-nothing about whether Guide-composed tensors are in-distribution or whether the
-model selected the semantically correct region. Sensitivity is confirmed:
+The numeric values remain artifact characterization, not accuracy truth.
+Line-only cases are canonical runtime inputs; Guide-composed cases remain
+out-of-distribution sensitivity evidence. Sensitivity is confirmed:
 
 - adding one Guide pixel changes all 1024 values (max delta
   `0.2567824125`, mean delta `0.0444267020`);
 - suppressing a target-overlapping Guide pixel changes all 1024 values (max
   delta `0.2577674389`, mean delta `0.0613388440`).
 
-## Region and color postprocessing matrix
+The extended A-G characterization also observes maximum pairwise deltas of
+`0.6486428082` for Guide closure, `0.6038002372` for isolated Guide geometry,
+and `0.8656817973` for mixed Line/Guide closure. The mixed case changes the
+fixed red/blue winner. None of that establishes Guide inputs as trained.
+
+## Region and color postprocessing matrix (Phase 2 snapshot)
 
 All probabilities below are fixed, human-readable fixture values. CSP's owner
 segmentation observations are recorded where useful, but CSP has no equivalent
@@ -147,11 +181,16 @@ learned region-likelihood stage.
 | R007 anti-aliased modal | `[100,120,140]` | same | same | unavailable | `AGREES` |
 | R008 line vs colored regions | line region, red | colored region, blue | same as Web | unavailable | `UNRESOLVED_SPECIFICATION` |
 
-The stable portion is region-mean scoring followed by an exact modal RGB color
-once the eligible semantic regions are known. D-06 now freezes first row-major
-encounter for an exact tie; Krita's numeric sort is a confirmed K-14 divergence.
-What constitutes a region, whether label 0 is eligible, and RGB tolerance
-semantics remain unsettled.
+Phase 5 selects Line-derived full-image labels and excludes label 0. Positive
+labels need at least one painted pixel; all valid labeled pixels, including
+alpha-zero gaps, participate in the mean; only alpha-positive pixels vote for
+the RGB mode. Equal means and equal modal counts retain first row-major
+encounter. Under that contract R001-R008 select respectively: `2/blue`,
+`1/green`, `1/red`, `1/black`, `1/red-0`, `1/red`, `1/[100,120,140]`, and
+`1/red`. Neutral, Web, and Krita match all eight; CSP independently covers the
+same scoring/tie invariants and its integrated M001 result matches exactly.
+Color tolerance and CSP owner transitivity are no longer learned-region
+semantics; they remain properties of the explicitly labeled heuristic.
 
 ## Selection and fallback policy contracts
 
@@ -164,9 +203,9 @@ oracles. Exact inputs and outputs are in `policy/cases.json`.
 | S001 full geometry then selection | component `[11,12,13]` is enclosed; only `[12]` is eligible for application | Phase 4 Krita/CSP normalized pure detectors agree exactly; ML/Web do not implement selection scope. |
 | S002 clipped acquisition boundary | geometry is indeterminate; reject; selection did not create enclosure | CSP's conservative rejection agrees for this conditional host limitation; real CSP acquisition remains unverified. |
 | S003 selection excludes enclosed gap | geometry remains enclosed, but application set is empty | Phase 4 add-on detectors omit it from processing/output without changing the geometry verdict. |
-| F001 learned High | provenance `learned`; remains Apply-High eligible | product provenance field is absent from current Web/Krita/CSP result contracts. |
-| F002 fallback High-like, unconfirmed | provenance `fallback`; effective learned confidence is null; Apply-High false; manual apply false | Web/Krita are untagged; CSP rule result may be High and Apply by default: confirmed D-07 divergence. |
-| F003 fallback High-like, confirmed | manual apply true after explicit confirmation; learned confidence stays null and Apply-High stays false | explicit source-aware confirmation contract is not implemented. |
+| F001 learned High | provenance `learned`; remains Apply-High eligible | Phase 5 Web/Krita/CSP result contracts carry learned provenance; CSP classifies and auto-applies only this source. |
+| F002 fallback High-like, unconfirmed | provenance `fallback`; effective learned confidence is null; Apply-High false; manual apply false | Phase 5 Web/Krita tag it and clear learned confidence; CSP keeps the heuristic score separately and leaves it Unreviewed. |
+| F003 fallback High-like, confirmed | manual apply true after explicit confirmation; learned confidence stays null and Apply-High stays false | CSP permits an explicit per-gap decision without admitting the fallback to bulk High logic; Web/Krita application gestures are explicit user actions. |
 
 ## End-to-end review material
 
@@ -216,25 +255,26 @@ The exact reproduction commands and dependency versions are recorded in
 `docs/addon-spec.md`; CI now runs the neutral validator/characterizer as well as
 the Web, Krita, and CSP readers.
 
-## Gaps deliberately left open
+## Gaps deliberately left open after Phase 5
 
-- Guide detection composition, Guide inclusion in model channel 0, and target
-  Guide suppression still require reviewed empirical evidence.
-- Host boundary rasterization for faint/anti-aliased Line Art remains unsettled.
-- Semantic region correspondence, label-0 eligibility, and RGB similarity/
-  transitivity remain unsettled even though modal tie order is now frozen.
-- Exact ONNX outputs are frozen as artifact semantics; whether a tensor is
-  in-distribution and whether its highest-likelihood region is correct remain
-  accuracy questions rather than runtime-parity questions.
+- Guide detection is fixed as a Phase 4 boundary rule, while the canonical
+  model input is Line-only. Whether a future retrained model should consume
+  Guides remains a model-research question; current Guide-composed outputs are
+  sensitivity evidence only.
+- The normalized RGBA-to-boundary conversion is fixed, but real host rendering,
+  profiles, masks, blend modes, premultiplication, and layer visibility remain
+  unsettled host inputs.
+- Exact ONNX outputs and pure region/RGB parity are frozen. They do not establish
+  model accuracy, confidence calibration, or acceptable behavior on real art.
 - No real Krita canvas, color-management, selection/undo, overlay, transform,
   cancellation, or packaging behavior is verified here.
 - No real CSP SDK adapter, preview, selection, cancellation, writeback, or Undo
   behavior is verified here.
 - No accuracy/calibration claim is made from seven fixed model tensors.
-- No current heuristic score is accepted as learned confidence.
+- No heuristic score is accepted as learned confidence or Apply-High input.
 - No unresolved fixture has been converted into a canonical expectation merely
   to make all implementations pass.
 
-The Phase 2 freeze and validation satisfy the entry gates listed in
-`docs/addon-spec.md`. Phase 3 may begin only in a later explicitly authorized
-task; this task does not start it.
+The Phase 5 pure learned-prediction entry criteria are satisfied by the current
+validation record in `docs/addon-phase5.md`. Phase 6 remains separately scoped
+host work and was not started here.

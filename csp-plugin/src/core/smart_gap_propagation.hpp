@@ -23,7 +23,9 @@ class SmartGapPropagation {
       const SelectionMask* selection = nullptr,
       const std::atomic_bool* cancelled = nullptr,
       const ProgressCallback& progress = {},
-      const std::function<void()>& cancellationPoll = {}) const;
+      const std::function<void()>& cancellationPoll = {},
+      const Image* lineArtImage = nullptr,
+      const Image* guideImage = nullptr) const;
 
   [[nodiscard]] AnalysisResult analyze(
       const Image& image, const Settings& settings,
@@ -31,7 +33,9 @@ class SmartGapPropagation {
       const SelectionMask* selection = nullptr,
       const std::atomic_bool* cancelled = nullptr,
       const ProgressCallback& progress = {},
-      const std::function<void()>& cancellationPoll = {}) const;
+      const std::function<void()>& cancellationPoll = {},
+      const Image* lineArtImage = nullptr,
+      const Image* guideImage = nullptr) const;
 };
 
 }  // namespace gap_assist

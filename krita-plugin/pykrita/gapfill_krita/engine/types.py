@@ -17,6 +17,19 @@ class GapKind(str, Enum):
     GUIDE = "guide"
 
 
+class PredictionProvenance(str, Enum):
+    LEARNED = "learned"
+    FALLBACK = "fallback"
+
+
+@dataclass(frozen=True)
+class LearnedPrediction:
+    rgb: Rgb
+    provenance: PredictionProvenance
+    learned_confidence: Optional[float] = None
+    fallback_reason: Optional[str] = None
+
+
 @dataclass
 class LayerImages:
     """Full-document RGBA/U8 snapshots used by the engine."""
@@ -103,6 +116,8 @@ class GapRegion:
     kind: GapKind
     predicted_rgb: Optional[Rgb] = None
     preview_rgb: Optional[Rgb] = None
+    prediction_provenance: Optional[PredictionProvenance] = None
+    learned_confidence: Optional[float] = None
     metadata: dict[str, object] = field(default_factory=dict)
     application_indices: Optional[FlatIndices] = None
 

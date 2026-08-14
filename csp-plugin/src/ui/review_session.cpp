@@ -19,7 +19,8 @@ void ReviewSession::initializeModeDefaults() {
     if (mode_ == RunMode::OneByOne) {
       gap.apply = false;
       gap.status = ReviewStatus::Unreviewed;
-    } else if (gap.confidenceBand == ConfidenceBand::High) {
+    } else if (gap.predictionProvenance == PredictionProvenance::Learned &&
+               gap.confidenceBand == ConfidenceBand::High) {
       gap.apply = true;
       gap.status = ReviewStatus::Apply;
     } else {
@@ -94,7 +95,8 @@ void ReviewSession::applyHighConfidence() {
 
 void ReviewSession::applyAllRemainingHighConfidence() {
   for (auto& gap : gaps_) {
-    if (gap.confidenceBand == ConfidenceBand::High &&
+    if (gap.predictionProvenance == PredictionProvenance::Learned &&
+        gap.confidenceBand == ConfidenceBand::High &&
         gap.status == ReviewStatus::Unreviewed && gap.suggestedColor.has_value())
       setApply(gap.id, true);
   }

@@ -179,6 +179,7 @@ struct DetectionGeometry {
 enum class Connectivity { Four = 4, Eight = 8 };
 enum class ConfidenceBand { High, Medium, Low };
 enum class ReviewStatus { Unreviewed, Apply, Skip, MarkOnly };
+enum class PredictionProvenance { None, Learned, HeuristicFallback };
 enum class RunMode { QuickFix, ReviewList, OneByOne };
 enum class OutputMode { CorrectionLayer, OverwriteActiveLayer };
 enum class Scope { WholeLayer, SelectionOnly };
@@ -194,6 +195,10 @@ struct GapCandidate {
   Rect bbox;
   PointF centroid;
   std::optional<Rgba> suggestedColor;
+  PredictionProvenance predictionProvenance{PredictionProvenance::None};
+  std::optional<double> learnedConfidence;
+  std::optional<double> heuristicScore;
+  std::optional<std::int32_t> semanticRegionLabel;
   double confidence{};
   ConfidenceBand confidenceBand{ConfidenceBand::Low};
   bool apply{};
@@ -231,6 +236,18 @@ struct GapCandidate {
       return "mark_only";
   }
   return "unreviewed";
+}
+
+[[nodiscard]] inline std::string toString(PredictionProvenance provenance) {
+  switch (provenance) {
+    case PredictionProvenance::Learned:
+      return "learned";
+    case PredictionProvenance::HeuristicFallback:
+      return "heuristic_fallback";
+    case PredictionProvenance::None:
+      return "none";
+  }
+  return "none";
 }
 
 }  // namespace gap_assist

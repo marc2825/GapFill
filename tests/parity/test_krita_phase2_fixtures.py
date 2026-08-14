@@ -5,8 +5,11 @@ from pathlib import Path
 
 import numpy as np
 from gapfill_krita.engine.detection import detect_gap_regions
-from gapfill_krita.engine.patches import build_model_patches
-from gapfill_krita.engine.postprocessing import segment_colored_regions, select_region_color
+from gapfill_krita.engine.patches import build_legacy_model_patches
+from gapfill_krita.engine.postprocessing import (
+    segment_colored_regions,
+    select_legacy_region_color,
+)
 from gapfill_krita.engine.types import GapKind, GapRegion, LayerImages
 
 FIXTURE_ROOT = Path(__file__).resolve().parents[1] / "fixtures" / "gapfill"
@@ -129,7 +132,7 @@ def test_shared_patch_fixtures_characterize_current_krita_behavior() -> None:
                 else GapKind.TRANSPARENT
             ),
         )
-        _, line_patch, guide_patch, gap_mask = build_model_patches(
+        _, line_patch, guide_patch, gap_mask = build_legacy_model_patches(
             LayerImages(coloring=coloring, line_art=line, guides=guide), gap
         )
         boundary = (line_patch.rgba[..., 3] > 0) | (guide_patch.rgba[..., 3] > 0)
@@ -160,7 +163,7 @@ def test_shared_postprocess_fixtures_characterize_current_krita_behavior() -> No
             labels, _ = segment_colored_regions(rgba, blank, blank)
             assert labels.tolist() == label_maps["seed_relative"]
         labels = np.asarray(label_maps[label_name], dtype=np.int32)
-        actual = select_region_color(
+        actual = select_legacy_region_color(
             rgba,
             labels,
             int(labels.max(initial=0)),

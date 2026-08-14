@@ -1,4 +1,5 @@
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -9,7 +10,9 @@ namespace ga = gap_assist;
 
 int main(int argc, char** argv) {
   try {
-    if (argc != 3) throw std::invalid_argument("Usage: cli_fixture create|verify FILE");
+    if (argc != 3)
+      throw std::invalid_argument(
+          "Usage: cli_fixture create|create-decisions|verify FILE");
     const std::string command = argv[1];
     const std::filesystem::path path = argv[2];
     if (command == "create" || command == "create-large") {
@@ -23,6 +26,12 @@ int main(int argc, char** argv) {
       ga::Image image(32, 32);
       image.at(16, 16) = {255, 255, 255, 255};
       ga::savePng(path, image);
+      return 0;
+    }
+    if (command == "create-decisions") {
+      std::ofstream output(path, std::ios::trunc);
+      output << "0=apply\n";
+      if (!output) throw std::runtime_error("Cannot create decision fixture.");
       return 0;
     }
     if (command == "verify") {

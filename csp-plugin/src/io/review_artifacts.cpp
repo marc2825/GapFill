@@ -139,7 +139,24 @@ std::string serializeGapManifest(const ReviewSession& session, bool includeDebug
            << ", \"bbox\": [" << gap.bbox.x << ", " << gap.bbox.y << ", "
            << gap.bbox.width << ", " << gap.bbox.height << "], \"centroid\": ["
            << std::fixed << std::setprecision(3) << gap.centroid.x << ", "
-           << gap.centroid.y << "], \"confidence\": " << gap.confidence
+           << gap.centroid.y << "], \"predictionProvenance\": \""
+           << toString(gap.predictionProvenance)
+           << "\", \"learnedConfidence\": ";
+    if (gap.learnedConfidence.has_value())
+      output << *gap.learnedConfidence;
+    else
+      output << "null";
+    output << ", \"heuristicScore\": ";
+    if (gap.heuristicScore.has_value())
+      output << *gap.heuristicScore;
+    else
+      output << "null";
+    output << ", \"semanticRegionLabel\": ";
+    if (gap.semanticRegionLabel.has_value())
+      output << *gap.semanticRegionLabel;
+    else
+      output << "null";
+    output << ", \"confidence\": " << gap.confidence
            << ", \"band\": \"" << toString(gap.confidenceBand)
            << "\", \"apply\": " << (gap.apply ? "true" : "false")
            << ", \"status\": \"" << toString(gap.status) << "\", \"color\": ";

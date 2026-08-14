@@ -84,14 +84,38 @@ if(GAP_ASSIST_BUILD_TESTS)
                    "${CMAKE_CURRENT_SOURCE_DIR}/../tests/parity/test_csp_phase4_detection.py"
                    "$<TARGET_FILE:gap_assist_phase4_detection_probe>")
 
+  add_executable(gap_assist_phase5_prediction_probe
+                 ../tests/parity/csp_phase5_prediction_probe.cpp)
+  target_link_libraries(gap_assist_phase5_prediction_probe PRIVATE gap_assist_core)
+  execute_process(
+    COMMAND "${Python3_EXECUTABLE}" -c "import numpy, onnxruntime"
+    RESULT_VARIABLE GAP_ASSIST_PHASE5_PYTHON_STATUS
+    OUTPUT_QUIET ERROR_QUIET)
+  if(GAP_ASSIST_PHASE5_PYTHON_STATUS EQUAL 0)
+    add_test(NAME gap_assist_phase5_prediction
+             COMMAND "${Python3_EXECUTABLE}"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/../tests/parity/test_csp_phase5_prediction.py"
+                     "$<TARGET_FILE:gap_assist_phase5_prediction_probe>"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/../web/public/models/unet32.onnx")
+  else()
+    message(STATUS
+      "NumPy/ONNX Runtime unavailable: CSP Phase 5 cross-runtime parity is not registered")
+  endif()
+
   add_executable(gap_assist_cli_fixture tests/cli_fixture.cpp)
   target_link_libraries(gap_assist_cli_fixture PRIVATE gap_assist_core)
   set(GAP_ASSIST_FIXTURE_DIR "${CMAKE_CURRENT_BINARY_DIR}/e2e")
   add_test(NAME gap_assist_fixture_create
            COMMAND gap_assist_cli_fixture create "${GAP_ASSIST_FIXTURE_DIR}/input.png")
   set_tests_properties(gap_assist_fixture_create PROPERTIES FIXTURES_SETUP png_fixture)
+  add_test(NAME gap_assist_fixture_decisions
+           COMMAND gap_assist_cli_fixture create-decisions
+                   "${GAP_ASSIST_FIXTURE_DIR}/decisions.txt")
+  set_tests_properties(gap_assist_fixture_decisions PROPERTIES
+                       FIXTURES_SETUP png_fixture)
   add_test(NAME gap_assist_cli_smoke
            COMMAND gap_assist_cli --input "${GAP_ASSIST_FIXTURE_DIR}/input.png"
+                                  --decisions "${GAP_ASSIST_FIXTURE_DIR}/decisions.txt"
                                   --apply-high --force)
   set_tests_properties(gap_assist_cli_smoke PROPERTIES FIXTURES_REQUIRED png_fixture
                        FIXTURES_SETUP cli_output)

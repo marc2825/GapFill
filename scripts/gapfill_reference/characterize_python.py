@@ -12,27 +12,45 @@ import sys
 import numpy as np
 
 from .generate import FIXTURE_ROOT, MODEL_PATH, REPOSITORY_ROOT
-from .reference import decode_palette_rgba, decode_rows_u8, tensor_from_sparse
+from .reference import (
+    build_canonical_model_tensor,
+    canonical_boundary_from_rgba,
+    decode_palette_rgba,
+    decode_rows_u8,
+    score_canonical_regions,
+    tensor_from_sparse,
+)
 
 sys.path.insert(0, str(REPOSITORY_ROOT / "ml"))
-from src.utils.color_utils import (  # noqa: E402
+from src.utils.color_utils import (
     get_weighted_most_frequent_color as ml_select_color,
 )
-from src.utils.flood_fill.core import detect_regions as ml_detect_regions  # noqa: E402
-from src.utils.patch_utils import (  # noqa: E402
+from src.utils.flood_fill.core import detect_regions as ml_detect_regions
+from src.utils.patch_utils import (
     centered_crop_bounds as ml_centered_crop_bounds,
 )
-from src.utils.patch_utils import create_region_patches as ml_create_region_patches  # noqa: E402
-from src.utils.patch_utils import region_centroid as ml_region_centroid  # noqa: E402
+from src.utils.patch_utils import (
+    create_region_patches as ml_create_region_patches,
+)
+from src.utils.patch_utils import (
+    region_centroid as ml_region_centroid,
+)
 
 sys.path.insert(0, str(REPOSITORY_ROOT / "krita-plugin" / "pykrita"))
-from gapfill_krita.engine.detection import detect_gap_regions  # noqa: E402
-from gapfill_krita.engine.patches import build_model_patches  # noqa: E402
-from gapfill_krita.engine.postprocessing import (  # noqa: E402
-    segment_colored_regions,
-    select_region_color,
+from gapfill_krita.engine.detection import detect_gap_regions
+from gapfill_krita.engine.patches import (
+    build_legacy_model_patches,
+    build_model_tensor,
 )
-from gapfill_krita.engine.types import GapKind, GapRegion, LayerImages  # noqa: E402
+from gapfill_krita.engine.patches import (
+    canonical_boundary_from_rgba as krita_boundary_from_rgba,
+)
+from gapfill_krita.engine.postprocessing import (
+    segment_colored_regions,
+    select_legacy_region_color,
+    select_region_prediction,
+)
+from gapfill_krita.engine.types import GapKind, GapRegion, LayerImages
 
 
 def _load(relative: str) -> dict:
@@ -203,7 +221,7 @@ def check_patch() -> dict:
             center=(column, row),
             kind=kind,
         )
-        _, line_patch, guide_patch, gap_mask = build_model_patches(
+        _, line_patch, guide_patch, gap_mask = build_legacy_model_patches(
             LayerImages(coloring=coloring, line_art=line, guides=guides), gap
         )
         current_variant = (
@@ -290,7 +308,7 @@ def check_postprocess() -> dict:
                 raise AssertionError(f"{case['id']}: Krita segmentation drifted")
         labels = np.asarray(label_maps[colored_name], dtype=np.int32)
         krita_rgb = list(
-            select_region_color(
+            select_legacy_region_color(
                 rgba, labels, int(labels.max(initial=0)), probabilities
             )
         )
@@ -300,7 +318,179 @@ def check_postprocess() -> dict:
     return {"cases": checked, "ml": "MATCH", "krita": "MATCH"}
 
 
+def check_phase5() -> dict:
+    boundary_values = np.asarray(
+        [[
+            [0, 0, 0, 0],
+            [0, 0, 0, 1],
+            [127, 127, 127, 255],
+            [128, 128, 128, 255],
+            [129, 129, 129, 255],
+            [0, 0, 0, 255],
+            [0, 0, 0, 126],
+            [0, 0, 0, 127],
+        ]],
+        dtype=np.uint8,
+    )
+    expected_boundary = np.asarray(
+        [[False, False, True, True, False, True, False, True]]
+    )
+    if not np.array_equal(
+        canonical_boundary_from_rgba(boundary_values), expected_boundary
+    ) or not np.array_equal(
+        krita_boundary_from_rgba(boundary_values), expected_boundary
+    ):
+        raise AssertionError("Phase 5 boundary conversion drifted")
+
+    patch_cases = _load("patch/cases.json")["cases"]
+    for case in patch_cases:
+        source = case["source"]
+        width, height = int(source["width"]), int(source["height"])
+        line = np.zeros((height, width, 4), dtype=np.uint8)
+        coloring = np.full((height, width, 4), 255, dtype=np.uint8)
+        guides = np.zeros_like(coloring)
+        for index in source["line_active_indices"]:
+            line[int(index) // width, int(index) % width] = (0, 0, 0, 255)
+        for index in source["guide_active_indices"]:
+            guides[int(index) // width, int(index) % width] = (0, 0, 0, 255)
+        for index in source["gap_indices"]:
+            coloring[int(index) // width, int(index) % width] = 0
+        canonical = next(
+            item["result"]
+            for item in case["expectations"]
+            if item["variant"] == "training_line_only"
+        )
+        gap = GapRegion(
+            id="gap-0",
+            indices=np.asarray(source["gap_indices"], dtype=np.int64),
+            center=tuple(canonical["centroid"]),
+            kind=GapKind.TRANSPARENT,
+        )
+        reference_tensor, _ = build_canonical_model_tensor(
+            line,
+            source["gap_indices"],
+            tuple(canonical["centroid"]),
+        )
+        krita_tensor, _ = build_model_tensor(
+            LayerImages(coloring=coloring, line_art=line, guides=guides), gap
+        )
+        if not np.array_equal(reference_tensor, krita_tensor):
+            raise AssertionError(f"{case['id']}: Phase 5 tensor parity drifted")
+
+    postprocess_cases = _load("postprocess/cases.json")["cases"]
+    for case in postprocess_cases:
+        coloring = decode_palette_rgba(case["coloring_rgba"])
+        label_maps = case["label_maps"]
+        label_name = (
+            "line_labels"
+            if "line_labels" in label_maps
+            else "reviewed_semantic"
+            if "reviewed_semantic" in label_maps
+            else "selected_region"
+        )
+        labels = np.asarray(label_maps[label_name], dtype=np.int32)
+        probabilities = np.asarray(case["probability_map"], dtype=np.float32)
+        reference = score_canonical_regions(coloring, labels, probabilities)
+        krita = select_region_prediction(coloring, labels, probabilities)
+        if (
+            krita.label != reference["selected_region_id"]
+            or list(krita.rgb) != reference["rgb"]
+            or not np.isclose(
+                krita.mean_probability,
+                reference["confidence"],
+                atol=0.0,
+                rtol=0.0,
+            )
+        ):
+            raise AssertionError(f"{case['id']}: Phase 5 postprocessing drifted")
+    return {
+        "boundary_cases": boundary_values.shape[1],
+        "patch_cases": len(patch_cases),
+        "postprocess_cases": len(postprocess_cases),
+    }
+
+
+def characterize_phase5_guides() -> dict:
+    """Measure A-G Guide-only tensor deltas without claiming distribution support."""
+
+    import onnxruntime as ort
+
+    data = _load("model/cases.json")
+    by_id = {case["id"]: case for case in data["cases"]}
+    base = set(by_id["M001_no_guide"]["tensor"]["channel_0_active_indices"])
+    target = by_id["M001_no_guide"]["tensor"]["channel_1_active_indices"]
+    first_half = set(sorted(base)[: len(base) // 2])
+    comparisons = {
+        "A_no_guide_vs_B_ordinary_guide": (base, base | {534}),
+        "C_target_guide_retained_vs_D_suppressed": (base | {528}, base),
+        "E_guide_closure": (base - {404}, base),
+        "F_isolated_open_guide": (set(), {534}),
+        "G_mixed_line_guide_closure": (first_half, base),
+    }
+    labels = np.zeros((32, 32), dtype=np.int32)
+    labels[:, :16] = 1
+    labels[:, 16:] = 2
+    coloring = np.zeros((32, 32, 4), dtype=np.uint8)
+    coloring[:, :16] = (240, 20, 20, 255)
+    coloring[:, 16:] = (20, 20, 240, 255)
+    coloring.reshape((-1, 4))[target] = 0
+    session = ort.InferenceSession(
+        str(MODEL_PATH), providers=["CPUExecutionProvider"]
+    )
+
+    def infer(boundary: set[int]) -> np.ndarray:
+        tensor = np.zeros((1, 2, 32, 32), dtype=np.float32)
+        flat = tensor.reshape((1, 2, -1))
+        flat[0, 0, sorted(boundary)] = 1.0
+        flat[0, 1, target] = 1.0
+        return np.asarray(
+            session.run(["nearest_region_mask"], {"input_mask": tensor})[0],
+            dtype=np.float32,
+        )[0, 0]
+
+    results = {}
+    for name, (left_boundary, right_boundary) in comparisons.items():
+        left = infer(left_boundary)
+        right = infer(right_boundary)
+        delta = np.abs(left.astype(np.float64) - right.astype(np.float64))
+        left_selection = score_canonical_regions(coloring, labels, left)
+        right_selection = score_canonical_regions(coloring, labels, right)
+        results[name] = {
+            "changed_output_values": int(np.count_nonzero(delta)),
+            "maximum_absolute_delta": float(delta.max()),
+            "mean_absolute_delta": float(delta.mean()),
+            "fixed_left_right_selection": [
+                {
+                    "region": left_selection["selected_region_id"],
+                    "rgb": left_selection["rgb"],
+                },
+                {
+                    "region": right_selection["selected_region_id"],
+                    "rgb": right_selection["rgb"],
+                },
+            ],
+        }
+    return {
+        "interpretation": (
+            "sensitivity characterization only; Guide-composed inputs were not "
+            "present in training"
+        ),
+        "comparisons": results,
+    }
+
+
 def main() -> None:
+    if sys.argv[1:] == ["--phase5"]:
+        result = {
+            "schema": "gapfill-phase5-characterization-run-v1",
+            "model": check_model(),
+            "guide_experiments": characterize_phase5_guides(),
+            "prediction": check_phase5(),
+        }
+        print(json.dumps(result, indent=2, sort_keys=True))
+        return
+    if sys.argv[1:]:
+        raise SystemExit("usage: python -m scripts.gapfill_reference.characterize_python [--phase5]")
     result = {
         "schema": "gapfill-python-characterization-run-v1",
         "detection": check_detection(),

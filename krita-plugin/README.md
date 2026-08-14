@@ -8,7 +8,9 @@ GapFill for Krita ports the paper's gap-detection and region-correspondence colo
 - Treats Line Art and Guide pixels as detection boundaries; only enclosed,
   uncovered Coloring transparency is paintable gap geometry.
 - Excludes Line Art pixels and open components touching the document boundary.
-- Runs the same 2-channel, 32×32 U-Net model used by the web application and validates its full input/output contract.
+- Runs the pinned 2-channel, 32×32 U-Net with a Line-only boundary channel,
+  validates its hash/interface/output, scores full-image Line-derived semantic
+  regions, and returns their deterministic modal RGB.
 - Shows temporary suggested fills, circular highlights, and a fixed 5× hover magnifier.
 - Supports in-circle drag-to-correct, out-circle sweep-to-apply, list-based correction, Apply Selected, and Apply All.
 - Applies fills through Krita's native selection-fill action so edits participate in Krita's undo history.
@@ -58,9 +60,12 @@ The selected nodes are read in document coordinates. If layers are moved or tran
 
 The pure detector first converts these RGBA snapshots into separate binary
 Coloring-membership, Line-boundary, and Guide-boundary masks. Coloring membership
-is exactly alpha zero. The current Krita conversion preserves the existing
-any-nonzero-alpha Line/Guide rule; the correct faint/anti-aliased host
-rasterization threshold remains an empirical question and is not an ONNX policy.
+is exactly alpha zero. Detection preserves its Phase 4 any-nonzero-alpha
+Line/Guide normalization. Learned prediction is deliberately separate: channel
+0 contains Line Art only after logical straight-alpha RGBA is composited over
+byte white and thresholded at inclusive grayscale 128. Guides remain detection
+boundaries but are excluded from the trained model tensor. Real Krita
+profile/render conversion into those logical bytes remains a host test.
 
 ## Interaction
 
@@ -70,7 +75,17 @@ rasterization threshold remains an empirical question and is not an ONNX policy.
 4. Drag from outside the circles to sweep over several suggestions, then release to apply them.
 5. Alternatively, correct colors in the docker and use **Apply Selected** or **Apply All**.
 
-The ONNX model must load successfully before suggestions are shown. A missing model or runtime is displayed as an error in the docker instead of silently replacing all predictions with the greedy heuristic. The optional greedy fallback is limited to an isolated inference failure after the model has loaded.
+The ONNX model must load successfully before suggestions are shown. A missing,
+wrong-hash, malformed, or incompatible model/runtime is displayed as an error
+instead of silently replacing all predictions with the greedy heuristic. An
+isolated per-gap failure may use the optional greedy fallback only when at least
+one learned prediction succeeded; its provenance is `fallback` and its learned
+confidence is null. If every gap fails, the batch fails without committing
+partial prediction metadata. A no-gap scan does not load the model.
+
+ONNX Runtime calls are synchronous and cannot be interrupted mid-call. Stop is
+checked before and after load and each inference; results are attached only
+after the complete batch reaches a cancellation boundary.
 
 Krita creates one undoable fill operation per distinct color in an applied batch. Undo repeatedly if a batch contained multiple colors.
 

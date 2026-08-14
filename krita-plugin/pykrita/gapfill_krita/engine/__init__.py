@@ -2,7 +2,13 @@
 
 from .detection import detect_gap_regions
 from .inference import GapFillPredictor
-from .types import DetectionGeometry, GapKind, GapRegion, LayerImages
+from .types import (
+    DetectionGeometry,
+    GapKind,
+    GapRegion,
+    LayerImages,
+    PredictionProvenance,
+)
 
 __all__ = [
     "GapFillPredictor",
@@ -10,5 +16,6 @@ __all__ = [
     "GapKind",
     "GapRegion",
     "LayerImages",
+    "PredictionProvenance",
     "detect_gap_regions",
 ]

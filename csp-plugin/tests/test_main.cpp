@@ -5,6 +5,7 @@
 #include <functional>
 #include <iostream>
 #include <iterator>
+#include <limits>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -22,6 +23,7 @@
 #include "io/review_artifacts.hpp"
 #include "plugin_entry/gap_assist_command.hpp"
 #include "predictors/gap_color_predictor.hpp"
+#include "predictors/onnx_predictor_stub.hpp"
 #include "predictors/rule_based_predictor.hpp"
 #include "ui/review_session.hpp"
 
@@ -53,6 +55,8 @@ ga::GapCandidate makeGap(int id, std::uint32_t pixel, ga::Rgba color,
   gap.bbox = {static_cast<int>(pixel), 0, 1, 1};
   gap.centroid = {static_cast<double>(pixel), 0};
   gap.suggestedColor = color;
+  gap.predictionProvenance = ga::PredictionProvenance::Learned;
+  gap.learnedConfidence = confidence;
   gap.confidence = confidence;
   gap.confidenceBand = band;
   return gap;
@@ -250,7 +254,7 @@ void checkerboardUsesBoundedIndependentComponents() {
   CHECK(gaps.size() == 32258);
 }
 
-void highConfidenceDefaultsToApply() {
+void heuristicFallbackNeverDefaultsToApply() {
   auto image = opaqueImage(9, 9, {100, 120, 140, 255});
   image.at(4, 4) = {};
   ga::Settings settings;
@@ -258,9 +262,13 @@ void highConfidenceDefaultsToApply() {
   ga::RuleBasedPredictor predictor;
   const auto analysis = ga::SmartGapPropagation().analyze(image, settings, predictor);
   CHECK(analysis.gaps.size() == 1);
-  CHECK(analysis.gaps[0].confidenceBand == ga::ConfidenceBand::High);
-  CHECK(analysis.gaps[0].apply);
-  CHECK(analysis.gaps[0].status == ga::ReviewStatus::Apply);
+  CHECK(analysis.gaps[0].confidenceBand == ga::ConfidenceBand::Low);
+  CHECK(!analysis.gaps[0].apply);
+  CHECK(analysis.gaps[0].status == ga::ReviewStatus::Unreviewed);
+  CHECK(analysis.gaps[0].predictionProvenance ==
+        ga::PredictionProvenance::HeuristicFallback);
+  CHECK(!analysis.gaps[0].learnedConfidence.has_value());
+  CHECK(analysis.gaps[0].heuristicScore.has_value());
   CHECK(analysis.gaps[0].suggestedColor == ga::Rgba({100, 120, 140, 255}));
   CHECK(analysis.gaps[0].sourceOwnerId.has_value());
 }
@@ -288,9 +296,19 @@ void mediumAndLowDoNotDefaultToApply() {
   std::vector<ga::GapCandidate> gaps(2);
   gaps[0].id = 0;
   gaps[1].id = 1;
-  const std::vector<ga::PredictResult> predictions{
-      {0, ga::Rgba{1, 2, 3, 255}, 0.60, std::nullopt, ""},
-      {1, ga::Rgba{4, 5, 6, 255}, 0.20, std::nullopt, ""}};
+  ga::PredictResult medium;
+  medium.gapId = 0;
+  medium.suggestedColor = ga::Rgba{1, 2, 3, 255};
+  medium.provenance = ga::PredictionProvenance::Learned;
+  medium.learnedConfidence = 0.60;
+  medium.semanticRegionLabel = 1;
+  ga::PredictResult low;
+  low.gapId = 1;
+  low.suggestedColor = ga::Rgba{4, 5, 6, 255};
+  low.provenance = ga::PredictionProvenance::Learned;
+  low.learnedConfidence = 0.20;
+  low.semanticRegionLabel = 1;
+  const std::vector<ga::PredictResult> predictions{medium, low};
   ga::Settings settings;
   ga::applyPredictions(gaps, predictions, settings);
   CHECK(gaps[0].confidenceBand == ga::ConfidenceBand::Medium && !gaps[0].apply);
@@ -948,14 +966,28 @@ void preCancelledCommandDoesNotModifyHost() {
   CHECK(host.createCalls == 0 && host.overwriteCalls == 0 && host.transactionCommits == 0);
 }
 
-void quickFixPipelineOnlyChangesHighConfidenceGaps() {
+void unavailableOnnxHostPathDoesNotSilentlyFallback() {
+  MockHost host;
+  host.hostCapabilities = {.createRasterLayer = true, .customReviewDialog = true,
+                           .undoTransaction = true};
+  ga::Settings settings;
+  settings.predictorOnnx = true;
+  const auto result = ga::GapAssistCommand().run(host, settings);
+  CHECK(result.status == ga::CommandStatus::Failed);
+  CHECK(result.message.find("no ONNX Runtime adapter") != std::string::npos);
+  CHECK(host.createCalls == 0 && host.overwriteCalls == 0 &&
+        host.transactionCommits == 0);
+}
+
+void quickFixPipelineDoesNotAutoApplyHeuristicFallback() {
   auto source = opaqueImage(9, 9, {90, 110, 130, 255});
   source.at(4, 4) = {};
   ga::Settings settings;
   settings.gapThreshold = 3;
   const auto result = ga::QuickFixPipeline().run(source, settings);
-  CHECK(result.detected == 1 && result.high == 1 && result.applied == 1);
-  CHECK(result.correctedComposite.at(4, 4) == ga::Rgba({90, 110, 130, 255}));
+  CHECK(result.detected == 1 && result.high == 0 && result.low == 1 &&
+        result.applied == 0);
+  CHECK(result.correctedComposite.at(4, 4).a == 0);
   CHECK(source.at(4, 4).a == 0);
 }
 
@@ -969,6 +1001,339 @@ void quickFixPipelineHonorsSelectionBoundary() {
   const auto result = ga::QuickFixPipeline().run(source, settings, &selection);
   CHECK(result.detected == 1 && result.applied == 0);
   CHECK(result.correctedComposite.at(4, 4).a == 0);
+}
+
+class Phase5Backend final : public ga::InferenceBackend {
+ public:
+  ga::ModelContract metadata{
+      .artifactSha256 = ga::kGapFillModelSha256,
+      .inputCount = 1,
+      .outputCount = 1,
+      .inputName = "input_mask",
+      .outputName = "nearest_region_mask",
+      .inputShape = {1, 2, 32, 32},
+      .outputShape = {1, 1, 32, 32},
+      .inputType = "tensor(float)",
+      .outputType = "tensor(float)",
+  };
+  mutable int metadataCalls{};
+  mutable int runCalls{};
+  mutable std::vector<float> lastInput;
+  std::vector<float> output = std::vector<float>(32U * 32U, 0.5F);
+  int throwOnRunCall{};
+  bool throwOnContract{};
+
+  [[nodiscard]] ga::ModelContract contract() const override {
+    ++metadataCalls;
+    if (throwOnContract) throw std::runtime_error("controlled model load failure");
+    return metadata;
+  }
+
+  [[nodiscard]] std::vector<float> run(
+      std::span<const float> input) const override {
+    ++runCalls;
+    if (runCalls == throwOnRunCall)
+      throw std::runtime_error("controlled inference failure");
+    lastInput.assign(input.begin(), input.end());
+    return output;
+  }
+};
+
+void phase5BoundaryConversionMatchesTraining() {
+  const std::vector<ga::Rgba> values{{0, 0, 0, 0},       {0, 0, 0, 1},
+                                     {127, 127, 127, 255}, {128, 128, 128, 255},
+                                     {129, 129, 129, 255}, {0, 0, 0, 255},
+                                     {0, 0, 0, 126},       {0, 0, 0, 127}};
+  const std::vector<bool> expected{false, false, true, true,
+                                   false, true, false, true};
+  for (std::size_t index = 0; index < values.size(); ++index)
+    CHECK(ga::canonicalModelBoundary(values[index]) == expected[index]);
+}
+
+void phase5TensorIsExactLineOnlyNchw() {
+  ga::Image coloring(7, 7);
+  ga::Image line(7, 7);
+  ga::Image guide(7, 7);
+  line.at(2, 3) = {0, 0, 0, 255};
+  guide.at(4, 3) = {0, 0, 0, 255};
+  ga::GapCandidate gap;
+  gap.id = 0;
+  gap.pixels = {24};
+  gap.area = 1;
+  gap.bbox = {3, 3, 1, 1};
+  gap.centroid = {3, 3};
+
+  const auto patch = ga::buildLearnedPatch(coloring, line, gap);
+  CHECK(patch.tensor.size() == 2U * 32U * 32U);
+  CHECK(patch.virtualX == -13 && patch.virtualY == -13);
+  std::vector<std::size_t> boundary;
+  std::vector<std::size_t> target;
+  for (std::size_t index = 0; index < 32U * 32U; ++index) {
+    if (patch.tensor[index] != 0.0F) boundary.push_back(index);
+    if (patch.tensor[32U * 32U + index] != 0.0F) target.push_back(index);
+  }
+  CHECK(boundary == std::vector<std::size_t>{16U * 32U + 15U});
+  CHECK(target == std::vector<std::size_t>{16U * 32U + 16U});
+  // The Guide image cannot affect the learned tensor because the public
+  // builder intentionally has no Guide parameter.
+}
+
+void phase5LineLabelsAndModalTieAreCanonical() {
+  ga::Image line(3, 2);
+  line.at(1, 0) = {0, 0, 0, 255};
+  line.at(1, 1) = {0, 0, 0, 255};
+  CHECK(ga::buildLineRegionLabels(line) ==
+        std::vector<std::int32_t>({1, 0, 2, 1, 0, 2}));
+
+  const std::vector<ga::Rgba> coloring{{250, 0, 0, 0},
+                                       {240, 20, 20, 255},
+                                       {20, 20, 240, 255}};
+  const std::vector<std::int32_t> labels{9, 9, 3};
+  const std::vector<std::uint8_t> valid{1, 1, 1};
+  const std::vector<float> probabilities{1.0F, 0.0F, 0.5F};
+  const auto selected =
+      ga::selectLearnedRegion(coloring, labels, valid, probabilities);
+  CHECK(selected.label == 9);
+  CHECK(selected.meanProbability == 0.5);
+  CHECK(selected.color == ga::Rgba({240, 20, 20, 255}));
+
+  const std::vector<ga::Rgba> tiedColors{{240, 20, 20, 255},
+                                         {20, 20, 240, 255},
+                                         {20, 20, 240, 255},
+                                         {240, 20, 20, 255}};
+  const std::vector<std::int32_t> tiedLabels(4, 7);
+  const std::vector<std::uint8_t> tiedValid(4, 1);
+  const std::vector<float> tiedProbabilities(4, 0.5F);
+  const auto tied = ga::selectLearnedRegion(
+      tiedColors, tiedLabels, tiedValid, tiedProbabilities);
+  CHECK(tied.color == ga::Rgba({240, 20, 20, 255}));
+}
+
+void phase5LearnedAndFallbackProvenanceAreExplicit() {
+  auto source = opaqueImage(7, 7, {220, 30, 30, 255});
+  source.at(3, 3) = {};
+  ga::Image line(7, 7);
+  ga::Settings settings;
+  settings.gapThreshold = 1;
+  const auto gaps = ga::GapDetector().detect(source, settings);
+  CHECK(gaps.size() == 1);
+
+  Phase5Backend backend;
+  ga::LearnedGapPredictor learned(backend);
+  const ga::PredictInput learnedInput{.image = source,
+                                      .gaps = gaps,
+                                      .settings = settings,
+                                      .lineArtImage = &line};
+  const auto learnedResults = learned.predict(learnedInput);
+  CHECK(learnedResults.size() == 1);
+  CHECK(learnedResults[0].provenance == ga::PredictionProvenance::Learned);
+  CHECK(learnedResults[0].learnedConfidence == std::optional<double>(0.5));
+  CHECK(!learnedResults[0].heuristicScore.has_value());
+  CHECK(learnedResults[0].semanticRegionLabel.has_value());
+  auto learnedApplied = gaps;
+  ga::applyPredictions(learnedApplied, learnedResults, settings);
+  CHECK(learnedApplied[0].predictionProvenance ==
+        ga::PredictionProvenance::Learned);
+  CHECK(learnedApplied[0].learnedConfidence == std::optional<double>(0.5));
+
+  ga::RuleBasedPredictor fallback;
+  const auto fallbackResults = fallback.predict(
+      ga::PredictInput{.image = source, .gaps = gaps, .settings = settings});
+  CHECK(fallbackResults[0].provenance ==
+        ga::PredictionProvenance::HeuristicFallback);
+  CHECK(!fallbackResults[0].learnedConfidence.has_value());
+  CHECK(fallbackResults[0].heuristicScore.has_value());
+
+  auto applied = gaps;
+  ga::applyPredictions(applied, fallbackResults, settings);
+  CHECK(applied[0].predictionProvenance ==
+        ga::PredictionProvenance::HeuristicFallback);
+  CHECK(!applied[0].apply);
+  CHECK(applied[0].status == ga::ReviewStatus::Unreviewed);
+  ga::ReviewSession review(std::move(applied), ga::RunMode::ReviewList);
+  review.applyHighConfidence();
+  CHECK(review.gaps()[0].status == ga::ReviewStatus::Unreviewed);
+  CHECK(review.setApply(review.gaps()[0].id, true));
+  CHECK(review.gaps()[0].status == ga::ReviewStatus::Apply);
+  const auto manifest = ga::serializeGapManifest(review, true);
+  CHECK(manifest.find("\"predictionProvenance\": \"heuristic_fallback\"") !=
+        std::string::npos);
+  CHECK(manifest.find("\"learnedConfidence\": null") != std::string::npos);
+  CHECK(manifest.find("\"heuristicScore\": null") == std::string::npos);
+}
+
+void phase5BackendFailuresAreAtomicAndNoGapSkipsLoad() {
+  Phase5Backend backend;
+  ga::LearnedGapPredictor predictor(backend);
+  ga::Image source(7, 7, {220, 30, 30, 255});
+  ga::Image line(7, 7);
+  ga::Settings settings;
+  const std::vector<ga::GapCandidate> none;
+  CHECK(predictor
+            .predict(ga::PredictInput{.image = source,
+                                      .gaps = none,
+                                      .settings = settings,
+                                      .lineArtImage = &line})
+            .empty());
+  CHECK(backend.metadataCalls == 0 && backend.runCalls == 0);
+
+  source.at(3, 3) = {};
+  auto gaps = ga::GapDetector().detect(source, settings);
+  backend.throwOnContract = true;
+  bool rejected = false;
+  try {
+    static_cast<void>(predictor.predict(
+        ga::PredictInput{.image = source,
+                         .gaps = gaps,
+                         .settings = settings,
+                         .lineArtImage = &line}));
+  } catch (const std::runtime_error&) {
+    rejected = true;
+  }
+  CHECK(rejected && backend.runCalls == 0);
+  backend.throwOnContract = false;
+  backend.metadata.artifactSha256 = "wrong-artifact";
+  rejected = false;
+  try {
+    static_cast<void>(predictor.predict(
+        ga::PredictInput{.image = source,
+                         .gaps = gaps,
+                         .settings = settings,
+                         .lineArtImage = &line}));
+  } catch (const std::runtime_error&) {
+    rejected = true;
+  }
+  CHECK(rejected && backend.runCalls == 0);
+
+  backend.metadata.artifactSha256 = ga::kGapFillModelSha256;
+  backend.metadata.outputCount = 2;
+  rejected = false;
+  try {
+    static_cast<void>(predictor.predict(
+        ga::PredictInput{.image = source,
+                         .gaps = gaps,
+                         .settings = settings,
+                         .lineArtImage = &line}));
+  } catch (const std::runtime_error&) {
+    rejected = true;
+  }
+  CHECK(rejected && backend.runCalls == 0);
+  backend.metadata.outputCount = 1;
+  backend.metadata.inputName = "wrong_input";
+  rejected = false;
+  try {
+    static_cast<void>(predictor.predict(
+        ga::PredictInput{.image = source,
+                         .gaps = gaps,
+                         .settings = settings,
+                         .lineArtImage = &line}));
+  } catch (const std::runtime_error&) {
+    rejected = true;
+  }
+  CHECK(rejected && backend.runCalls == 0);
+  backend.metadata.inputName = "input_mask";
+  backend.metadata.outputShape = {1, 1, 16, 16};
+  rejected = false;
+  try {
+    static_cast<void>(predictor.predict(
+        ga::PredictInput{.image = source,
+                         .gaps = gaps,
+                         .settings = settings,
+                         .lineArtImage = &line}));
+  } catch (const std::runtime_error&) {
+    rejected = true;
+  }
+  CHECK(rejected && backend.runCalls == 0);
+  backend.metadata.outputShape = {1, 1, 32, 32};
+  backend.metadata.outputType = "tensor(double)";
+  rejected = false;
+  try {
+    static_cast<void>(predictor.predict(
+        ga::PredictInput{.image = source,
+                         .gaps = gaps,
+                         .settings = settings,
+                         .lineArtImage = &line}));
+  } catch (const std::runtime_error&) {
+    rejected = true;
+  }
+  CHECK(rejected && backend.runCalls == 0);
+  backend.metadata.outputType = "tensor(float)";
+  backend.output[0] = std::numeric_limits<float>::quiet_NaN();
+  rejected = false;
+  try {
+    static_cast<void>(predictor.predict(
+        ga::PredictInput{.image = source,
+                         .gaps = gaps,
+                         .settings = settings,
+                         .lineArtImage = &line}));
+  } catch (const std::runtime_error&) {
+    rejected = true;
+  }
+  CHECK(rejected);
+  CHECK(!gaps[0].suggestedColor.has_value());
+
+  backend.output[0] = 1.01F;
+  rejected = false;
+  try {
+    static_cast<void>(predictor.predict(
+        ga::PredictInput{.image = source,
+                         .gaps = gaps,
+                         .settings = settings,
+                         .lineArtImage = &line}));
+  } catch (const std::runtime_error&) {
+    rejected = true;
+  }
+  CHECK(rejected);
+
+  backend.output.assign(32U * 32U, 0.5F);
+  backend.throwOnRunCall = backend.runCalls + 2;
+  ga::Image batchSource(7, 7, {220, 30, 30, 255});
+  batchSource.at(2, 2) = {};
+  batchSource.at(4, 4) = {};
+  auto batchGaps = ga::GapDetector().detect(batchSource, settings);
+  CHECK(batchGaps.size() == 2);
+  rejected = false;
+  try {
+    static_cast<void>(predictor.predict(
+        ga::PredictInput{.image = batchSource,
+                         .gaps = batchGaps,
+                         .settings = settings,
+                         .lineArtImage = &line}));
+  } catch (const std::runtime_error&) {
+    rejected = true;
+  }
+  CHECK(rejected);
+  CHECK(!batchGaps[0].suggestedColor.has_value() &&
+        !batchGaps[1].suggestedColor.has_value());
+}
+
+void phase5CancellationIsAtomicAroundSynchronousInference() {
+  Phase5Backend backend;
+  ga::LearnedGapPredictor predictor(backend);
+  ga::Image source(7, 7, {220, 30, 30, 255});
+  source.at(3, 3) = {};
+  ga::Image line(7, 7);
+  ga::Settings settings;
+  const auto gaps = ga::GapDetector().detect(source, settings);
+  std::atomic_bool cancelled{false};
+  int polls = 0;
+  bool rejected = false;
+  try {
+    static_cast<void>(predictor.predict(
+        ga::PredictInput{.image = source,
+                         .gaps = gaps,
+                         .settings = settings,
+                         .lineArtImage = &line,
+                         .cancelled = &cancelled,
+                         .cancellationPoll = [&] {
+                           ++polls;
+                           if (polls == 5) cancelled = true;
+                         }}));
+  } catch (const std::runtime_error&) {
+    rejected = true;
+  }
+  CHECK(rejected && backend.runCalls == 1);
+  CHECK(!gaps[0].suggestedColor.has_value());
 }
 
 }  // namespace
@@ -987,7 +1352,8 @@ int main() {
       {"large traversal cancellation", largeStreamingTraversalCanCancel},
       {"checkerboard components stay independent",
        checkerboardUsesBoundedIndependentComponents},
-      {"high confidence defaults to apply", highConfidenceDefaultsToApply},
+      {"heuristic fallback never defaults to apply",
+       heuristicFallbackNeverDefaultsToApply},
       {"normalized geometry preserves rule prediction",
        equivalentNormalizedGeometryPreservesRulePrediction},
       {"medium and low default off", mediumAndLowDoNotDefaultToApply},
@@ -1024,8 +1390,22 @@ int main() {
       {"overwrite without undo is safe", overwriteWithoutUndoCapabilityFailsSafely},
       {"settings round trip", settingsRoundTripPreservesUserChoices},
       {"pre-cancel is nondestructive", preCancelledCommandDoesNotModifyHost},
-      {"quick fix changes high only", quickFixPipelineOnlyChangesHighConfidenceGaps},
+      {"unavailable ONNX host path does not silently fall back",
+       unavailableOnnxHostPathDoesNotSilentlyFallback},
+      {"quick fix excludes heuristic fallback from auto-apply",
+       quickFixPipelineDoesNotAutoApplyHeuristicFallback},
       {"quick fix honors selection boundary", quickFixPipelineHonorsSelectionBoundary},
+      {"Phase 5 training boundary conversion",
+       phase5BoundaryConversionMatchesTraining},
+      {"Phase 5 line-only NCHW tensor", phase5TensorIsExactLineOnlyNchw},
+      {"Phase 5 line labels and modal tie",
+       phase5LineLabelsAndModalTieAreCanonical},
+      {"Phase 5 learned/fallback provenance",
+       phase5LearnedAndFallbackProvenanceAreExplicit},
+      {"Phase 5 backend failures are atomic",
+       phase5BackendFailuresAreAtomicAndNoGapSkipsLoad},
+      {"Phase 5 cancellation is atomic around inference",
+       phase5CancellationIsAtomicAroundSynchronousInference},
   };
   int failures = 0;
   for (const auto& [name, test] : tests) {

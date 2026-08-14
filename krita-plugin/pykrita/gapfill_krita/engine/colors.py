@@ -27,14 +27,13 @@ def parse_hex_color(value: str) -> Optional[Rgb]:
 def modal_rgb(pixels: np.ndarray) -> Optional[Rgb]:
     if pixels.size == 0:
         return None
-    packed = (
-        (pixels[:, 0].astype(np.uint32) << 16)
-        | (pixels[:, 1].astype(np.uint32) << 8)
-        | pixels[:, 2].astype(np.uint32)
-    )
-    values, counts = np.unique(packed, return_counts=True)
-    value = int(values[int(np.argmax(counts))])
-    return ((value >> 16) & 0xFF, (value >> 8) & 0xFF, value & 0xFF)
+    counts: dict[Rgb, int] = {}
+    for pixel in np.asarray(pixels).reshape((-1, pixels.shape[-1])):
+        color: Rgb = (int(pixel[0]), int(pixel[1]), int(pixel[2]))
+        counts[color] = counts.get(color, 0) + 1
+    highest = max(counts.values())
+    # Dict insertion order is the source row-major encounter order.
+    return next(color for color, count in counts.items() if count == highest)
 
 
 def predict_color_greedy(

@@ -1,7 +1,11 @@
 import unittest
 
 import numpy as np
-from gapfill_krita.engine.patches import build_model_patches, centered_patch_bounds, extract_patch
+from gapfill_krita.engine.patches import (
+    build_legacy_model_patches,
+    centered_patch_bounds,
+    extract_patch,
+)
 from gapfill_krita.engine.types import GapKind, GapRegion, LayerImages
 
 
@@ -21,7 +25,9 @@ class PatchTests(unittest.TestCase):
         guides = np.zeros_like(coloring)
         guides[20, 20, 3] = 255
         gap = GapRegion("gap-0", np.array([20 * 40 + 20]), (20, 20), GapKind.GUIDE)
-        _, _, guide_patch, gap_mask = build_model_patches(LayerImages(coloring, line, guides), gap)
+        _, _, guide_patch, gap_mask = build_legacy_model_patches(
+            LayerImages(coloring, line, guides), gap
+        )
         self.assertEqual(float(gap_mask.sum()), 1.0)
         self.assertEqual(int(guide_patch.rgba[..., 3].sum()), 0)
 

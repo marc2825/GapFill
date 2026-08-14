@@ -37,10 +37,9 @@ CommandResult GapAssistCommand::run(HostFilterContext& host,
     }
 
     if (settings.predictorOnnx) {
-      settings.predictorOnnx = false;
-      host.showInformation(
-          "The local ONNX adapter is not included in this build. Gap Assist will use "
-          "Rule-Based prediction; the image remains on this device.");
+      throw std::runtime_error(
+          "This CSP build has no ONNX Runtime adapter. Learned prediction cannot "
+          "run, and Gap Assist will not silently substitute Rule-Based results.");
     }
     RuleBasedPredictor predictor;
     SmartGapPropagation propagation;

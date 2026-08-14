@@ -29,10 +29,14 @@ code, or confidential API details.
 
 ## Chosen product boundary
 
-The native plug-in is a conventional **Quick Fix** filter and applies only
-High-confidence predictions. It does not simulate unavailable capabilities with
-UI scraping, process injection, or undocumented hooks. Users should duplicate the
-coloring layer before running the filter when they want an editable backup.
+The intended native plug-in is a conventional **Quick Fix** filter and applies
+only High-confidence learned predictions. It does not simulate unavailable
+capabilities with UI scraping, process injection, or undocumented hooks. The
+current adapter cannot acquire the separate Line input and has no packaged ONNX
+backend; heuristic fallback is excluded from automatic application. Native
+learned Quick Fix therefore remains pending, not an accomplished capability.
+Users should duplicate the coloring layer before a future qualified filter run
+when they want an editable backup.
 
 The SDK-independent PNG companion retains Review List, One-by-One, Correction
 Layer, Highlight Layer, manifests, and contact sheets. This keeps the complete

@@ -29,6 +29,12 @@ struct PredictInput {
 struct PredictResult {
   int gapId{};
   std::optional<Rgba> suggestedColor;
+  PredictionProvenance provenance{PredictionProvenance::None};
+  std::optional<double> learnedConfidence;
+  std::optional<double> heuristicScore;
+  std::optional<std::int32_t> semanticRegionLabel;
+  // Compatibility/display value. applyPredictions derives this only from a
+  // valid learnedConfidence; heuristic scores never enter confidence bands.
   double confidence{};
   std::optional<int> sourceOwnerId;
   std::string debugInfo;

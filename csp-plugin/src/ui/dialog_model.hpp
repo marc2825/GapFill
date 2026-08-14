@@ -14,6 +14,9 @@ struct ReviewRow {
   int gapId{};
   double confidence{};
   ConfidenceBand band{ConfidenceBand::Low};
+  PredictionProvenance predictionProvenance{PredictionProvenance::None};
+  std::optional<double> learnedConfidence;
+  std::optional<double> heuristicScore;
   std::optional<Rgba> suggestedColor;
   ReviewStatus status{ReviewStatus::Unreviewed};
   Rect thumbnailSource;
@@ -25,6 +28,10 @@ struct GapDetail {
   std::optional<Rgba> suggestedColor;
   double confidence{};
   ConfidenceBand band{ConfidenceBand::Low};
+  PredictionProvenance predictionProvenance{PredictionProvenance::None};
+  std::optional<double> learnedConfidence;
+  std::optional<double> heuristicScore;
+  std::optional<std::int32_t> semanticRegionLabel;
   std::optional<int> sourceOwnerId;
 };
 

@@ -31,5 +31,14 @@ export function getValidatedProbabilityMap(
     );
   }
 
+  for (const value of outputData) {
+    if (!Number.isFinite(value)) {
+      throw new Error('ONNX inference failed: output contains a nonfinite value.');
+    }
+    if (value < 0 || value > 1) {
+      throw new Error('ONNX inference failed: output probability is outside [0, 1].');
+    }
+  }
+
   return outputData;
 }

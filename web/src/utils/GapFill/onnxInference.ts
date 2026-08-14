@@ -3,16 +3,18 @@
 import * as ort from 'onnxruntime-web/wasm';
 import type * as OrtType from 'onnxruntime-web';
 import ortWasmModuleUrl from '../../../node_modules/onnxruntime-web/dist/ort-wasm-simd-threaded.mjs?url';
-import { segmentColoredRegions, selectRegionColor } from './onnxPostprocessing';
+import {
+  buildCanonicalModelInput,
+  canonicalBoundaryMask,
+  segmentLineRegions,
+  selectCanonicalRegion,
+} from './onnxPostprocessing';
 import {
   assertMatchingCanvasDimensions,
   calculateCenteredPatchBounds,
   extractCanvasPatchWithBounds,
 } from './onnxPatchExtraction';
-import {
-  buildGapMaskForPatch,
-  excludeTargetGapFromGuides,
-} from './onnxGapMask';
+import { buildGapMaskForPatch } from './onnxGapMask';
 import { errorInDev, logInDev } from './devLog';
 import { getValidatedProbabilityMap } from './onnxOutputValidation';
 
@@ -23,12 +25,16 @@ const MODEL_OUTPUT_CHANNELS = 1;
 
 interface PredictColorParams {
   lineArtCanvas: HTMLCanvasElement;
-  guidesCanvas: HTMLCanvasElement;
   coloredCanvas: HTMLCanvasElement;
   gapCenter: { x: number; y: number };
   gapPixels?: Array<{ x: number; y: number }>;
-  targetIsGuideGap?: boolean;
-  fallbackColor: string;
+  semanticLabels?: Int32Array;
+}
+
+export interface LearnedColorPrediction {
+  color: string;
+  confidence: number;
+  regionLabel: number;
 }
 
 export class ONNXModelLoadError extends Error {
@@ -81,6 +87,16 @@ function loadModel(): Promise<OrtType.InferenceSession> {
     intraOpNumThreads: 4 // Use multiple threads for operations
   })
     .then((session) => {
+      if (
+        session.inputNames.length !== 1 ||
+        session.inputNames[0] !== 'input_mask' ||
+        session.outputNames.length !== 1 ||
+        session.outputNames[0] !== 'nearest_region_mask'
+      ) {
+        throw new Error(
+          'GapFill model contract mismatch: expected input_mask and nearest_region_mask.',
+        );
+      }
       modelSession = session;
       logInDev('ONNX model loaded successfully');
       return session;
@@ -103,17 +119,14 @@ function loadModel(): Promise<OrtType.InferenceSession> {
 // compute the suggested color shown by the UI using region correspondence.
 export async function predictColorWithONNX({
   lineArtCanvas,
-  guidesCanvas,
   coloredCanvas,
   gapCenter,
   gapPixels,
-  targetIsGuideGap = false,
-  fallbackColor
-}: PredictColorParams): Promise<string> {
+  semanticLabels,
+}: PredictColorParams): Promise<LearnedColorPrediction> {
   try {
     assertMatchingCanvasDimensions(
       lineArtCanvas,
-      guidesCanvas,
       coloredCanvas,
     );
 
@@ -136,11 +149,6 @@ export async function predictColorWithONNX({
       patchBounds,
       MODEL_PATCH_SIZE,
     );
-    const guidesImageData = extractCanvasPatchWithBounds(
-      guidesCanvas,
-      patchBounds,
-      MODEL_PATCH_SIZE,
-    );
     const coloredImageData = extractCanvasPatchWithBounds(
       coloredCanvas,
       patchBounds,
@@ -149,41 +157,19 @@ export async function predictColorWithONNX({
     
     // Create binary masks
     const patchPixelCount = MODEL_PATCH_SIZE * MODEL_PATCH_SIZE;
-    const lineMask = new Float32Array(patchPixelCount);
     const gapMask = buildGapMaskForPatch(
       coloredImageData,
       patchBounds,
       { x: cx, y: cy },
       gapPixels,
     );
-    // A Guide gap is a transparent Coloring region above a visible Guide.
-    // Remove only that target from the Guide mask during prediction; all
-    // other Guide pixels remain boundaries.
-    const effectiveGuidesImageData = targetIsGuideGap
-      ? excludeTargetGapFromGuides(guidesImageData, gapMask)
-      : guidesImageData;
-    
-    for (let i = 0; i < patchPixelCount; i++) {
-      const pixelIdx = i * 4;
-      
-      // Line mask: 1 where there are non-transparent pixels in either Line Art OR Guides, 0 where both are transparent
-      const lineAlpha = lineImageData.data[pixelIdx + 3];
-      const guidesAlpha = effectiveGuidesImageData.data[pixelIdx + 3];
-      lineMask[i] = (lineAlpha > 0 || guidesAlpha > 0) ? 1.0 : 0.0;
-    }
-    
-    // Prepare input tensor: [1, 2, 32, 32]
-    const inputData = new Float32Array(MODEL_INPUT_CHANNELS * patchPixelCount);
-    
-    // Channel 0: line mask
-    for (let i = 0; i < patchPixelCount; i++) {
-      inputData[i] = lineMask[i];
-    }
-    
-    // Channel 1: gap mask
-    for (let i = 0; i < patchPixelCount; i++) {
-      inputData[patchPixelCount + i] = gapMask[i];
-    }
+    // Phase 5 intentionally keeps Guides out of the model. Training supplied
+    // Line Art only; Guide-composed tensors are characterized but out of
+    // distribution. Guides remain detection boundaries in the calling stage.
+    const inputData = buildCanonicalModelInput(
+      canonicalBoundaryMask(lineImageData),
+      gapMask,
+    );
     
     const inputTensor = new ort.Tensor('float32', inputData, [
       1,
@@ -228,20 +214,41 @@ export async function predictColorWithONNX({
     //   probMapSample: [probMap[0], probMap[100], probMap[500]].map(v => v?.toFixed(3))
     // });
     
-    // Segment painted regions without crossing Line Art or Guides, select the
-    // region with the highest mean model probability, then use its modal color.
-    const segmentation = segmentColoredRegions(
+    let fullLabels = semanticLabels;
+    if (!fullLabels) {
+      const fullLineContext = lineArtCanvas.getContext('2d');
+      if (!fullLineContext) {
+        throw new Error('Failed to read Line Art for semantic regions.');
+      }
+      const fullLine = fullLineContext.getImageData(
+        0,
+        0,
+        lineArtCanvas.width,
+        lineArtCanvas.height,
+      );
+      fullLabels = segmentLineRegions(fullLine).labels;
+    }
+    if (fullLabels.length !== coloredCanvas.width * coloredCanvas.height) {
+      throw new Error('Full semantic label map has the wrong dimensions.');
+    }
+    const patchLabels = new Int32Array(patchPixelCount);
+    for (let y = 0; y < patchBounds.sourceHeight; y++) {
+      for (let x = 0; x < patchBounds.sourceWidth; x++) {
+        const sourceIndex =
+          (patchBounds.sourceY + y) * coloredCanvas.width +
+          patchBounds.sourceX + x;
+        const patchIndex =
+          (patchBounds.destinationY + y) * MODEL_PATCH_SIZE +
+          patchBounds.destinationX + x;
+        patchLabels[patchIndex] = fullLabels[sourceIndex];
+      }
+    }
+    const selection = selectCanonicalRegion(
       coloredImageData,
-      lineImageData,
-      effectiveGuidesImageData
-    );
-    const [r, g, b] = selectRegionColor(
-      coloredImageData,
-      segmentation.labels,
-      segmentation.regionCount,
+      patchLabels,
       probMap,
-      fallbackColor
     );
+    const [r, g, b] = selection.rgb;
     
     // Convert to hex
     const hexColor = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
@@ -253,7 +260,11 @@ export async function predictColorWithONNX({
     //   fallbackColor
     // });
     
-    return hexColor;
+    return {
+      color: hexColor,
+      confidence: selection.meanProbability,
+      regionLabel: selection.label,
+    };
     
   } catch (error) {
     errorInDev('ONNX inference error:', error);

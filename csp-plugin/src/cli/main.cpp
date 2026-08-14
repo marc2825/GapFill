@@ -61,9 +61,10 @@ int main(int argc, char** argv) {
     gap_assist::validateOutputPlan(arguments.input, outputFiles, arguments.force);
 
     if (arguments.settings.predictorOnnx) {
-      std::cerr << "Gap Assist warning: the local ONNX adapter is not included in this "
-                   "build; using Rule-Based prediction. No image data is transmitted.\n";
-      arguments.settings.predictorOnnx = false;
+      throw std::runtime_error(
+          "This CSP build has no ONNX Runtime adapter; learned prediction was not "
+          "run. Choose --predictor rule_based explicitly to use the uncalibrated "
+          "heuristic fallback, which is never applied by --apply-high.");
     }
     const auto source = gap_assist::loadPng(arguments.input);
     std::optional<gap_assist::SelectionMask> selection;

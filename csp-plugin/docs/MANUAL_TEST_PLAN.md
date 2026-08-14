@@ -29,14 +29,15 @@ plug-in hash, and test date.
 ## Review behavior
 
 - [ ] Changing a native property updates CSP Preview without committing pixels.
-- [ ] Quick Fix applies only High-confidence candidates.
-- [ ] Apply High Confidence leaves Medium/Low unchanged.
+- [ ] A runtime-enabled build labels learned predictions and Quick Fix applies
+      only High-confidence learned candidates.
+- [ ] Apply High Confidence leaves Medium/Low and every heuristic fallback unchanged.
 - [ ] Re-preview replaces stale output rather than accumulating corrections.
 - [ ] Cancel leaves document pixels and history unchanged.
 
 ## Output and Undo
 
-- [ ] Native OK changes only High-confidence gap pixels on the active layer.
+- [ ] Native OK changes only High-confidence learned gap pixels on the active layer.
 - [ ] Duplicating the coloring layer first provides an editable non-destructive copy.
 - [ ] One CSP Undo restores the exact pre-filter pixel data.
 - [ ] Cancelling progress creates no partial pixel change or Undo entry.
@@ -47,7 +48,8 @@ plug-in hash, and test date.
       suggested color, owner ID, and status.
 - [ ] Excluding Apply, Skip, and Mark Only produce no correction pixels.
 - [ ] One-by-One decision files support Apply, Skip, Mark Only, and applying all
-      remaining High-confidence candidates.
+      remaining High-confidence learned candidates; heuristic suggestions move
+      only after explicit per-gap Apply.
 - [ ] Importing `*.gap-corrections.png` creates a transparent correction layer
       above the coloring layer without modifying the source.
 - [ ] Optional highlights mark unresolved Medium/Low candidates and omit applied gaps.
@@ -71,5 +73,9 @@ plug-in hash, and test date.
 
 - [ ] Missing/invalid settings fall back safely or produce a clear error.
 - [ ] Unsupported host capabilities fail closed without pixel mutation.
-- [ ] ONNX selected without a local adapter visibly falls back to Rule-Based.
+- [ ] ONNX selected without a local adapter fails visibly without running or
+      relabeling Rule-Based output.
+- [ ] A wrong-hash/malformed/incompatible model fails before host mutation.
+- [ ] Cancel before or between model calls publishes no partial prediction batch;
+      record that one synchronous ONNX Runtime call cannot be interrupted.
 - [ ] Exceptions close progress UI and CSP does not commit the filter destination.

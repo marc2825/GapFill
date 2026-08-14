@@ -86,8 +86,10 @@ std::vector<PredictResult> RuleBasedPredictor::predict(const PredictInput& input
 
     PredictResult result;
     result.gapId = gap.id;
+    result.provenance = PredictionProvenance::HeuristicFallback;
     if (clusters.empty() || totalWeight <= 0.0) {
       result.confidence = 0.0;
+      result.heuristicScore = 0.0;
       result.debugInfo = "No opaque samples within the configured radius.";
       results.push_back(std::move(result));
       continue;
@@ -113,8 +115,12 @@ std::vector<PredictResult> RuleBasedPredictor::predict(const PredictInput& input
     const double distancePenalty = cluster.minimumDistance <= 1.5
                                        ? 1.0
                                        : 1.0 / (1.0 + (cluster.minimumDistance - 1.0) * 0.15);
-    result.confidence = std::clamp(dominance * (0.75 + 0.25 * support) * distancePenalty,
-                                   0.0, 1.0);
+    result.heuristicScore =
+        std::clamp(dominance * (0.75 + 0.25 * support) * distancePenalty,
+                   0.0, 1.0);
+    // D-07: this heuristic has no learned or calibrated confidence. Keep the
+    // historical score only as explicit diagnostic metadata.
+    result.confidence = 0.0;
     if (!cluster.ownerWeights.empty()) {
       const auto owner = std::max_element(
           cluster.ownerWeights.begin(), cluster.ownerWeights.end(),

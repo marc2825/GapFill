@@ -13,9 +13,13 @@ The 2021-08-27 SDK has now been evaluated. It can read source/destination raster
 pixels and selections, use CSP's standard filter property dialog, update Preview,
 report progress/cancellation, and participate in CSP's normal filter commit/Undo
 flow. It does not expose document-layer creation or the dynamic list/thumbnail UI
-needed for Review List and One-by-One. The native implementation is therefore a
-Quick Fix filter that applies High-confidence corrections only. For a reversible
-editable copy, duplicate the coloring layer before running it.
+needed for Review List and One-by-One. The intended native implementation is
+therefore a Quick Fix filter that may apply High-confidence learned corrections
+only. Its current private adapter has neither separate Line acquisition nor a
+packaged ONNX Runtime backend. Because heuristic fallback cannot be
+auto-applied, native learned Quick Fix remains unqualified and is not claimed as
+functional in Phase 5. For a future reversible editable copy, duplicate the
+coloring layer before running it.
 
 The full review workflow remains the safe PNG route: export the coloring layer,
 run the CLI, and import `*.gap-corrections.png` as a new layer. Runtime
@@ -34,15 +38,19 @@ not assumptions in this repository.
   masks. The current CLI and 2021-SDK Quick Fix adapter can still acquire only
   the active Coloring raster, so their Line/Guide masks are empty. Real host
   multi-layer acquisition remains unverified and is not claimed by Phase 4.
-- Reference composites, Line Art, and Guides remain unused by the rule predictor;
-  detector geometry does not change its inference semantics.
-- The ONNX class is a local-only stub. Selecting ONNX visibly falls back to the
-  rule predictor; no image is uploaded.
+- The canonical learned pure path consumes Coloring plus Line Art; Guides stay
+  detection-only. Current CLI/native acquisition supplies neither a separate
+  Line image nor a native ONNX backend, so it cannot invoke that learned path.
+- The public C++ distribution contains a tested `InferenceBackend` boundary and
+  canonical semantic pipeline, but its ONNX adapter is still an explicit
+  unavailable stub. Selecting ONNX fails visibly and never falls back silently.
+  Local parity uses Python ONNX Runtime 1.28.0 CPU; no image is uploaded.
 - The CLI contact sheet is a static review artifact, not a native interactive CSP UI.
 - The native 2021-SDK plug-in offers Quick Fix only; Correction/Highlight layer
   creation and Review List/One-by-One are companion features.
-- Owner color grouping uses a configurable adjacent RGB Manhattan tolerance. It
-  is intentionally conservative and not equivalent to the research U-Net.
+- Owner color grouping and the Rule-Based predictor remain an explicitly named
+  heuristic. Their score is not learned confidence, cannot receive a High band,
+  and requires an explicit per-gap Apply decision.
 - RGBA8 PNG is the interchange format; document color depth/profile conversion is
   the responsibility of the eventual SDK adapter or CSP export/import.
 - Processing is linear and cancellable but currently single-threaded to keep host

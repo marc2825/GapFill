@@ -29,7 +29,9 @@ The adapter performs these operations only:
 
 1. Read the active RGB raster source and alpha into `gap_assist::Image`.
 2. Read the current selection mask and retain soft-selection values for output blending.
-3. Run `QuickFixPipeline`, which detects candidates and accepts High-confidence predictions only.
+3. Run `QuickFixPipeline`, which accepts High-confidence learned predictions
+   only. The current private adapter has no packaged learned backend/Line input,
+   so its heuristic result is intentionally not auto-applied.
 4. Forward progress, restart, and cancellation through the filter lifecycle.
 5. Write the corrected destination and let CSP own Preview, OK, Cancel, and Undo.
 
@@ -45,8 +47,10 @@ See [the capability report](CSP_SDK_20210827_CAPABILITIES.md) for the conclusion
 
 The native Windows filter uses CSP's standard property dialog. It exposes gap
 threshold, alpha threshold, confidence preset, and four/eight-neighbor
-connectivity. Preview shows the High-confidence Quick Fix result. OK commits it;
-Cancel leaves the document unchanged. Review List and One-by-One remain PNG
+connectivity. In a future runtime-enabled build, Preview shows the
+High-confidence learned Quick Fix result. OK commits it; Cancel leaves the
+document unchanged. The current Phase 5 build is not release-ready for this
+learned path. Review List and One-by-One remain PNG
 companion workflows because this SDK does not expose their required UI or layer
 operations.
 
@@ -73,9 +77,10 @@ SDK-independent core/CLI bundles are separate and contain no CELSYS SDK material
 ## 5. Validation
 
 Run the SDK-independent tests first. Then test the native Quick Fix build in a
-disposable CSP document using multiple gap thresholds, exact-zero alpha
-membership, both connectivities, full-geometry selection scope, Preview, Cancel,
-OK, and Undo. Test Review List,
+disposable CSP document using the exact pinned model/runtime, a separately
+acquired Line input, multiple gap thresholds, exact-zero alpha membership, both
+connectivities, full-geometry selection scope, Preview, Cancel, OK, and Undo.
+Confirm heuristic fallback produces no automatic writes. Test Review List,
 One-by-One, Correction Layer, and Highlight Layer separately through the PNG
 companion; they are not native 2021-SDK capabilities.
 Use `docs/MANUAL_TEST_PLAN.md` to record the result rather than relying on an
