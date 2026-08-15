@@ -3,6 +3,11 @@
 The SDK-independent source and CLI may follow this repository's normal MIT release
 process. A CSP SDK-linked native binary has additional CELSYS requirements.
 
+Phase 7 classified the evaluated 2021 filter SDK as
+`C. INSUFFICIENT_FOR_GAPFILL_PARITY`. The compiled private artifact must not be
+released or described as GapFill. This checklist can apply to a future native
+GapFill route only after canonical input availability is established as A or B.
+
 ## Source and legal boundary
 
 - [ ] No CELSYS headers, sample code, documentation, binaries, confidential names,
@@ -24,6 +29,8 @@ process. A CSP SDK-linked native binary has additional CELSYS requirements.
 
 ## Automated verification
 
+- [ ] Host route supplies independent canonical Coloring, Line, Guide and
+      Selection inputs and fails closed on every unsupported configuration.
 - [ ] `make test` or CTest passes all core tests.
 - [ ] Phase 5 tensor/ONNX/region/RGB parity passes against the pinned model.
 - [ ] The native package contains a supported ONNX Runtime adapter and verifies
@@ -49,7 +56,8 @@ process. A CSP SDK-linked native binary has additional CELSYS requirements.
 ## Publication
 
 - [ ] Store description says “post-process Gap Assist,” not real-time overflow fill.
-- [ ] Supported edition, OS, architecture, CSP versions, active-raster-only scope,
-      Quick Fix-only native scope, ONNX status, and known limitations are explicit.
+- [ ] Supported edition, OS, architecture, CSP versions, canonical input matrix,
+      ONNX status, and known limitations are explicit; no single-raster heuristic
+      is described as GapFill.
 - [ ] Privacy statement says local processing/no telemetry.
 - [ ] Support contact, issue template, version history, and rollback build are ready.

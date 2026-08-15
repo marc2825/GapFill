@@ -1,12 +1,35 @@
-# GapFill Phase 2 characterization and Phase 5 learned parity
+# GapFill Phase 2 characterization through Phase 7 host feasibility
 
-Current phase: 5
+Current phase: 7
 
 Golden-corpus freeze: 2026-08-13 (Asia/Tokyo)
 
 Phase 5 resolution: 2026-08-14 (Asia/Tokyo)
 
 Phase 5 production baseline: `c52affd4816df7eeeea53985c3b39ba0c4e83b86`
+
+Phase 7 public baseline: `3a2e0e91ef6458c1c2ed1a11740d8106d5d3d8ff`
+
+## Phase 7 CSP host result
+
+The public CSP pure core continues to accept and test independent normalized
+Coloring, Line, Guide, and Selection inputs. The evaluated CELSYS 2021 filter
+SDK does not expose independent sibling Line/Guide sources, arbitrary/named
+layers, or a layer tree; it supplies one filter source raster and selection.
+The canonical Phase 4/5 input therefore cannot be recovered without information
+loss.
+
+Phase 7 classification is `C. INSUFFICIENT_FOR_GAPFILL_PARITY` plus
+`5. NOT_APPLICABLE_BECAUSE_INPUT_INFEASIBLE`. The private adapter compiled with
+MSVC, but was not installed or parity-qualified in CSP. Every real-host row,
+including acquisition details, Preview, cancellation, exact write, one-step
+Undo, and Redo, remains `UNTESTED`. Compile success and public fake-host tests do
+not change that status.
+
+No CSP artifact from this route may be called a GapFill implementation. A
+single-layer/rule-based behavior would be a separately disclosed heuristic
+feature, not canonical parity. See `docs/addon-phase7.md` for the capability
+matrix and evidence boundary.
 
 ## Phase 5 current learned-prediction result
 
@@ -28,7 +51,8 @@ remain Phase 4 detection boundaries but do not enter the trained model tensor.
 The CSP row does not claim a shipping ONNX Runtime adapter. A local Python ONNX
 Runtime 1.28.0 CPU path executes the pinned artifact and feeds the tested C++
 backend boundary; native cross-platform runtime packaging remains a later gate.
-Real Krita and CELSYS hosts remain unverified.
+Real Krita remains unverified. The evaluated CELSYS filter route is input-
+infeasible for canonical GapFill and was not real-host qualified.
 
 The Phase 2 tables below are preserved as the historical disagreement record.
 Where they say “current,” read that as the Phase 2 snapshot unless a Phase 5

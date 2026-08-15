@@ -9,22 +9,26 @@ separate SDK terms. They are not bundled here. Consequently this repository does
 not pretend to provide an installable `.cpm`/native CSP binary without those
 materials; it provides the tested engine and the exact host contract to connect.
 
-The 2021-08-27 SDK has now been evaluated. It can read source/destination raster
-pixels and selections, use CSP's standard filter property dialog, update Preview,
-report progress/cancellation, and participate in CSP's normal filter commit/Undo
-flow. It does not expose document-layer creation or the dynamic list/thumbnail UI
-needed for Review List and One-by-One. The intended native implementation is
-therefore a Quick Fix filter that may apply High-confidence learned corrections
-only. Its current private adapter has neither separate Line acquisition nor a
-packaged ONNX Runtime backend. Because heuristic fallback cannot be
-auto-applied, native learned Quick Fix remains unqualified and is not claimed as
-functional in Phase 5. For a future reversible editable copy, duplicate the
-coloring layer before running it.
+The 2021-08-27 SDK has now been evaluated. Its surface includes one filter
+source/destination raster, selection, the standard property/Preview flow, and
+progress/cancellation. It does not expose independent sibling Coloring, Line,
+and Guide sources, arbitrary/named/typed layers, or a layer tree. It also lacks
+document-layer creation and the dynamic list/thumbnail UI needed for Review
+List and One-by-One. Phase 7 therefore classifies native input feasibility as
+`C. INSUFFICIENT_FOR_GAPFILL_PARITY`.
+
+The current private adapter compiled with MSVC, but compilation is not real-host
+qualification. It has neither independent Line/Guide acquisition nor a packaged
+ONNX Runtime backend; heuristic fallback cannot be auto-applied. Its
+single-layer/rule-based path is not GapFill and could continue only as a clearly
+differentiated heuristic feature with explicit confirmation. Exact real CSP
+pixel, profile, selection, Preview, cancellation, write, one-step Undo and Redo
+behavior remains `UNTESTED`.
 
 The full review workflow remains the safe PNG route: export the coloring layer,
-run the CLI, and import `*.gap-corrections.png` as a new layer. Runtime
-compatibility with CSP EX 4.0.10 remains pending until the first MSVC-built `.cpm`
-passes the manual host test plan.
+run the CLI, and import `*.gap-corrections.png` as a new layer. The Windows CSP
+4.0.10 executable was found, but the private artifact was not installed after
+the input-feasibility failure. All manual rows remain untested.
 
 CELSYS states that filter plug-ins target desktop CSP EX and that plug-ins cannot
 be added to the iPad version. CELSYS also requires a separate submission/review
@@ -35,9 +39,9 @@ not assumptions in this repository.
 ## Current functional scope
 
 - The public pure core accepts normalized Coloring, Line, and Guide detection
-  masks. The current CLI and 2021-SDK Quick Fix adapter can still acquire only
-  the active Coloring raster, so their Line/Guide masks are empty. Real host
-  multi-layer acquisition remains unverified and is not claimed by Phase 4.
+  masks. The current CLI and 2021-SDK adapter acquire only one Coloring-like
+  raster, so their Line/Guide masks are empty. The SDK does not expose the
+  independent sources needed for canonical host parity.
 - The canonical learned pure path consumes Coloring plus Line Art; Guides stay
   detection-only. Current CLI/native acquisition supplies neither a separate
   Line image nor a native ONNX backend, so it cannot invoke that learned path.
@@ -46,8 +50,9 @@ not assumptions in this repository.
   unavailable stub. Selecting ONNX fails visibly and never falls back silently.
   Local parity uses Python ONNX Runtime 1.28.0 CPU; no image is uploaded.
 - The CLI contact sheet is a static review artifact, not a native interactive CSP UI.
-- The native 2021-SDK plug-in offers Quick Fix only; Correction/Highlight layer
-  creation and Review List/One-by-One are companion features.
+- The compiled private 2021-SDK plug-in is not a qualified GapFill product;
+  Correction/Highlight layer creation and Review List/One-by-One remain
+  companion capabilities.
 - Owner color grouping and the Rule-Based predictor remain an explicitly named
   heuristic. Their score is not learned confidence, cannot receive a High band,
   and requires an explicit per-gap Apply decision.

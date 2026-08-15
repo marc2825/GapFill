@@ -18,7 +18,7 @@ and [SDK integration](docs/SDK_INTEGRATION.md).
 
 - Small/Medium/Large/Custom detection over exact-alpha-zero Coloring membership.
 - Normalized binary Line/Guide boundary inputs in the public pure core; current
-  CLI/native acquisition remains active-Coloring-only.
+  CLI/native acquisition is single-raster-only and is not GapFill parity.
 - Four- or eight-neighbor connectivity and exclusion of open boundary regions.
 - Whole-layer and selection-only scopes.
 - Canonical Line-only 32×32 learned tensor construction, full-image Line-region
@@ -111,20 +111,19 @@ edges never manufacture enclosure.
 ## CSP integration status
 
 The 2021-08-27 CELSYS Filter Plug-in SDK has been evaluated for the initial
-Windows target, CLIP STUDIO PAINT EX 4.0.10. It exposes an active RGB raster
-layer, destination pixels, selection data, a standard property dialog, Preview,
-progress/cancellation, and the normal filter commit/Undo flow. It does not expose
-document-layer creation or the dynamic list/thumbnail UI required by the full
-Review List and One-by-One designs.
+Windows target. Its filter surface exposes one source/destination raster,
+selection, property/Preview flow, and progress/cancellation, but not independent
+sibling Coloring, Line and Guide sources, arbitrary/named layers, or a layer
+tree. Phase 7 therefore classifies it as
+`C. INSUFFICIENT_FOR_GAPFILL_PARITY`.
 
-Accordingly, the intended native Windows surface is a conventional **Quick
-Fix** filter that may apply High-confidence **learned** corrections through
-CSP's standard Preview, OK, and Cancel flow. The current private adapter has not
-been connected to a packaged ONNX backend or separate Line input. D-07 prevents
-its Rule-Based heuristic from being auto-applied, so native learned Quick Fix is
-not release-ready and no automatic correction is claimed in Phase 5. Duplicate
-the coloring layer before future native qualification when an editable copy is
-required. The explicit-decision PNG companion remains the reviewable path.
+The private adapter compiled with MSVC, but was not installed or real-host
+qualified. It has no packaged ONNX backend and supplies empty Line/Guide input;
+D-07 also prevents its Rule-Based heuristic from being auto-applied. Compile
+success is not a GapFill implementation. Any surviving single-layer/rule-based
+feature must be separately differentiated as heuristic, disclose the missing
+multi-layer semantics, and retain explicit confirmation. The explicit-decision
+PNG companion remains the reviewable path.
 
 The local SDK adapter lives under the ignored `FilterPlugIn20210827` directory.
 It is intentionally not part of the public source tree because the SDK agreement
@@ -135,17 +134,13 @@ The publicly described CSP filter plug-in mechanism targets desktop CLIP STUDIO
 PAINT EX. It is not an iPad extension mechanism. Read [known limitations](docs/LIMITATIONS.md)
 before attempting an installable build.
 
-## Next step for the Windows CSP build
+## Native CSP release gate
 
-1. Install Visual Studio 2022 with Desktop development with C++, the optional
-   MSVC v142 x64/x86 toolset used by this SDK generation, a Windows 10/11 SDK,
-   and CMake tools for Windows.
-2. Build the private x64 adapter by following
-   `FilterPlugIn20210827/GapAssistPrivate/README.md` on the local machine.
-3. Test the resulting `.cpm` in a disposable document on CSP EX 4.0.10 using
-   [the native manual test plan](docs/MANUAL_TEST_PLAN.md).
-4. Before any binary distribution, follow [the release checklist](docs/RELEASE_CHECKLIST.md)
-   and CELSYS's required submission/approval route.
+Do not distribute or describe the compiled 2021-SDK artifact as GapFill. A
+future native GapFill route must first expose the complete public canonical
+input contract and fail closed for unsupported documents, then pass the real
+host matrix. A separately scoped heuristic product would need its own product,
+qualification, and release decision. Neither route is Phase 8 work here.
 
 ## Documentation
 

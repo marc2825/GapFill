@@ -26,6 +26,7 @@ set(GAP_ASSIST_CORE_SOURCES
   src/io/atomic_output.cpp
   src/io/review_artifacts.cpp
   src/plugin_entry/gap_assist_command.cpp
+  src/plugin_entry/native_host_contract.cpp
   src/predictors/gap_color_predictor.cpp
   src/predictors/onnx_predictor_stub.cpp
   src/predictors/rule_based_predictor.cpp
@@ -68,6 +69,13 @@ if(GAP_ASSIST_BUILD_TESTS)
   add_executable(gap_assist_tests tests/test_main.cpp)
   target_link_libraries(gap_assist_tests PRIVATE gap_assist_core)
   add_test(NAME gap_assist_core COMMAND gap_assist_tests)
+
+  add_executable(gap_assist_native_host_contract_tests
+                 tests/native_host_contract_test.cpp)
+  target_link_libraries(gap_assist_native_host_contract_tests
+                        PRIVATE gap_assist_core)
+  add_test(NAME gap_assist_native_host_contract
+           COMMAND gap_assist_native_host_contract_tests)
 
   add_executable(gap_assist_phase2_fixtures
                  ../tests/parity/csp_phase2_fixture_reader.cpp)

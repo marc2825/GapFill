@@ -9,9 +9,9 @@
         |                                                                   |
  QuickFixPipeline                                             HostFilterContext + GapAssistCommand
         |                                                                   |
-High-confidence learned pixels                         ReviewSession + CorrectionOutputGenerator
+single-raster compatibility path                       ReviewSession + CorrectionOutputGenerator
         |                                                                   |
-CSP Preview / OK / Cancel / Undo                        correction / highlight / manifest / preview
+input-infeasible for GapFill parity                     correction / highlight / manifest / preview
 ```
 
 The same core is driven by `gap_assist_cli`, which replaces host pixels and UI
@@ -76,10 +76,18 @@ The evaluated 2021 filter SDK instead uses the narrower `QuickFixPipeline`, sinc
 it cannot create layers or present the full review dialog. The core remains
 independently buildable and testable without CSP installed.
 
+`NativeHostAdapter`/`NativeHostSession` define the smaller SDK-independent
+canonical input and lifecycle requirement: independent document-coordinate
+Coloring, Line, Guide and Selection, explicit layout/profile normalization,
+stable snapshot identity, replaceable Preview, cancellation, atomic mutation,
+abort and Undo/Redo evidence. Fake-host conformance defines these requirements;
+it is not CSP host evidence.
+
 The public core exposes normalized multi-layer detection and a corresponding
 `SmartGapPropagation`/`QuickFixPipeline` overload. The current CLI and private
-2021 adapter still normalize only the active Coloring raster with empty Line and
-Guide masks because acquiring those layers is a later host-integration problem.
+2021 adapter normalize only one Coloring-like raster with empty Line and Guide
+masks. Phase 7 established that the evaluated filter SDK does not expose those
+independent sources, so this path is not a canonical GapFill implementation.
 
 Model calls are synchronous and cannot be interrupted. Cancellation is polled
 before contract validation, before and after each backend call, between gaps,

@@ -8,11 +8,12 @@ CORE_SOURCES := $(wildcard src/core/*.cpp) \
                 $(wildcard src/io/*.cpp) \
                 $(wildcard src/predictors/*.cpp) \
                 $(wildcard src/ui/*.cpp) \
-                src/plugin_entry/gap_assist_command.cpp
+                src/plugin_entry/gap_assist_command.cpp \
+                src/plugin_entry/native_host_contract.cpp
 
 .PHONY: all test test-e2e test-safety test-phase5 clean
 
-all: build/gap_assist_cli build/gap_assist_tests build/gap_assist_phase2_fixtures build/gap_assist_phase4_detection_probe build/gap_assist_phase5_prediction_probe build/gap_assist_host_contract_probe
+all: build/gap_assist_cli build/gap_assist_tests build/gap_assist_native_host_contract_tests build/gap_assist_phase2_fixtures build/gap_assist_phase4_detection_probe build/gap_assist_phase5_prediction_probe build/gap_assist_host_contract_probe
 
 build:
 	mkdir -p build
@@ -24,6 +25,9 @@ build/gap_assist_cli: $(CORE_SOURCES) src/cli/main.cpp build/lodepng.o | build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 build/gap_assist_tests: $(CORE_SOURCES) tests/test_main.cpp build/lodepng.o | build
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
+
+build/gap_assist_native_host_contract_tests: $(CORE_SOURCES) tests/native_host_contract_test.cpp build/lodepng.o | build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 build/gap_assist_phase2_fixtures: $(CORE_SOURCES) ../tests/parity/csp_phase2_fixture_reader.cpp build/lodepng.o | build
@@ -41,8 +45,9 @@ build/gap_assist_host_contract_probe: $(CORE_SOURCES) src/plugin_entry/host_cont
 build/gap_assist_cli_fixture: src/io/png_io.cpp tests/cli_fixture.cpp build/lodepng.o | build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
-test: build/gap_assist_tests build/gap_assist_phase2_fixtures build/gap_assist_phase4_detection_probe
+test: build/gap_assist_tests build/gap_assist_native_host_contract_tests build/gap_assist_phase2_fixtures build/gap_assist_phase4_detection_probe
 	./build/gap_assist_tests
+	./build/gap_assist_native_host_contract_tests
 	./build/gap_assist_phase2_fixtures ../tests/fixtures/gapfill/parity/csp_detection_current.csv
 	python3 ../tests/parity/test_csp_phase4_detection.py ./build/gap_assist_phase4_detection_probe
 	$(MAKE) test-safety
