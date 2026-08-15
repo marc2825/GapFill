@@ -118,7 +118,7 @@ class GapFillDocker(DockWidget):
         self.refresh_layers()
 
     def closeEvent(self, event) -> None:
-        self.controller.deactivate()
+        self.controller.shutdown()
         self._save_settings()
         super().closeEvent(event)
 

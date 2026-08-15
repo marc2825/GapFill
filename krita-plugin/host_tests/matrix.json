@@ -1,0 +1,38 @@
+{
+  "schema": 1,
+  "phase": 6,
+  "host": {
+    "krita_version": null,
+    "qt_pyqt": null,
+    "embedded_python": null,
+    "os_arch": null,
+    "resource_directory": null,
+    "plugin_zip_sha256": null,
+    "model_sha256": "8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78",
+    "gui_executable": false
+  },
+  "results": [
+    {"id": "A", "case": "loading / enable / restart", "status": "UNTESTED"},
+    {"id": "B", "case": "scan ordinary gap", "status": "UNTESTED"},
+    {"id": "C", "case": "pure versus host candidate/prediction parity", "status": "UNTESTED"},
+    {"id": "D", "case": "Guide-enclosed detection", "status": "UNTESTED"},
+    {"id": "E", "case": "known near-white Guide-associated parity", "status": "UNTESTED"},
+    {"id": "F", "case": "apply one", "status": "UNTESTED"},
+    {"id": "G", "case": "apply multiple colors", "status": "UNTESTED"},
+    {"id": "H", "case": "selection presence and exact bytes restored", "status": "UNTESTED"},
+    {"id": "I", "case": "Undo / redo and visible command count", "status": "UNTESTED"},
+    {"id": "J", "case": "foreground and view/tool state restored", "status": "UNTESTED"},
+    {"id": "K", "case": "active node restored", "status": "UNTESTED"},
+    {"id": "L", "case": "stale scan rejection", "status": "UNTESTED"},
+    {"id": "M", "case": "cancel / deactivate race", "status": "UNTESTED"},
+    {"id": "N", "case": "pan / zoom at DPR 1", "status": "UNTESTED"},
+    {"id": "O", "case": "rotation fails closed", "status": "UNTESTED"},
+    {"id": "P", "case": "mirror fails closed", "status": "UNTESTED"},
+    {"id": "Q", "case": "HiDPI fails closed", "status": "UNTESTED"},
+    {"id": "R", "case": "moved Coloring target rejected", "status": "UNTESTED"},
+    {"id": "S", "case": "target masks/effects rejected", "status": "UNTESTED"},
+    {"id": "T", "case": "alternate RGBA/U8 profile conversion", "status": "UNTESTED"},
+    {"id": "U", "case": "two views/windows and ambiguous split view", "status": "UNTESTED"},
+    {"id": "V", "case": "shutdown with plug-in active", "status": "UNTESTED"}
+  ]
+}

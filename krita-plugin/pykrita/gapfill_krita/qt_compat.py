@@ -11,6 +11,7 @@ try:
         Qt,
         QThread,
         QTimer,
+        QUuid,
         pyqtSignal,
         pyqtSlot,
     )
@@ -62,6 +63,7 @@ except ImportError:
         Qt,
         QThread,
         QTimer,
+        QUuid,
         pyqtSignal,
         pyqtSlot,
     )

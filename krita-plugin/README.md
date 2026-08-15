@@ -1,6 +1,6 @@
 # GapFill for Krita
 
-GapFill for Krita ports the paper's gap-detection and region-correspondence color-prediction workflow into a native Python docker. It is intended for **Krita 5.3 or Krita 6 on 64-bit desktop platforms** and supports both PyQt5 and PyQt6.
+GapFill for Krita ports the paper's gap-detection and region-correspondence color-prediction workflow into a native Python docker. The code has PyQt5/PyQt6 import shims, but **no real Krita distribution has completed the Phase 6 host matrix yet**. Deterministic apply now requires the public view-state controls exposed by Krita 6; older builds fail closed if those controls are absent.
 
 ## Features
 
@@ -13,7 +13,7 @@ GapFill for Krita ports the paper's gap-detection and region-correspondence colo
   regions, and returns their deterministic modal RGB.
 - Shows temporary suggested fills, circular highlights, and a fixed 5× hover magnifier.
 - Supports in-circle drag-to-correct, out-circle sweep-to-apply, list-based correction, Apply Selected, and Apply All.
-- Applies fills through Krita's native selection-fill action so edits participate in Krita's undo history.
+- Applies fills through Krita's native selection-fill action, verifies exact target pixels, and restores user state. Public LibKis does not provide an undo macro for the internal selection actions, so one-step atomic Undo is not yet guaranteed.
 - Performs detection and inference off the UI thread and supports cancellation.
 
 ## Install a Release Bundle
@@ -48,7 +48,7 @@ Restart Krita, enable GapFill in Python Plugin Manager, and restart again. Use `
 
 Choose layers in the GapFill docker before scanning:
 
-- **Coloring** must be an unlocked RGBA/U8 paint layer. Unpainted pixels must be fully transparent.
+- **Coloring** must be an unlocked, origin-aligned, non-animated RGBA/U8 paint layer with no child masks/effects or layer style. It and its parents must be visible, fully opaque, Normal-blended, and not use inherit alpha. Unpainted pixels must be fully transparent.
 - **Line Art** must have a transparent background; its nonzero alpha pixels are boundaries and never gaps.
 - **Guides** are optional and must also have a transparent background. Their
   nonzero-alpha pixels are detection boundaries, not paintable Guide-gap pixels.
@@ -56,7 +56,12 @@ Choose layers in the GapFill docker before scanning:
   Coloring gap; an isolated Guide in open transparency does not create a gap.
 - A white Background layer may remain visible below the other layers, but do not select it as Coloring, Line Art, or Guides. It is only visual backing and does not change the Coloring layer's transparency.
 
-The selected nodes are read in document coordinates. If layers are moved or transformed after scanning, rescan before applying suggestions.
+The selected nodes are read over the document rectangle. Line/Guide projections
+must be visible RGBA/U8 nodes under neutral parents and currently must share the
+document profile. Moved Coloring layers, Coloring masks/effects/styles, mixed
+profiles, and documents larger than 16,777,216 pixels are rejected before
+preview. Any document/node/selection/projection change after scanning makes the
+result stale and prevents apply.
 
 The pure detector first converts these RGBA snapshots into separate binary
 Coloring-membership, Line-boundary, and Guide-boundary masks. Coloring membership
@@ -75,6 +80,14 @@ profile/render conversion into those logical bytes remains a host test.
 4. Drag from outside the circles to sweep over several suggestions, then release to apply them.
 5. Alternatively, correct colors in the docker and use **Apply Selected** or **Apply All**.
 
+Interactive overlays currently support only an unrotated, unmirrored, device
+pixel ratio 1 canvas whose internal QWidget can be identified uniquely inside
+the active window. Rotation, mirror, unqualified HiDPI, and ambiguous split-view
+layouts disable the overlay instead of guessing at pointer coordinates.
+Sampling accepts only fully opaque composite pixels; semi-transparent samples
+are ignored because converting them into an opaque fill has no backdrop-stable
+perceived color.
+
 The ONNX model must load successfully before suggestions are shown. A missing,
 wrong-hash, malformed, or incompatible model/runtime is displayed as an error
 instead of silently replacing all predictions with the greedy heuristic. An
@@ -87,7 +100,13 @@ ONNX Runtime calls are synchronous and cannot be interrupted mid-call. Stop is
 checked before and after load and each inference; results are attached only
 after the complete batch reaches a cancellation boundary.
 
-Krita creates one undoable fill operation per distinct color in an applied batch. Undo repeatedly if a batch contained multiple colors.
+Apply saves and normalizes foreground color, eraser mode, global alpha lock,
+blending mode, opacity, flow, active node, and the exact global selection. It
+restores semantic no-selection with `None`, reads back the entire Coloring layer,
+and keeps suggestions on failure. A successful apply invalidates every remaining
+suggestion and requires a rescan. The public selection-fill route creates host
+Undo commands that cannot be grouped by LibKis; exact command order and Undo/redo
+remain a real-host release gate.
 
 ## Build and Test
 
@@ -116,18 +135,24 @@ pytest
 ruff check .
 ```
 
-The engine suite runs without Krita or Qt. A final release must also complete the manual smoke test below in both Krita 5.3 and Krita 6 because the canvas widget is an internal Qt widget rather than part of LibKis's public API.
+The pure, Qt, and fake-adapter suites run without Krita. They do not establish
+host compatibility. A release must execute `host_tests/matrix.json` in every
+advertised real Krita distribution.
 
 ## Release Smoke Test
 
 - Import and enable the clean release ZIP on a machine without development packages.
 - Scan a document with normal gaps, Guide gaps, a white Background, and an open transparent exterior.
 - Confirm that only enclosed gaps below the threshold are listed.
-- Confirm previews, transformed/rotated canvas markers, 5× magnifier, correction cancellation, color sampling, sweep, Apply Selected, and Apply All.
+- Confirm previews, pan/zoom markers, 5× magnifier, correction cancellation,
+  color sampling, sweep, Apply Selected, and Apply All at DPR 1. Confirm
+  rotation, mirror, HiDPI, and ambiguous split views fail closed until qualified.
 - Confirm Stop cancels a large scan and the canvas remains responsive.
 - Confirm missing/corrupt model errors are visible.
-- Confirm applied pixels land only on Coloring and undo restores them.
-- Repeat with a pre-existing Krita selection and foreground color and confirm both are restored.
+- Confirm applied pixels land only on Coloring, the exact original selection
+  presence/bytes and foreground/tool state return, and record every visible Undo
+  and redo step. One-step atomic Undo is not currently claimed.
+- Run every A–V row in `host_tests/matrix.json`; leave unavailable rows UNTESTED.
 
 ## Architecture
 
@@ -138,7 +163,8 @@ krita-plugin/
 │   └── gapfill_krita/
 │       ├── engine/          # NumPy detection, patching, inference, postprocessing
 │       ├── controller.py    # Application state and orchestration
-│       ├── krita_adapter.py # LibKis layer snapshots and undoable application
+│       ├── host_contract.py # Immutable provenance and host-independent invariants
+│       ├── krita_adapter.py # LibKis acquisition, conversion, apply/readback
 │       ├── overlay.py       # Canvas preview and pointer interactions
 │       ├── docker.py        # User interface
 │       └── worker.py        # Cancellable background work

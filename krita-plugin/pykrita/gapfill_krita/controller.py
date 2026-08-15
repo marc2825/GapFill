@@ -5,11 +5,22 @@ from typing import Optional
 import numpy as np
 from krita import Krita
 
+from .canvas_boundary import (
+    require_supported_canvas_state,
+    require_supported_widget_state,
+    resolve_canvas_widget,
+)
 from .engine.types import GapRegion
-from .krita_adapter import apply_gap_colors, snapshot_layers
+from .host_contract import GenerationGate, HostSnapshot
+from .krita_adapter import (
+    apply_gap_colors,
+    canvas_color_bridge,
+    snapshot_host,
+    validate_scan_context,
+)
 from .model import find_model_path
 from .overlay import GapFillOverlay
-from .qt_compat import QThread, QWidget, qimage_from_rgba
+from .qt_compat import QImage, QThread, QWidget, qimage_from_rgba
 from .worker import GapFillWorker
 
 
@@ -18,90 +29,146 @@ class GapFillController:
         self.docker = docker
         self.document = None
         self.view = None
-        self.coloring_node = None
-        self.images = None
+        self.snapshot: Optional[HostSnapshot] = None
         self.gaps: list[GapRegion] = []
         self.overlay: Optional[GapFillOverlay] = None
-        self.thread: Optional[QThread] = None
-        self.worker: Optional[GapFillWorker] = None
+        self._gate = GenerationGate()
+        self._runs: dict[int, tuple[QThread, GapFillWorker]] = {}
+        self._shutting_down = False
 
     @property
     def busy(self) -> bool:
-        return self.thread is not None
+        return self._gate.active in self._runs
 
     def scan(
         self, coloring_node, line_node, guides_node, threshold: int, allow_greedy: bool
     ) -> None:
-        if self.busy:
+        if self._shutting_down:
             return
+        self._retire_workers()
+        generation = self._gate.start()
         app = Krita.instance()
-        self.document = app.activeDocument()
+        document = app.activeDocument()
         window = app.activeWindow()
-        self.view = window.activeView() if window else None
-        if self.document is None or self.view is None:
+        view = window.activeView() if window else None
+        if document is None or view is None:
+            self._gate.retire(generation)
             self.docker.show_error("Open a document before activating GapFill.")
             return
         if coloring_node is None or line_node is None:
+            self._gate.retire(generation)
             self.docker.show_error("Select both a Coloring layer and a Line Art layer.")
             return
         try:
             self.docker.set_busy(True, "Reading Krita layers…")
-            self.images = snapshot_layers(self.document, coloring_node, line_node, guides_node)
+            snapshot = snapshot_host(
+                document, view, coloring_node, line_node, guides_node, generation
+            )
         except Exception as error:
+            self._gate.retire(generation)
             self.docker.set_busy(False)
             self.docker.show_error(str(error))
             return
 
-        self.coloring_node = coloring_node
-        self.thread = QThread()
-        self.worker = GapFillWorker(self.images, threshold, find_model_path(), allow_greedy)
-        self.worker.moveToThread(self.thread)
-        self.thread.started.connect(self.worker.run)
-        self.worker.progress.connect(self.docker.update_progress)
-        self.worker.completed.connect(self._scan_completed)
-        self.worker.failed.connect(self._scan_failed)
-        self.worker.cancelled.connect(lambda: self.docker.set_status("Cancelled."))
-        self.worker.finished.connect(self.thread.quit)
-        self.thread.finished.connect(self._thread_finished)
-        self.thread.start()
+        self.document = document
+        self.view = view
+        self.snapshot = snapshot
+        thread = QThread()
+        worker = GapFillWorker(
+            generation, snapshot, threshold, find_model_path(), allow_greedy
+        )
+        self._runs[generation] = (thread, worker)
+        worker.moveToThread(thread)
+        thread.started.connect(worker.run)
+        worker.progress.connect(self._scan_progress)
+        worker.completed.connect(self._scan_completed)
+        worker.failed.connect(self._scan_failed)
+        worker.cancelled.connect(self._scan_cancelled)
+        worker.finished.connect(thread.quit)
+        worker.finished.connect(worker.deleteLater)
+        thread.finished.connect(lambda: self._thread_finished(generation))
+        thread.start()
+
+    def _retire_workers(self) -> None:
+        active = self._gate.active
+        if active is not None:
+            self._gate.retire(active)
+        for _thread, worker in self._runs.values():
+            try:
+                worker.cancel()
+            except RuntimeError:
+                pass
 
     def cancel(self) -> None:
-        if self.worker:
-            self.worker.cancel()
-            self.docker.set_status("Cancelling…")
+        if self._gate.active is None:
+            return
+        self._retire_workers()
+        self.docker.set_busy(False)
+        self.docker.set_status("Cancelled. A running ONNX call may finish before cleanup.")
 
     def deactivate(self) -> None:
-        self.cancel()
-        if self.overlay is not None:
-            self.overlay.close()
-            self.overlay.deleteLater()
-            self.overlay = None
+        self._retire_workers()
+        self._remove_overlay()
+        self.snapshot = None
         self.gaps = []
         self.docker.set_regions([])
+        self.docker.set_busy(False)
         self.docker.set_status("GapFill is inactive.")
 
-    def _thread_finished(self) -> None:
-        if self.worker:
-            self.worker.deleteLater()
-        if self.thread:
-            self.thread.deleteLater()
-        self.worker = None
-        self.thread = None
-        self.docker.set_busy(False)
+    def shutdown(self) -> None:
+        self._shutting_down = True
+        self._gate.close()
+        for _thread, worker in self._runs.values():
+            try:
+                worker.cancel()
+            except RuntimeError:
+                pass
+        self._remove_overlay()
+        self.snapshot = None
+        self.gaps = []
 
-    def _scan_failed(self, message: str) -> None:
+    def _thread_finished(self, generation: int) -> None:
+        run = self._runs.pop(generation, None)
+        if run is not None:
+            thread, _worker = run
+            thread.deleteLater()
+        if self._gate.accepts(generation):
+            self.docker.set_busy(False)
+
+    def _scan_progress(self, generation: int, stage: str, done: int, total: int) -> None:
+        if self._gate.accepts(generation) and self._context_is_current(generation):
+            self.docker.update_progress(stage, done, total)
+
+    def _scan_failed(self, generation: int, message: str) -> None:
+        if not self._gate.accepts(generation):
+            return
         self.gaps = []
         self.docker.show_error(
             "GapFill could not load or run its color-prediction model.\n" + message
         )
 
-    def _scan_completed(self, gaps: list[GapRegion]) -> None:
-        if not self._context_is_current():
+    def _scan_cancelled(self, generation: int) -> None:
+        if self._gate.accepts(generation):
+            self.docker.set_status("Cancelled.")
+
+    def _scan_completed(self, generation: int, gaps: list[GapRegion]) -> None:
+        if not self._gate.accepts(generation):
+            return
+        if not self._context_is_current(generation):
+            self._gate.retire(generation)
             self.gaps = []
             self.docker.set_regions([])
             self.docker.show_error(
-                "The active document or view changed during scanning. Activate the intended canvas and scan again."
+                "The scanned document/view disappeared or changed. Scan the intended canvas again."
             )
+            return
+        try:
+            validate_scan_context(self.document, self.view, self.snapshot.context)
+        except Exception as error:
+            self._gate.retire(generation)
+            self.gaps = []
+            self.docker.set_regions([])
+            self.docker.show_error(f"The scan became stale before preview: {error}")
             return
         self.gaps = gaps
         self.docker.set_regions(gaps)
@@ -116,45 +183,38 @@ class GapFillController:
         except Exception as error:
             self._remove_overlay()
             self.docker.show_error(
-                f"{len(gaps)} gaps were detected, but the canvas overlay could not be created: {error}"
+                f"{len(gaps)} gaps were detected, but interactive preview is unavailable: {error}"
             )
 
     def _remove_overlay(self) -> None:
-        if self.overlay:
+        if self.overlay is not None:
             self.overlay.close()
             self.overlay.deleteLater()
             self.overlay = None
 
-    def _find_canvas_widget(self):
-        window = Krita.instance().activeWindow()
-        qwindow = window.qwindow() if window else None
-        if qwindow is None:
-            return None
-        widgets = [widget for widget in qwindow.findChildren(QWidget) if widget.isVisible()]
-        preferred = []
-        for widget in widgets:
-            class_name = widget.metaObject().className().lower()
-            if "canvas" in class_name and "controller" not in class_name:
-                preferred.append(widget)
-        candidates = preferred or widgets
-        return max(candidates, key=lambda widget: widget.width() * widget.height(), default=None)
-
-    def _context_is_current(self) -> bool:
+    def _context_is_current(self, generation: int) -> bool:
         app = Krita.instance()
         window = app.activeWindow()
         return (
-            self.document is not None
+            self._gate.accepts(generation)
+            and self.snapshot is not None
+            and self.snapshot.context.generation == generation
+            and self.document is not None
             and app.activeDocument() == self.document
             and window is not None
             and window.activeView() == self.view
+            and self.view.document() == self.document
         )
 
     def _install_overlay(self) -> None:
         self._remove_overlay()
-        canvas_widget = self._find_canvas_widget()
-        if canvas_widget is None:
-            raise RuntimeError("Krita's canvas widget was not found.")
-        self.overlay = GapFillOverlay(canvas_widget, self.view)
+        require_supported_canvas_state(self.view)
+        window = Krita.instance().activeWindow()
+        qwindow = window.qwindow() if window else None
+        canvas_widget = resolve_canvas_widget(qwindow, QWidget)
+        require_supported_widget_state(canvas_widget)
+        bridge = canvas_color_bridge(self.view, self.snapshot.context)
+        self.overlay = GapFillOverlay(canvas_widget, self.view, bridge)
         settings = self.docker.current_settings()
         self.overlay.set_style(
             settings.highlight_color, settings.marker_radius, settings.sweep_radius
@@ -162,85 +222,88 @@ class GapFillController:
         self.overlay.applyRequested.connect(self.apply_ids)
         self.overlay.previewColorChanged.connect(self._preview_changed)
         self.overlay.interactionCancelled.connect(self._preview_cancelled)
+        self.overlay.mappingUnsupported.connect(self._overlay_unsupported)
+
+    def _overlay_unsupported(self, message: str) -> None:
+        self._remove_overlay()
+        self.docker.show_error(message)
 
     def _preview_changed(self, _gap_id: str, _color) -> None:
-        # The overlay updates the affected gap in place for responsive dragging.
         pass
 
     def _preview_cancelled(self, _gap_id: str) -> None:
         self.docker.set_regions(self.gaps)
 
-    def _render_preview_rgba(self) -> tuple[np.ndarray, np.ndarray]:
-        if self.images is None:
-            raise RuntimeError("No layer snapshot is available.")
-        height, width = self.images.coloring.shape[:2]
-        preview = np.zeros((height, width, 4), dtype=np.uint8)
-        composite = self.images.composite.copy()
+    def _render_preview_image(self) -> QImage:
+        if self.snapshot is None:
+            raise RuntimeError("No host snapshot is available.")
+        height, width = self.snapshot.images.coloring.shape[:2]
+        image = qimage_from_rgba(np.zeros((height, width, 4), dtype=np.uint8))
+        bridge = canvas_color_bridge(self.view, self.snapshot.context)
         for gap in self.gaps:
-            color = gap.color
-            if color is None:
+            if gap.color is None:
                 continue
             ys, xs = np.divmod(gap.indices, width)
-            preview[ys, xs, :3] = color
-            preview[ys, xs, 3] = 255
-            composite[ys, xs, :3] = color
-            composite[ys, xs, 3] = 255
-        return preview, composite
+            qcolor = bridge.source_rgb_to_qcolor(gap.color)
+            for px, py in zip(xs.tolist(), ys.tolist()):
+                image.setPixelColor(px, py, qcolor)
+        return image
 
     def _refresh_overlay_images(self) -> None:
-        if self.overlay is None or self.images is None:
+        if self.overlay is None or self.snapshot is None:
             return
-        preview, composite = self._render_preview_rgba()
         self.overlay.set_content(
             self.gaps,
-            qimage_from_rgba(preview),
-            qimage_from_rgba(composite),
-            composite,
+            self._render_preview_image(),
+            self.snapshot.images.composite,
         )
 
     def set_preview_color(self, gap_ids: list[str], color) -> None:
+        if self.snapshot is None:
+            return
+        bridge = canvas_color_bridge(self.view, self.snapshot.context)
+        source_color = bridge.qcolor_to_source_rgb(self._qcolor(color))
         selected = set(gap_ids)
         for gap in self.gaps:
             if gap.id in selected:
-                gap.preview_rgb = color
+                gap.preview_rgb = source_color
         self._refresh_overlay_images()
         self.docker.set_regions(self.gaps)
 
+    @staticmethod
+    def _qcolor(color):
+        from .qt_compat import QColor
+
+        return QColor(*color)
+
     def apply_ids(self, gap_ids: list[str]) -> None:
-        if not gap_ids or self.document is None or self.view is None:
+        generation = self._gate.active
+        if not gap_ids or generation is None or self.snapshot is None:
             return
-        if not self._context_is_current():
-            self.docker.show_error(
-                "The active document or view changed. Return to the scanned canvas or rescan before applying."
-            )
+        if not self._context_is_current(generation):
+            self.docker.show_error("The scanned document/view changed. Rescan before applying.")
             return
         selected_ids = set(gap_ids)
         selected = [gap for gap in self.gaps if gap.id in selected_ids]
+        if not selected:
+            return
         try:
-            apply_gap_colors(self.document, self.view, self.coloring_node, selected)
+            result = apply_gap_colors(
+                self.document, self.view, self.snapshot.context, selected
+            )
         except Exception as error:
             self.docker.show_error(f"Failed to apply gap colors: {error}")
             return
-        if self.images is not None:
-            width = self.images.width
-            for gap in selected:
-                color = gap.color
-                if color is None:
-                    continue
-                ys, xs = np.divmod(gap.indices, width)
-                self.images.coloring[ys, xs, :3] = color
-                self.images.coloring[ys, xs, 3] = 255
-                if self.images.composite is not None:
-                    self.images.composite[ys, xs, :3] = color
-                    self.images.composite[ys, xs, 3] = 255
-        self.gaps = [gap for gap in self.gaps if gap.id not in selected_ids]
-        self.docker.set_regions(self.gaps)
-        if self.gaps:
-            self._refresh_overlay_images()
-            self.docker.set_status(f"Applied {len(selected)} gaps; {len(self.gaps)} remain.")
-        else:
-            self._remove_overlay()
-            self.docker.set_status(f"Applied all {len(selected)} remaining gaps.")
+        self._gate.retire(generation)
+        self._remove_overlay()
+        self.snapshot = None
+        self.gaps = []
+        self.docker.set_regions([])
+        undo_note = " Atomic one-step Undo is not available through public LibKis."
+        self.docker.set_status(
+            f"Applied and verified {result.changed_pixels} pixels. Rescan before another apply."
+            + undo_note
+        )
 
     def apply_all(self) -> None:
         self.apply_ids([gap.id for gap in self.gaps])

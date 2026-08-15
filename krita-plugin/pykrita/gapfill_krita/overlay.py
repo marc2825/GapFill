@@ -5,6 +5,7 @@ from typing import Optional
 
 import numpy as np
 
+from .canvas_boundary import require_supported_canvas_state, require_supported_widget_state
 from .engine.types import GapRegion, Rgb
 from .qt_compat import (
     DASH_LINE,
@@ -24,6 +25,7 @@ from .qt_compat import (
     QWidget,
     event_position,
     pyqtSignal,
+    qimage_from_rgba,
 )
 
 
@@ -33,19 +35,20 @@ class GapFillOverlay(QWidget):
     applyRequested = pyqtSignal(object)
     previewColorChanged = pyqtSignal(str, object)
     interactionCancelled = pyqtSignal(str)
+    mappingUnsupported = pyqtSignal(str)
 
     MARKER_RADIUS = 14.0
     MAGNIFIER_SOURCE_SIZE = 64
     MAGNIFIER_SCALE = 5
     MAGNIFIER_MARGIN = 12
 
-    def __init__(self, canvas_widget, view, parent=None):
+    def __init__(self, canvas_widget, view, color_bridge, parent=None):
         super().__init__(parent or canvas_widget)
         self.canvas_widget = canvas_widget
         self.view = view
+        self.color_bridge = color_bridge
         self.gaps: list[GapRegion] = []
         self.preview_image = QImage()
-        self.magnifier_image = QImage()
         self.composite_rgba: Optional[np.ndarray] = None
         self.highlight = QColor("#00D9FF")
         self.marker_radius = self.MARKER_RADIUS
@@ -59,6 +62,7 @@ class GapFillOverlay(QWidget):
         self._last_sweep_position: Optional[QPointF] = None
         self._cancel_rect = QRectF()
         self._last_transform = QTransform()
+        self._mapping_valid = True
 
         self.setAttribute(WA_NO_BACKGROUND, True)
         self.setAttribute(WA_TRANSLUCENT, True)
@@ -75,11 +79,21 @@ class GapFillOverlay(QWidget):
         super().closeEvent(event)
 
     def _sync_geometry(self) -> None:
+        try:
+            require_supported_canvas_state(self.view)
+            require_supported_widget_state(self.canvas_widget)
+            transform = self._image_to_canvas()
+        except Exception as error:
+            if self._mapping_valid:
+                self._mapping_valid = False
+                self.setEnabled(False)
+                self.hide()
+                self.mappingUnsupported.emit(str(error))
+            return
         changed = False
         if self.parent() is self.canvas_widget and self.geometry() != self.canvas_widget.rect():
             self.setGeometry(self.canvas_widget.rect())
             changed = True
-        transform = self._image_to_canvas()
         if transform != self._last_transform:
             self._last_transform = transform
             changed = True
@@ -90,12 +104,10 @@ class GapFillOverlay(QWidget):
         self,
         gaps: list[GapRegion],
         preview_image: QImage,
-        magnifier_image: QImage,
         composite_rgba: np.ndarray,
     ) -> None:
         self.gaps = gaps
         self.preview_image = preview_image
-        self.magnifier_image = magnifier_image
         self.composite_rgba = composite_rgba
         self.hovered_id = None
         self.update()
@@ -110,12 +122,14 @@ class GapFillOverlay(QWidget):
         flake_to_image = self.view.flakeToImageTransform()
         image_to_flake, invertible = flake_to_image.inverted()
         if not invertible:
-            return QTransform()
+            raise RuntimeError("Krita returned a non-invertible image transform.")
         return self.view.flakeToCanvasTransform() * image_to_flake
 
     def _canvas_to_image(self) -> QTransform:
         transform, invertible = self._image_to_canvas().inverted()
-        return transform if invertible else QTransform()
+        if not invertible:
+            raise RuntimeError("Krita returned a non-invertible canvas transform.")
+        return transform
 
     def _screen_center(self, gap: GapRegion) -> QPointF:
         return self._image_to_canvas().map(QPointF(gap.center[0] + 0.5, gap.center[1] + 0.5))
@@ -160,7 +174,9 @@ class GapFillOverlay(QWidget):
         if not (0 <= x < width and 0 <= y < height):
             return None
         pixel = self.composite_rgba[y, x]
-        if pixel[3] == 0:
+        # Sampling a semi-transparent source as an opaque fill is not a
+        # perceptually stable operation without a defined backdrop.
+        if pixel[3] != 255:
             return None
         return (int(pixel[0]), int(pixel[1]), int(pixel[2]))
 
@@ -170,12 +186,9 @@ class GapFillOverlay(QWidget):
             return
         width = self.composite_rgba.shape[1]
         ys, xs = np.divmod(gap.indices, width)
-        self.composite_rgba[ys, xs, :3] = color
-        self.composite_rgba[ys, xs, 3] = 255
-        qcolor = QColor(*color, 255)
+        qcolor = self.color_bridge.source_rgb_to_qcolor(color)
         for x, y in zip(xs.tolist(), ys.tolist()):
             self.preview_image.setPixelColor(x, y, qcolor)
-            self.magnifier_image.setPixelColor(x, y, qcolor)
 
     def _cancel_correction(self) -> None:
         gap_id = self.correction_id
@@ -258,6 +271,12 @@ class GapFillOverlay(QWidget):
         self.update()
 
     def paintEvent(self, _event) -> None:
+        try:
+            require_supported_canvas_state(self.view)
+            require_supported_widget_state(self.canvas_widget)
+        except Exception as error:
+            self.mappingUnsupported.emit(str(error))
+            return
         painter = QPainter(self)
         painter.setRenderHint(
             QPainter.RenderHint.Antialiasing
@@ -302,14 +321,40 @@ class GapFillOverlay(QWidget):
         painter.end()
 
     def _paint_magnifier(self, painter: QPainter, gap: GapRegion) -> None:
+        if self.composite_rgba is None:
+            return
         source_size = self.MAGNIFIER_SOURCE_SIZE
         display_size = source_size * self.MAGNIFIER_SCALE
-        source = QRectF(
-            gap.center[0] - source_size / 2,
-            gap.center[1] - source_size / 2,
-            source_size,
-            source_size,
+        source_left = int(gap.center[0] - source_size // 2)
+        source_top = int(gap.center[1] - source_size // 2)
+        magnifier = qimage_from_rgba(
+            np.zeros((source_size, source_size, 4), dtype=np.uint8)
         )
+        height, width = self.composite_rgba.shape[:2]
+        for local_y in range(source_size):
+            image_y = source_top + local_y
+            if not 0 <= image_y < height:
+                continue
+            for local_x in range(source_size):
+                image_x = source_left + local_x
+                if not 0 <= image_x < width:
+                    continue
+                pixel = self.composite_rgba[image_y, image_x]
+                if pixel[3] != 0:
+                    magnifier.setPixelColor(
+                        local_x,
+                        local_y,
+                        self.color_bridge.source_rgba_to_qcolor(pixel),
+                    )
+        for item in self.gaps:
+            if item.color is None:
+                continue
+            ys, xs = np.divmod(item.indices, width)
+            qcolor = self.color_bridge.source_rgb_to_qcolor(item.color)
+            for image_x, image_y in zip(xs.tolist(), ys.tolist()):
+                local_x, local_y = image_x - source_left, image_y - source_top
+                if 0 <= local_x < source_size and 0 <= local_y < source_size:
+                    magnifier.setPixelColor(local_x, local_y, qcolor)
         center = self._screen_center(gap)
         left = min(
             max(0.0, center.x() + self.marker_radius + 8),
@@ -323,7 +368,7 @@ class GapFillOverlay(QWidget):
         painter.setPen(QPen(QColor("#202020"), 2.0))
         painter.setBrush(QColor("#FFFFFF"))
         painter.drawRect(target.adjusted(-2, -2, 2, 2))
-        painter.drawImage(target, self.magnifier_image, source)
+        painter.drawImage(target, magnifier, QRectF(0, 0, source_size, source_size))
         marker_center = target.center()
         painter.setPen(QPen(QColor(255, 255, 255, 210), 2.0))
         painter.setBrush(QColor(0, 0, 0, 70))

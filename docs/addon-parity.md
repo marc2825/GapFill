@@ -278,3 +278,18 @@ the Web, Krita, and CSP readers.
 The Phase 5 pure learned-prediction entry criteria are satisfied by the current
 validation record in `docs/addon-phase5.md`. Phase 6 remains separately scoped
 host work and was not started here.
+
+## Phase 6 Krita host status
+
+Phase 6 preserves every pure result above. Its immutable snapshot boundary and
+fake/Qt tests establish testable acquisition, staleness, generation, conversion,
+mutation-readback, and fail-closed overlay contracts, but no real Krita
+installation was available. Consequently pure-to-adapter tests are PASS while
+host acquisition, canvas/UI, profile conversion, native mutation, selection,
+and Undo parity are all UNTESTED. The exact A–V matrix and generated `.kra`
+recipes are under `krita-plugin/host_tests`; the full record is
+`docs/addon-phase6.md`.
+
+For E102, Phase 6 host parity remains the frozen near-white prediction
+`[243,242,239]`; the completed-art yellow is a separate accuracy observation.
+No host-layer change altered a semantic golden or the ONNX artifact.
