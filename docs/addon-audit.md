@@ -1594,6 +1594,14 @@ separately as Phase 6.5 and does not reopen that implementation status.
 
 ### Phase 7 — Establish CSP feasibility and qualify the private adapter
 
+- **Final status (2026-08-15):** **COMPLETE with capability failure.** Input
+  feasibility is `C. INSUFFICIENT_FOR_GAPFILL_PARITY`; host qualification is
+  `5. NOT_APPLICABLE_BECAUSE_INPUT_INFEASIBLE`. The evaluated 2021 Filter SDK
+  and private adapter combination is permanently ineligible for release as
+  canonical GapFill. This is not an unfinished implementation, a blocked host
+  test, or a Phase 8 task. Host/core GapFill parity for this adapter is
+  intentionally not applicable. See `docs/addon-phase7.md`.
+
 - **Exact scope:** Decide whether the 2021 filter SDK can supply canonical
   line/guide geometry. Maintain permitted first-party adapter source in an
   access-controlled versioned repository pinned to public core. Add public
@@ -1623,9 +1631,12 @@ separately as Phase 6.5 and does not reopen that implementation status.
 
 - **Exact scope:** Preserve separate host gates for release qualification:
   Krita requires successful Phase 6.5 real-host qualification for its tested
-  support matrix, while CSP requires successful Phase 7 qualification for its
-  tested support matrix. Work for one host may not turn the other host's open or
-  blocked gate into a pass. After the applicable semantic/host gate passes,
+  support matrix. The evaluated CSP SDK/adapter combination failed its Phase 7
+  canonical-input capability gate and has no canonical GapFill Phase 8 release
+  track. Work for one host may not turn the other host's gate into a pass. Only
+  new capability evidence from a supported CSP integration mechanism could
+  define a new CSP canonical-input qualification route. After an applicable
+  semantic/host gate passes,
   optimize 4K/8K paths, polish interaction/review UX, complete Krita
   resource/license manifests and prune vendor contents, validate native
   dependencies, make workflows available on default, name CSP CLI/native
@@ -1652,10 +1663,10 @@ separately as Phase 6.5 and does not reopen that implementation status.
 - **Krita:** keep as an audited prototype. Pure checks are healthy, but close the
   High semantic/host/package risks and execute the real-host matrix before a
   user-facing bundle.
-- **CSP:** do not describe or release the current native/CLI core as a GapFill
-  implementation. The Critical multi-layer input gap and absent learned pipeline
-  are confirmed; close data-safety findings independently while feasibility is
-  decided.
+- **CSP:** do not describe or release the evaluated native adapter/artifact as a
+  GapFill implementation. Phase 7 later established that its canonical
+  multi-layer input is infeasible through the evaluated SDK; the combination is
+  permanently ineligible for canonical GapFill release, not pending completion.
 - **Repository:** integrate current `main`, preserve this evidence, and begin
   Phase 2 only. Do not implement findings opportunistically before the golden
   contract is reviewed.

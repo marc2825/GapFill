@@ -9,10 +9,12 @@ code, or confidential API details.
 - Initial platform: Windows x64
 - Host target: CLIP STUDIO PAINT EX 4.0.10
 - SDK package: 2021-08-27 filter plug-in SDK
-- macOS: planned after the Windows implementation is validated
+- macOS: not evaluated; it does not alter the Windows API capability failure
 - Runtime status: private MSVC build completed; real CSP matrix untested
 - Phase 7 input decision: `C. INSUFFICIENT_FOR_GAPFILL_PARITY`
 - Phase 7 host decision: `5. NOT_APPLICABLE_BECAUSE_INPUT_INFEASIBLE`
+- Canonical GapFill release status: permanently ineligible for this evaluated
+  SDK/adapter combination
 
 ## Findings
 
@@ -44,7 +46,9 @@ application.
 The existing single-layer/rule-based behavior may survive only as a clearly
 differentiated heuristic quick-fix feature. It is not GapFill parity, lacks
 canonical multi-layer semantics, and requires explicit confirmation for
-heuristic results. This document does not choose a final product name.
+heuristic results. It must disclose its single-raster input and heuristic
+prediction and receive separate host/release qualification. This document does
+not choose a final product name or implement that feature.
 
 The SDK-independent PNG companion retains Review List, One-by-One, Correction
 Layer, Highlight Layer, manifests, and contact sheets. This keeps the complete
@@ -56,3 +60,9 @@ rows remain `UNTESTED`; exact Preview, cancellation, write, profile, selection,
 Undo, and Redo behavior is unknown. Distribution of any native `.cpm` must also
 follow CELSYS's current submission and approval process. The ignored local SDK
 directory, private adapter, and build artifact are not public source artifacts.
+
+Those untested lifecycle rows do not make canonical GapFill qualification
+pending: host/core parity is intentionally not applicable after input
+feasibility failed. Reconsidering native CSP GapFill requires new capability
+evidence from a different supported integration surface, not more work on this
+adapter or a weaker canonical algorithm.

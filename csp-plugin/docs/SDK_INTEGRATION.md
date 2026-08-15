@@ -44,8 +44,9 @@ The current private adapter performs these operations only:
 5. Write the corrected destination and let CSP own Preview, OK, Cancel, and Undo.
 
 The public `HostFilterContext`/`GapAssistCommand` boundary remains useful for a
-future host API that can create document layers and render the complete review
-dialog. The 2021 filter SDK cannot satisfy that richer contract; the private
+future supported host API backed by new capability evidence that can create
+document layers and render the complete review dialog. The 2021 filter SDK
+cannot satisfy that richer contract; the private
 adapter therefore calls `QuickFixPipeline` directly instead of pretending that
 the unavailable capabilities exist.
 
@@ -55,6 +56,12 @@ source is exposed. The Phase 7 clean MSVC build therefore establishes only that
 the current private adapter compiles. It is not GapFill parity and was not
 installed or host-qualified. Do not change the public algorithm to fit that
 limitation.
+
+The evaluated SDK/adapter combination is permanently ineligible for canonical
+GapFill release. It is not waiting for more implementation or Phase 8 polish;
+host/core GapFill parity for it is intentionally not applicable. A new native
+route requires new supported-API capability evidence before implementation or
+qualification resumes.
 
 See [the capability report](CSP_SDK_20210827_CAPABILITIES.md) for the conclusions.
 
@@ -97,4 +104,6 @@ only with an adapter/host route that can first satisfy the complete canonical
 input contract and fail closed on unsupported documents. The evaluated 2021
 filter SDK cannot, so its private artifact must not be installed merely to turn
 compile success into a GapFill claim. The manual plan remains the required
-matrix for any future capable route; unchecked/`UNTESTED` rows are not passes.
+matrix for a future route supported by new capability evidence; the current
+adapter's rows are intentionally not applicable to canonical GapFill after the
+input gate failed, rather than a pending Phase 8 checklist.

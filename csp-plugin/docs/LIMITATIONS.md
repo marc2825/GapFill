@@ -25,6 +25,13 @@ differentiated heuristic feature with explicit confirmation. Exact real CSP
 pixel, profile, selection, Preview, cancellation, write, one-step Undo and Redo
 behavior remains `UNTESTED`.
 
+The evaluated SDK/adapter combination is permanently ineligible for canonical
+GapFill release. This is not pending implementation or a Phase 8 task, and
+host/core GapFill parity for this adapter is intentionally not applicable. The
+public canonical core remains valid and must not be weakened around the SDK.
+Only new capability evidence from another supported CSP integration mechanism
+can establish a new native GapFill route.
+
 The full review workflow remains the safe PNG route: export the coloring layer,
 run the CLI, and import `*.gap-corrections.png` as a new layer. The Windows CSP
 4.0.10 executable was found, but the private artifact was not installed after
@@ -57,7 +64,8 @@ not assumptions in this repository.
   heuristic. Their score is not learned confidence, cannot receive a High band,
   and requires an explicit per-gap Apply decision.
 - RGBA8 PNG is the interchange format; document color depth/profile conversion is
-  the responsibility of the eventual SDK adapter or CSP export/import.
+  the responsibility of CSP export/import or a future supported adapter backed
+  by new canonical-input capability evidence.
 - Processing is linear and cancellable but currently single-threaded to keep host
   integration deterministic. Detection uses adjacent-row run state and
   threshold-bounded retained component pixels, while the three normalized masks
@@ -70,9 +78,9 @@ not assumptions in this repository.
   not explicitly synchronized to stable storage. Real Windows filesystem and
   antivirus/interruption behavior remains part of platform qualification.
 - Candidate application is bound to the pure engine's source, selection, image
-  geometry, and candidate-producing settings snapshot. The future CSP host
-  adapter must still ensure that its document/layer snapshot remains unchanged
-  between host read and final host commit.
+  geometry, and candidate-producing settings snapshot. Any future supported CSP
+  integration route must ensure that its document/layer snapshot remains
+  unchanged between host read and final host commit.
 
 ## Not planned for this CSP MVP
 

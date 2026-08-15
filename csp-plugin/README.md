@@ -136,11 +136,18 @@ before attempting an installable build.
 
 ## Native CSP release gate
 
-Do not distribute or describe the compiled 2021-SDK artifact as GapFill. A
-future native GapFill route must first expose the complete public canonical
-input contract and fail closed for unsupported documents, then pass the real
-host matrix. A separately scoped heuristic product would need its own product,
-qualification, and release decision. Neither route is Phase 8 work here.
+Do not distribute or describe the compiled 2021-SDK artifact as GapFill. The
+evaluated SDK/adapter combination is permanently ineligible for canonical
+GapFill release; it is not unfinished work and is not a Phase 8 TODO. The public
+canonical core remains because it correctly expresses and tests GapFill without
+depending on this host and could serve a different supported integration route.
+Such a route may be opened only by new capability evidence that it can supply
+the complete normalized input and fail closed for unsupported documents.
+
+A separately scoped single-raster/rule-based product must not claim GapFill
+parity, must disclose its single-raster and heuristic nature, must retain D-07
+explicit confirmation, and must receive its own host/release qualification. No
+marketing name is chosen and no such product is implemented here.
 
 ## Documentation
 

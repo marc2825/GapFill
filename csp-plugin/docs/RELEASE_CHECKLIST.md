@@ -5,8 +5,11 @@ process. A CSP SDK-linked native binary has additional CELSYS requirements.
 
 Phase 7 classified the evaluated 2021 filter SDK as
 `C. INSUFFICIENT_FOR_GAPFILL_PARITY`. The compiled private artifact must not be
-released or described as GapFill. This checklist can apply to a future native
-GapFill route only after canonical input availability is established as A or B.
+released or described as GapFill. The evaluated SDK/adapter combination is
+permanently ineligible for canonical GapFill release, not pending Phase 8 work.
+This checklist can apply to a new native GapFill route only after new capability
+evidence from a supported integration mechanism establishes canonical input
+availability as A or B.
 
 ## Source and legal boundary
 

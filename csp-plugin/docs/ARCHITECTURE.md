@@ -89,6 +89,14 @@ The public core exposes normalized multi-layer detection and a corresponding
 masks. Phase 7 established that the evaluated filter SDK does not expose those
 independent sources, so this path is not a canonical GapFill implementation.
 
+That conclusion is an architecture disposition, not an implementation backlog:
+the evaluated SDK/adapter combination is permanently ineligible for canonical
+GapFill release, and host/core parity for it is intentionally not applicable.
+The canonical public core remains the correct host-independent contract and test
+oracle. A new native route requires new capability evidence from a supported CSP
+integration mechanism that can supply all normalized inputs; the core must not
+be weakened to fit the 2021 filter API.
+
 Model calls are synchronous and cannot be interrupted. Cancellation is polled
 before contract validation, before and after each backend call, between gaps,
 and before returning. Results are accumulated privately and published only when

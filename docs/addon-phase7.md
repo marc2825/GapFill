@@ -18,7 +18,8 @@ algorithm:
 - real CSP host qualification: not executed; every manual host row remains
   `UNTESTED`;
 - native CSP artifact advertised as GapFill: **not permitted by this evidence**;
-- Phase 8 entry for a native CSP GapFill release: **criteria not satisfied**.
+- Phase 8 entry for a native CSP GapFill release: **permanently ineligible for
+  the evaluated SDK/adapter combination**.
 
 The evaluated filter SDK supplies one filter source raster and a selection. Its
 permitted interface does not supply arbitrary sibling layers, a layer tree,
@@ -26,6 +27,13 @@ named or typed Line/Guide sources, or independent document projections from
 which canonical Coloring, Line, and Guide planes could be recovered. A visual
 composite cannot restore the lost source identity. This is a capability failure,
 not a reason to weaken Phase 4/5 semantics.
+
+The result is final for this evaluated API/adapter combination: it is not an
+unfinished native implementation, a blocked real-host qualification, or a
+Phase 8 TODO. Host/core GapFill parity testing is intentionally not applicable
+because the adapter cannot first construct the canonical input. Reopening a
+native CSP GapFill route requires new capability evidence from a supported CSP
+integration mechanism; another build of the same adapter is not new evidence.
 
 The existing single-layer/rule-based path can only be considered as a separately
 differentiated heuristic quick-fix concept. It is not GapFill parity, lacks the
@@ -35,6 +43,15 @@ choose a final product name or begin that product/release work.
 
 Phase 6.5 remains independently `OPEN/BLOCKED`; nothing in this CSP decision is
 evidence that Krita host qualification passed.
+
+| Product gate | Final state |
+| --- | --- |
+| Krita Phase 6 implementation | `COMPLETE` |
+| Krita Phase 6.5 real-host qualification | `OPEN / BLOCKED` |
+| Krita release qualification | `NOT YET SATISFIED` |
+| CSP Phase 7 input feasibility | `C. INSUFFICIENT_FOR_GAPFILL_PARITY` |
+| CSP Phase 7 host qualification | `5. NOT_APPLICABLE_BECAUSE_INPUT_INFEASIBLE` |
+| CSP canonical GapFill Phase 8 eligibility | `INELIGIBLE` for the evaluated SDK/adapter combination |
 
 ## Frozen baseline
 
@@ -310,7 +327,11 @@ Remaining blockers are:
 6. CELSYS distribution qualification was not attempted.
 
 Therefore no CSP artifact from this work may accurately be called a GapFill
-implementation. Phase 8 CSP entry criteria for GapFill are not satisfied. A
-different host API/product route that can supply canonical sources could reopen
-the question; a separately named heuristic feature would require its own scope,
-qualification, and release decision. Neither route is started here.
+implementation. The evaluated SDK/adapter combination failed the capability
+gate and is permanently ineligible for a canonical GapFill Phase 8 release; it
+is not merely blocked or waiting. Only new capability evidence from a supported
+CSP integration mechanism could establish a new canonical route. A separately
+differentiated single-raster/rule-based product would not be GapFill, must
+disclose that limitation and its heuristic prediction, must retain D-07
+explicit confirmation, and requires its own host/release qualification. No
+marketing name is selected and neither route is started here.

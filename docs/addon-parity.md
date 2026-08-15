@@ -31,6 +31,14 @@ single-layer/rule-based behavior would be a separately disclosed heuristic
 feature, not canonical parity. See `docs/addon-phase7.md` for the capability
 matrix and evidence boundary.
 
+This evaluated SDK/adapter combination is permanently ineligible for canonical
+GapFill release. It is not waiting for implementation or Phase 8 polish, and
+host/core GapFill parity for it is intentionally not applicable. The canonical
+public core remains valuable as the host-independent contract and test oracle.
+A native CSP route may be reconsidered only after new capability evidence shows
+that a supported integration mechanism can supply the complete normalized
+input.
+
 ## Phase 5 current learned-prediction result
 
 The reviewed current contract is Line-only NCHW float32 input, canonical

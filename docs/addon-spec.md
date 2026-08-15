@@ -396,10 +396,12 @@ not rewritten as passing behavior.
   application-scope policy.
 - **Current differences:** Phase 4 Krita/CSP normalized pure detectors expose the
   full component and its selection-limited application subset and reproduce
-  `S001`. ML/Web do not implement selection scope. Whether the real CSP SDK
-  exposes full or clipped geometry remains a host limitation requiring real-host
-  verification; clipped-only rejection agrees with the conservative conditional
-  rule.
+  `S001`. ML/Web do not implement selection scope. Phase 7 established that the
+  evaluated CSP Filter SDK cannot supply the independent canonical
+  Coloring/Line/Guide sources at all; host/core GapFill parity for that adapter
+  is therefore not applicable, rather than pending real-host verification.
+  Clipped-only rejection remains the conservative rule for any future supported
+  integration route that presents clipped geometry.
 - **Coverage:** `D013_selection_boundary` retains separate conditional canonical
   geometry variants. Policy cases `S001` (full geometry then selected subset),
   `S002` (clipped-domain indeterminate), and `S003` (enclosed but outside scope)
