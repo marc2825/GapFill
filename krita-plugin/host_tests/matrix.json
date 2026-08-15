@@ -2,17 +2,18 @@
   "schema": 1,
   "phase": 6,
   "host": {
-    "krita_version": null,
-    "qt_pyqt": null,
-    "embedded_python": null,
-    "os_arch": null,
-    "resource_directory": null,
-    "plugin_zip_sha256": null,
+    "krita_version": "5.3.3",
+    "qt_pyqt": "Qt 5.15.7 / PyQt5 5.15.11",
+    "embedded_python": "CPython 3.13.5",
+    "os_arch": "Windows 11 Pro x64",
+    "resource_directory": "C:\\Users\\marck\\AppData\\Roaming\\krita",
+    "plugin_zip_sha256": "12a30dcf57f7aa703064e8babad05abe92626949b03e1acee0d0a0e7a0a7b5b9",
+    "prior_failed_plugin_zip_sha256": "46b27a4417e87bf5c5ccf4ef71bee212c7053ffcb30d006f8cfc1aa25d2da1fb",
     "model_sha256": "8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78",
-    "gui_executable": false
+    "gui_executable": true
   },
   "results": [
-    {"id": "A", "case": "loading / enable / restart", "status": "UNTESTED"},
+    {"id": "A", "case": "loading / enable / restart", "status": "PASS"},
     {"id": "B", "case": "scan ordinary gap", "status": "UNTESTED"},
     {"id": "C", "case": "pure versus host candidate/prediction parity", "status": "UNTESTED"},
     {"id": "D", "case": "Guide-enclosed detection", "status": "UNTESTED"},
