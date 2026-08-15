@@ -1573,6 +1573,25 @@ intended to become several small commits, not one rewrite.
 - **Explicitly out of scope:** CSP work, cosmetic redesign, new interaction
   features, unsupported profiles/depths, and release bundling.
 
+Phase 6 implementation is complete under the restricted/fail-closed contract
+recorded in `docs/addon-phase6.md`. Its real-host acceptance work is tracked
+separately as Phase 6.5 and does not reopen that implementation status.
+
+### Phase 6.5 — Qualify the Krita integration in a real host
+
+- **Status:** **OPEN and BLOCKED** because no executable real Krita host is
+  available in the current environment. This is not a PASS; all A–V real-host
+  rows remain **UNTESTED**.
+- **Exact scope:** Execute the frozen A–V matrix in each claimed Krita/OS/Python/
+  Qt support combination and record exact artifact and host metadata. The
+  one-step Undo issue remains a Krita release blocker.
+- **Acceptance criteria:** The applicable A–V rows pass for the published tested
+  support matrix, including the required Undo/data-safety behavior. Phase 6.5
+  must pass before any Krita artifact is considered release-qualified.
+- **Dependency:** Phase 7 CSP/CELSYS feasibility is technically independent and
+  may proceed in parallel when separately authorized. Starting Phase 7 does not
+  make Phase 6.5 pass and does not establish Krita release readiness.
+
 ### Phase 7 — Establish CSP feasibility and qualify the private adapter
 
 - **Exact scope:** Decide whether the 2021 filter SDK can supply canonical
@@ -1602,10 +1621,15 @@ intended to become several small commits, not one rewrite.
 
 ### Phase 8 — UI, performance, packaging, and release qualification
 
-- **Exact scope:** Only after semantic/host gates pass: optimize 4K/8K paths,
-  polish interaction/review UX, complete Krita resource/license manifests and
-  prune vendor contents, validate native dependencies, make workflows available
-  on default, name CSP CLI/native artifacts accurately, and produce provenance.
+- **Exact scope:** Preserve separate host gates for release qualification:
+  Krita requires successful Phase 6.5 real-host qualification for its tested
+  support matrix, while CSP requires successful Phase 7 qualification for its
+  tested support matrix. Work for one host may not turn the other host's open or
+  blocked gate into a pass. After the applicable semantic/host gate passes,
+  optimize 4K/8K paths, polish interaction/review UX, complete Krita
+  resource/license manifests and prune vendor contents, validate native
+  dependencies, make workflows available on default, name CSP CLI/native
+  artifacts accurately, and produce provenance.
 - **Likely files:** Krita build/install scripts, requirements and bundle workflow;
   CSP CMake/install/release workflow and docs; performance harnesses; UI files
   whose host behavior is now covered.

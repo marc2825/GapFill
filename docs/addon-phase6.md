@@ -6,9 +6,10 @@ Branch: `fix/krita-host-integration`
 
 Phase 5 baseline: `0d1c099def9119a523f21812c927229d4d1a66d4`
 
-Status: **implementation complete for the deliberately restricted/fail-closed
-host boundary; real-host verification incomplete**. No commit was created.
-Phase 7 was not started.
+Status: **Phase 6 implementation complete for the deliberately
+restricted/fail-closed host boundary; Phase 6.5 real-Krita qualification OPEN
+and BLOCKED because no executable real Krita host is available**. This external
+block is not a real-host PASS. No commit was created. Phase 7 was not started.
 
 ## Scope and baseline
 
@@ -320,7 +321,7 @@ Line-only trained input, threshold `<=128`, 32×32 tensors, ONNX bytes,
 Line-derived regions, label-0 exclusion, scoring/modal rules, provenance,
 Phase 3 CSP safety, CSP/ML/Web algorithms, or any frozen expected value.
 
-## Remaining release blockers and Phase 7 gate
+## Remaining release blockers and independent host-qualification gates
 
 The following are not resolved by implementation tests:
 
@@ -336,7 +337,23 @@ The following are not resolved by implementation tests:
 - full host performance/cancel latency is unmeasured;
 - package action/license/vendor cleanup and platform wheels remain Phase 8 work.
 
-Phase 6 is therefore **implementation complete but host verification
-incomplete**, not fully complete or release-ready. Phase 7 entry criteria are
-**not satisfied** because the required real-Krita matrix and the acceptable
-Undo/data-safety decision remain open. Stop here; do not begin CSP host work.
+Phase 6 implementation is therefore **complete**. Phase 6.5 real-Krita
+qualification remains **OPEN and BLOCKED** solely because this environment has
+no executable real Krita host. Absence of a host is not a PASS: every A–V
+real-host row remains **UNTESTED**, the one-step Undo issue remains a Krita
+release blocker, and Phase 6.5 must pass for the tested support matrix before
+any Krita artifact is considered release-qualified.
+
+Phase 7 CSP/CELSYS feasibility is technically independent of the unavailable
+Krita host and may proceed in parallel when separately authorized. Allowing
+Phase 7 to start does not mean that Phase 6.5 passed and does not establish
+Krita release readiness. Phase 7 was not started in this phase.
+
+Phase 8/release qualification must preserve two separate host gates:
+
+- Krita requires successful Phase 6.5 real-host qualification for its tested
+  support matrix;
+- CSP requires successful Phase 7 qualification for its tested support matrix.
+
+One host's successful gate must not be used as evidence that the other host or
+artifact is release-qualified.
