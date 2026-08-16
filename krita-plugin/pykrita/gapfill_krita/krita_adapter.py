@@ -382,12 +382,14 @@ class CanvasColorBridge:
 
     @staticmethod
     def _managed(space: tuple[str, str, str], rgb: Rgb, alpha: int = 255):
+        if space[:2] != (SUPPORTED_MODEL, SUPPORTED_DEPTH):
+            raise RuntimeError("Canvas color conversion requires RGBA/U8.")
         managed = ManagedColor(*space)
         components = managed.components()
         components[:4] = [
-            rgb[0] / 255.0,
-            rgb[1] / 255.0,
             rgb[2] / 255.0,
+            rgb[1] / 255.0,
+            rgb[0] / 255.0,
             alpha / 255.0,
         ]
         managed.setComponents(components)
@@ -395,7 +397,7 @@ class CanvasColorBridge:
 
     @staticmethod
     def _components_rgb(managed) -> Rgb:
-        values = managed.components()
+        values = managed.componentsOrdered()
         return tuple(max(0, min(255, int(round(float(value) * 255.0)))) for value in values[:3])
 
     def source_rgb_to_qcolor(self, rgb: Rgb) -> QColor:
