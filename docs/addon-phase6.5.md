@@ -3,12 +3,12 @@
 Date: 2026-08-15–16 (Asia/Tokyo)
 
 Qualification sources: `ed7d2e1bc96c14e0f80908bc7d3a01a872a15f55`, the
-committed Row-A lifecycle repair, plus the bounded Row-F ManagedColor repair
-in the checkpoint worktree based on
-`454d345cdaa10bb9f2560ee1fe1ffcc3721bbc98`.
+committed Row-A lifecycle repair, and the bounded Row-F ManagedColor repair
+now recorded at `827e66ffe00fca3ed4387e4f896a41e479c5322e` (originally
+prepared from checkpoint `454d345cdaa10bb9f2560ee1fe1ffcc3721bbc98`).
 
-Status: **Rows A–F PASS** in the recorded real-host cell. Rows G–V
-remain **UNTESTED**. Phase 6.5 remains open, and this record is not a Krita
+Status: **Rows A–F PASS; Row G FAIL; Rows H–V UNTESTED** in the recorded
+real-host cell. Phase 6.5 remains open/failed, and this record is not a Krita
 release qualification.
 
 ## Host and historical failed artifact
@@ -1101,3 +1101,988 @@ remains **OPEN** and is not a release qualification. Row I remains an
 **UNTESTED release blocker** because the successful apply reports
 `atomic_undo: false` and no Undo test was performed. Rows G–L may proceed under
 separate authorization; none was begun here.
+
+## Row G — Apply Selected PASS; Apply All real-host failure
+
+The G–L harness was executed once against committed baseline
+`827e66ffe00fca3ed4387e4f896a41e479c5322e` and the already Row-F-qualified
+artifact
+`gapfill-krita-phase6.5-rowF-managedcolor-win-x64-py313-454d345-worktree.zip`,
+SHA-256 `bf19c8dc2fb3e44f160614f61fa189d52dac62bc24790b0094170ccd93fbe146`.
+The harness is `/tmp/gapfill_phase65_gl_host_rowfpass_827e66f.py`, SHA-256
+`b2433e929baa3502b2f568b301786c1dd694dc21927a79069acd613ebe2207d3`.
+The real host remained Windows 11 AMD64, Krita 5.3.3 (`git 858d352`), Qt
+5.15.7, embedded CPython 3.13.5, and PyQt5 5.15.11.
+
+The preserved guarded capture is
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-gl-rowfpass-827e66f`.
+It must not be overwritten or rerun. Its principal artifacts are:
+
+| Artifact | Bytes | Modification/change timestamp (+09:00) | SHA-256 |
+|---|---:|---|---|
+| `host-results.json` | 61,066 | 2026-08-16 09:22:13.1075249 | `c55fc40eadda59c87766268eb36fc86980219261e51da60090c7fc4652111c2a` |
+| `row-g-apply-selected.npz` | 2,777 | 2026-08-16 09:22:12.4476933 | `8eeaae330e1c60a957f46d00f1e8aa71dae7b3ac3dc89a70d87406f6f5014e6d` |
+| `row-g-apply-all-failure.npz` | 2,824 | 2026-08-16 09:22:13.0595248 | `4d49bd5364c342af484baa156f2c594011d7fb4672ca72d4a7ac9fcc7d6d478d` |
+| `krita-before.log` | 33,193 | copied before Row G | `c0364ecad2c7f50f183f2f99e01102b3b67a11f91eb3b5581cfee2b13e74bb2b` |
+| `krita-failure.log` | 34,245 | copied after failure | `b4824247101760bb71db34a4ab70c71ffd5c6805f1e5ab0196dc305aa86cf062` |
+| `krita-sysinfo-before.log` / `krita-sysinfo-failure.log` | 8,334 each | unchanged | `3f7a0c625c87d4ef678a1fddb4fcbf780693bd1e3a89d2b95a287ae7de89b9c5` |
+
+The JSON status is `STOPPED_ROW_G_FAILURE`. Its traceback is exactly
+`row_g()` → `row-g-apply-all` → `_run_apply_case()` → `_assert_apply()` →
+production `apply_gap_colors()` →
+`RuntimeError("Krita's fill action did not produce the exact requested target pixels.")`.
+The log delta contains only the two expected loads of the disposable 64×64
+fixture and no relevant Krita error or traceback.
+
+### Validated subcase state
+
+The harness did not contain a separate Row-G single-gap apply; Row F already
+qualified that primitive. Row G's actual subcases are therefore:
+
+| Row-G subcase | Result | Exact evidence |
+|---|---|---|
+| standalone individual apply | **NOT RUN** | no such Row-G subcase exists |
+| corrected decision | **PASS** | the red learned decision was explicitly corrected to `[211,47,29]`; the other decision stayed unchanged; exact output contains the correction at all nine intended pixels |
+| Apply Selected | **PASS** | 18 expected and 18 actual changed indices; full target equals expected byte-for-byte; Line/Guide unchanged |
+| Apply All after required fresh rescan | **FAIL** | production exact-target postcondition raised; failure NPZ preserves BEFORE, EXPECTED_AFTER, post-containment target, Line, and Guide |
+
+Because `row_g()` publishes its detailed row record only after both subcases
+return, the later Apply-All exception prevented the local Apply-Selected JSON
+record from being attached to `rows.G`. The hash-identified harness plus the
+completed `row-g-apply-selected.npz` are the preserved evidence for that
+subcase; it must not be represented as an absent execution.
+
+Apply Selected itself used two sequential native fill actions, not one. In
+application-plan order it wrote the nine-pixel blue gap at indices
+`1560–1562, 1624–1626, 1688–1690` to `[13,117,241,255]`, then wrote the
+nine-pixel explicitly corrected red gap at indices
+`2990–2992, 3054–3056, 3118–3120` to `[211,47,29,255]`. The exact expected and
+observed full arrays are identical. This proves that a generic “second native
+action always fails” explanation is false.
+
+Rows H–L were assigned `UNTESTED` with reason “stopped after Row G failure.”
+The capture says `rows_m_through_v: UNTESTED_NOT_STARTED`; no H–V test was
+entered.
+
+### Reconstructed failing Apply-All plan
+
+The failing fixture is the generated disposable `multiple-colors.kra`,
+SHA-256 `3df7b2087c535d2e4eaab4409f3becb3379886bca8fc82f452bee63148911d79`:
+64×64 RGBA/U8, `sRGB-elle-V2-srgbtrc.icc`, origin-aligned Coloring, Line Art,
+and Guides paint layers, with no semantic selection. The disposable and source
+copies match that hash.
+
+Detection orders gaps by first flat index. The harness requires every scanned
+gap to have `learned` provenance, and Apply All selects every gap without an
+explicit correction. Candidate and application indices are identical because
+there is no selection restriction. Reconstructing the frozen detector output,
+fixture geometry, full EXPECTED_AFTER array, and production grouping gives:
+
+| Order / ID | Bounds; candidate/application indices | Provenance | Prediction / correction / final | Eligible |
+|---|---|---|---|---|
+| 1 / `gap-0` | `[39,13,52,26]`; every `y*64+x` for `y=13..25`, `x=39..51` (169 pixels) | `learned` | `[13,117,241]` / none / `[13,117,241]` | yes |
+| 2 / `gap-1` | `[24,24,27,27]`; `1560–1562, 1624–1626, 1688–1690` (9 pixels) | `learned` | `[13,117,241]` / none / `[13,117,241]` | yes |
+| 3 / `gap-2` | `[46,46,49,49]`; `2990–2992, 3054–3056, 3118–3120` (9 pixels) | `learned` | `[227,61,17]` / none / `[227,61,17]` | yes |
+
+For avoidance of ambiguity, the complete 169-index `gap-0` set is the
+inclusive flat ranges
+`871–883, 935–947, 999–1011, 1063–1075, 1127–1139, 1191–1203, 1255–1267,
+1319–1331, 1383–1395, 1447–1459, 1511–1523, 1575–1587, 1639–1651`.
+
+`build_application_plan()` preserves first color insertion order and sorts the
+indices within each color group. It therefore produced exactly two groups and
+production invoked exactly two native fill actions:
+
+| Native action / group | Ordered source RGB | Target-profile RGB | Exact indices | Pixels |
+|---|---|---|---|---:|
+| 1 | `[13,117,241]` | `[13,117,241]` | union of all `gap-0` ranges above plus `1560–1562, 1624–1626, 1688–1690`, sorted | 178 |
+| 2 | `[227,61,17]` | `[227,61,17]` | `2990–2992, 3054–3056, 3118–3120` | 9 |
+
+For the supported sRGB RGBA/U8 bridge, group 1's ordered
+`[13,117,241,255]` is supplied to ManagedColor internal components as
+`[241,117,13,255]/255`; group 2's ordered `[227,61,17,255]` is supplied as
+`[17,61,227,255]/255`. The target-profile values above are independently
+confirmed by the captured expected full image; this evidence does not reopen
+the Row-F ManagedColor repair.
+
+### BEFORE, EXPECTED_AFTER, and containment
+
+The complete Coloring BEFORE raw bytes have SHA-256
+`65bb88d6d6e39df02623588a1acb940cf2133d766416674f30e00c23106af383`
+(shape-aware image SHA-256
+`b62573d0c81373419cf6fc19ac3e85f9fb4a4907ae2725f4b65f9981ce348d9d`).
+Every one of the 187 intended pixels is `[0,0,0,0]` in BEFORE. The complete
+EXPECTED_AFTER raw bytes have SHA-256
+`f28c2d02c639512ab21a4602fdd6789ae49d298743695cb726fca018cca51bf8`
+(shape-aware
+`f9ad86d8e72a8e544a6fc5dfcc72fd78b3a4990b94690fa0a15b311780dae5b5`).
+Its complete expected-changed set is the exact union of the three gap sets
+listed above: 187 pixels. Group 1's 178 pixels become
+`[13,117,241,255]`; group 2's nine pixels become `[227,61,17,255]`; all other
+Coloring pixels remain byte-identical.
+
+Line Art and Guides were expected unchanged. Their before and post-failure raw
+SHA-256 values respectively remain
+`05045b3e38a18a35705b95e3620d8f57c2294fc74b5fc2ce98c34900b82c7842`
+and `aedd228999843fa6a7930ce1476373e002e242ac38ae8cce2864546603e7e2e3`.
+The tree contains no other fixture content layer, and no unrelated layer was
+expected to change.
+
+The failing transient target is **not available**. Production reads it,
+detects inequality, enters its containment block, conditionally restores the
+complete BEFORE array if the target differs, restores host state, and only then
+returns control to the harness. The failure NPZ therefore contains the
+post-containment target. It is byte-identical to BEFORE and must not be
+interpreted as evidence that the native actions were no-ops. The capture cannot
+distinguish whether the conditional pixel-recovery write was required; it does
+prove that the containment/recovery check completed without its own exception
+and that no failed Coloring mutation escaped. Line and Guide are byte-exact,
+semantic no-selection and the active Coloring target were restored, and the
+foreground returned to black. Classify **Row-G correctness FAIL; failure
+containment PASS; conditional recovery-write branch UNOBSERVED**.
+
+### First-divergence boundary and prepared diagnostic
+
+The current capture has no state between native group actions. It therefore
+does not identify the first divergent group, selection, foreground, or timing
+boundary. No group-specific selection bytes or foreground readbacks were
+captured. The action path is known only to have completed both
+`trigger()` → `waitForDone()` iterations before the exact final comparison.
+Apply Selected proves the same two-action structure succeeds for two separate
+nine-pixel masks and two colors. Apply All adds the Guide-enclosed `gap-0` and
+coalesces it with `gap-1` into one disconnected 178-pixel first-group mask.
+That difference is demonstrated; its causal role is not.
+
+The precise classification before running the diagnostic was therefore
+**MULTI_ACTION_HOST_BEHAVIOR_UNRESOLVED**. Selection installation/readback,
+foreground consumption, action dispatch, group-1 multi-component behavior,
+and cross-action sequencing remain distinguishable live hypotheses.
+Application planning and color conversion match the frozen inputs and exact
+EXPECTED_AFTER, but the absent transient prevents ruling them out solely from
+host bytes. A production repair is not yet unambiguous and no production code
+was changed.
+
+The prepared one-shot diagnostic is
+`/tmp/gapfill_phase65_rowg_multigroup_diagnostic_827e66f.py`, SHA-256
+`631c2a1037c7673cdf5bb20bff07dad5cb5fac56b5ceb137f4294680383a1ea1`.
+It has **not** been executed and is not qualification evidence. It refuses to
+overwrite
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-multigroup-diagnostic-827e66f-v1`,
+which was confirmed absent at preparation time. It revalidates the preserved
+failure, installed artifact tree, Row-F capture, frozen hashes, fixture, model,
+and exact two-group plan; opens only a copied disposable fixture; and does not
+call production `apply_gap_colors()`.
+
+For each group it installs and reads back the exact selection, sets and reads
+back both internal and ordered foreground components, and captures target,
+Line, Guide, active node, and selection before trigger, immediately after
+trigger, and after `document.waitForDone()`. It does not pump unrestricted Qt
+events in the action sequence. It preserves the raw arrays in NPZ, restores
+the complete original target and user state, closes without saving, and keeps
+Rows H–V outside its execution path. Static `py_compile` and Ruff checks pass,
+an AST check found zero `apply_gap_colors()` calls, and the guarded output was
+absent. It was prepared for one manual Scripter invocation and had not been
+invoked at that point. Its subsequent execution and restoration-harness defect
+are recorded below.
+
+The frozen fixture manifest, ONNX model, and sidecar remain respectively
+`6243be8f2a26b383ef0293bd585318c0072011ccabf959cb25f42127aba5908c`,
+`8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78`,
+and `2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5`.
+
+The authoritative matrix is now **A–F PASS; G FAIL; H–V UNTESTED**. Phase 6.5
+remains **OPEN / FAILED** and Krita is not release-qualified. Row I was not
+begun; its one-step Undo requirement remains an independent UNTESTED release
+blocker. The failing Apply-All plan used two native fill actions, an important
+future Row-I observation but not evidence that Row I itself failed. Rows H and
+I must not begin until the Row-G failure is resolved and explicitly
+requalified.
+
+## Row-G multi-group diagnostic #1 — observation PASS, containment FAIL
+
+The prepared diagnostic was executed once and must not be rerun. Its guarded
+output is
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-multigroup-diagnostic-827e66f-v1`.
+The final `DIAGNOSTIC_FAILED` status records a cleanup-harness exception, not a
+second Row-G execution or matrix-row failure. The action observations were
+already complete and persisted before restoration began:
+
+| Artifact | Bytes | Modification/change timestamp (+09:00) | SHA-256 |
+|---|---:|---|---|
+| `diagnostic-results.json` | 689,059 | 2026-08-16 09:39:11.2663074 | `ee7293d90d93b1f4f3551120af248bde1562e3ab9b51ce006af3860fae26b96a` |
+| `diagnostic-arrays.npz` | 12,949 | 2026-08-16 09:39:11.2553014 | `190f1aa4baed638ecf209e422de7d09c9c9f124cd736896a4626b76b29df2daa` |
+| copied `multiple-colors.kra` | 43,251 | 2026-08-16 09:39:09.0419323 | `3df7b2087c535d2e4eaab4409f3becb3379886bca8fc82f452bee63148911d79` |
+| `krita-before.log` | 34,245 | copied before diagnostic | `b4824247101760bb71db34a4ab70c71ffd5c6805f1e5ab0196dc305aa86cf062` |
+| `krita-failure.log` | 34,807 | copied after failure | `9a933c69bd7fe6f2d7f9b037c6c0c477dafa1812999bd74ddadec33fd0721e19` |
+| both sysinfo copies | 8,334 each | unchanged | `3f7a0c625c87d4ef678a1fddb4fcbf780693bd1e3a89d2b95a287ae7de89b9c5` |
+
+The harness was the hash-identified
+`/tmp/gapfill_phase65_rowg_multigroup_diagnostic_827e66f.py`, SHA-256
+`631c2a1037c7673cdf5bb20bff07dad5cb5fac56b5ceb137f4294680383a1ea1`.
+Its baseline revalidated the earlier Row-G failure, Row-F capture, 892-file
+artifact, installed tree, model, fixture, and all frozen hashes. The source and
+copied fixture still independently hash to the value above. The log delta
+contains only the expected disposable fixture load and no relevant Krita
+error.
+
+### Execution and persistence boundary
+
+Both groups completed every intended action stage. For each group, selection
+installation/readback, foreground installation/readback, before-trigger raw
+capture, `action.trigger()`, immediate raw capture, `document.waitForDone()`,
+and after-wait raw capture are **EXECUTED_AND_PERSISTED**. The trigger calls
+are established by source order and the persisted immediate checkpoints that
+follow them; the wait calls are established by the subsequent persisted
+after-wait checkpoints. There is no executed-but-unpersisted or unexecuted
+group stage.
+
+After Group 2, the diagnostic also persisted the complete
+`final_before_recovery_coloring` array, raw SHA-256
+`009cfa849ca5001918acc93755d448e56dd0f90bd2e260485d21314bf0fbcec0`,
+then set status `DIAGNOSTIC_CAPTURED` and rewrote both JSON and NPZ. This was
+the last successfully persisted phase before `_restore()` was called. The
+outer exception handler later changed the final JSON status to
+`DIAGNOSTIC_FAILED` while retaining all checkpoints and arrays.
+
+### Group 1 — first exact divergence
+
+Group 1's installed selection is an exact 4,096-byte full-document mask at
+SHA-256 `db46885e3e247d2c9b909c774d0b67a836a972503be60bd3e649343e29867484`.
+It contains only values 0/255 and exactly 178 full-strength pixels. The
+nonzero set equals the application plan byte-for-byte and has exactly two
+four-connected components:
+
+- 169 pixels at bounds `[39,13,52,26]`; and
+- 9 pixels at bounds `[24,24,27,27]`.
+
+The host selection metadata bounds are `(x=24, y=13, width=28, height=14)`.
+Metadata breadth does not hide an expanded mask: the authoritative full mask
+readback remains the exact sparse two-component selection before trigger,
+immediately after trigger, and after wait.
+
+The installed foreground is RGBA/U8 sRGB. Its exact `components()` are
+`[0.9450980424880981, 0.4588235318660736, 0.05098039284348488, 1.0]` and its
+exact `componentsOrdered()` are
+`[0.05098039284348488, 0.4588235318660736, 0.9450980424880981, 1.0]`, or
+ordered `[13,117,241,255]` after U8 quantization. The active node remained the
+intended Coloring UUID `{50e9f493-3640-44e7-8037-542594f7f62b}`.
+
+Before trigger and immediately after trigger the target was byte-identical to
+BEFORE at raw SHA-256
+`65bb88d6d6e39df02623588a1acb940cf2133d766416674f30e00c23106af383`:
+zero observed changes and all 178 expected pixels still missing. After
+`waitForDone()`, the target raw SHA-256 was
+`a0b5ecb05aa2c610ab1d8189659bc285bfe012a4d723eaecf033f6f2ceaba6bd`.
+It had 321 changed pixels:
+
+- all 178 selected pixels were exactly `[13,117,241,255]`;
+- no selected pixel was missing or the wrong color;
+- 143 unselected transparent pixels had their RGB bytes changed to
+  `[13,117,241]` while alpha remained 0; and
+- there were no other values or changes.
+
+The exact unexpected set is `x=32..38` and `x=52..55`, for every
+`y=13..25`: 11 pixels per row × 13 rows = 143. Thus the large selected
+component appears in the raw changed footprint as a 312-pixel rectangle at
+bounds `[32,13,56,26]`, while the separate nine-pixel component remains exact
+at `[24,24,27,27]`. Both disconnected selected components were filled
+correctly. The native action additionally wrote foreground RGB under zero
+alpha in horizontally padded, unselected pixels around the large component.
+The full selection readback proves this is not selection-mask expansion.
+
+Line Art and Guide arrays remained byte-exact at every stage, respectively
+`05045b3e38a18a35705b95e3620d8f57c2294fc74b5fc2ce98c34900b82c7842`
+and `aedd228999843fa6a7930ce1476373e002e242ac38ae8cce2864546603e7e2e3`.
+
+### Group 2 — exact sequential action
+
+Group 2 began with the complete Group-1 result unchanged. Its installed
+selection is an exact nine-pixel, one-component mask at indices
+`2990–2992, 3054–3056, 3118–3120`, bounds `[46,46,49,49]`, raw SHA-256
+`cfd6e7fd5e33b02160e4ccc846cc962ed4fedb03580cc79e8bf0033206ada068`.
+It contains only 0/255, exactly nine full-strength pixels, and host metadata
+`(x=46, y=46, width=3, height=3)`.
+
+The Group-2 foreground's exact `components()` are
+`[0.06666667014360428, 0.239215686917305, 0.8901960849761963, 1.0]` and its
+exact `componentsOrdered()` are
+`[0.8901960849761963, 0.239215686917305, 0.06666667014360428, 1.0]`, or
+ordered `[227,61,17,255]`. The active target remained correct. Before trigger
+and immediately after trigger, the target retained Group 1's raw SHA-256
+`a0b5ecb05aa2c610ab1d8189659bc285bfe012a4d723eaecf033f6f2ceaba6bd`.
+After wait, exactly the nine Group-2 pixels were added as
+`[227,61,17,255]`; no new unexpected pixel was added, and the entire Group-1
+footprint—including its 143 RGB-under-zero-alpha writes—remained byte-exact.
+The final target therefore has 330 changes from BEFORE: all 187 intended
+pixels correct, zero missing, and the same 143 unexpected transparent RGB
+writes. Line and Guide remained unchanged.
+
+Immediate reads were unchanged for both actions and each mutation was visible
+after `waitForDone()`. This confirms the previously qualified
+`trigger()` → `waitForDone()` synchronization boundary here. Group 2's exact
+selection, foreground, target, and preservation of Group 1 rule out a stale
+second selection, stale first foreground, later overwrite, and generic
+multi-action sequencing failure.
+
+### Production comparison and superseding classification
+
+The diagnostic used the same frozen scan, prediction, group ordering,
+preconverted ManagedColor objects, target activation, exact Selection
+construction/replacement, `action.trigger()`, and `waitForDone()` primitives as
+production. It added read-only selection/foreground/array checkpoints and an
+immediate read before each wait, but no Qt event pump. Its final raw mismatch
+is precisely sufficient to explain production Apply-All's exact postcondition
+failure: production requires the complete target to equal EXPECTED_AFTER, and
+the 143 unselected RGB changes violate that invariant even though they remain
+visually transparent.
+
+The first demonstrated divergence is Group 1 and the superseding
+classification is **NATIVE_FILL_UNSELECTED_TRANSPARENT_RGB_WRITE**. More
+specifically, the real Krita foreground-selection fill action writes
+foreground RGB under alpha 0 into an observed horizontally padded footprint
+outside the exact host selection. This rejects the disconnected-selection and
+sequential-state hypotheses. The application plan, selection bytes,
+ManagedColor ordering, active target, waiting, and Group-2 behavior are exact.
+No production repair is made here.
+
+### Separate restoration-harness failure and containment
+
+After all evidence was persisted, `_restore()` failed on its first statement:
+
+```text
+KeyError: '_rgba_to_bgra_bytes'
+```
+
+The diagnostic dynamically executed definitions from the preserved G–L
+harness into `helpers`, then assumed that namespace contained
+`_rgba_to_bgra_bytes`. It did not: that private function exists in production
+`krita_adapter.py`, while the G–L harness imported only
+`apply_gap_colors`, `canvas_color_bridge`, `iter_nodes`, `read_node_rgba`, and
+`snapshot_host`. No extraction filtering or namespace mismatch occurred; this
+was a diagnostic-only **HELPER_IMPORT_OMISSION / INVALID_HELPER_LOOKUP**.
+Because the lookup was the first restoration statement, pixel and editor-state
+restoration did not begin. Production is not implicated.
+
+Diagnostic observation is **PASS**; diagnostic containment is **FAIL**. At the
+failed cleanup boundary, the disposable view still held the Group-2 foreground,
+no eraser, no global alpha lock, normal blend, opacity 1, flow 1, the Group-2
+selection, active Coloring, and the final transient target. However, a nested
+`finally` still called `setModified(False)` and `document.close()`. The
+disposable document was therefore closed without saving; neither its changed
+pixels nor its diagnostic selection remain in an open document, and both the
+source and copied `.kra` files remain byte-exact at
+`3df7b2087c535d2e4eaab4409f3becb3379886bca8fc82f452bee63148911d79`.
+The original user document was never targeted.
+
+Foreground/view-state restoration did not run before the disposable view was
+closed. The capture cannot establish whether Krita propagated those
+view-specific values to the surviving user view. The same Krita process
+(PID 43608) remained running when checked read-only. No document cleanup is
+normally required because code order proves the disposable closed. If a
+`multiple-colors.kra` diagnostic document is nevertheless visibly open, close
+it **without saving**. Otherwise, only restore foreground/tool settings
+manually if the GUI visibly differs from the desired user state; do not touch
+document pixels.
+
+No diagnostic v2 or further host run is necessary to establish this root
+cause: all action and final transient evidence is complete. A later
+mutation-strategy experiment is a separate diagnostic, not a rerun of this
+root-cause capture. This event does not change the matrix. The
+authoritative state remains **A–F PASS; G FAIL; H–V UNTESTED**. Phase 6.5
+remains **OPEN / FAILED**, Krita is not release-qualified, and Row I's
+one-step-Undo requirement remains an independent UNTESTED release blocker.
+
+## Row G mutation-strategy source audit and prepared COPY diagnostic
+
+This subsection records source/design evidence only. No additional host
+diagnostic was executed, no production repair was made, and no matrix row was
+reclassified. Installed `krita-sysinfo.log` identifies the qualified binary as
+Krita 5.3.3, Git revision `858d352`, Qt 5.15.7, Windows x86-64. The installed
+`krita.pyi` exposes `View.setCurrentBlendingMode()` and
+`View.currentBlendingMode()`; its SHA-256 is
+`9246ab2133d16f4662f4fd094b88be35715a8809d4deb3b170069c1f5ba7850c`.
+The source audit used exact upstream commit
+`858d352e52e68831693067763b9cdaf8bb9a05ce`.
+
+The native action path is:
+
+```text
+fill_selection_foreground_color
+  -> KisFillActionFactory::run("fg", ...)
+  -> FillProcessingVisitor(selectionOnly = true)
+  -> selectionFill()
+  -> KisPainter(target, selection).bitBlt(...)
+```
+
+`KisFillActionFactory` snapshots the current canvas resources. The snapshot
+reads `CurrentEffectiveCompositeOp`, and `setupPainter()` assigns that value to
+the painter. Production currently forces public view mode `normal`, so the
+demonstrated fill used the native Normal/Over operation rather than a
+fill-specific fixed operation. `selectionFill()` fills a temporary composition
+source across `selection->selectedRect()` and passes the real selection
+projection as the `bitBlt` mask.
+
+The exact RGBA/U8 Normal fast path explains the observed collateral footprint.
+It multiplies source alpha by each mask byte. When an SIMD batch has an
+all-transparent destination, however, it sets `src_blend` to one for the whole
+batch. It then copies source RGB for every lane while writing the mask-derived
+alpha. A zero-mask lane can therefore receive foreground RGB and retain alpha
+zero. The observed x-aligned padding around the selected rectangle is
+consistent with this vector path. This source explanation does not replace the
+authoritative real-host byte capture.
+
+COPY is a supported public candidate, not merely a discovered string literal.
+The exact installed revision's RGBA/U8 color space registers standard
+`KoBgrU8Traits` operations; that specialization constructs and registers
+`KoOptimizedCompositeOpCopy32` under the `copy` identifier. Public LibKis
+routes `setCurrentBlendingMode()` into the view resource provider used by the
+fill snapshot. In COPY's vector implementation, mask zero is tracked per lane
+and `PixelStateRecoverHelper::recoverPixels()` restores the original color
+channels; alpha also remains the original value. With production's generated
+application masks—fresh full-document arrays initialized to 0 with exactly the
+application-plan indices set to 255—this is semantically compatible with the
+frozen apply contract: mask 255 receives the exact foreground RGBA with alpha
+255, and mask 0 remains byte-exact. Actual `copy` setter/readback and mutation
+behavior still require the prepared real-host diagnostic; source evidence is
+not recorded as a host PASS.
+
+One focused, not-yet-executed diagnostic was prepared at
+`/tmp/gapfill_phase65_rowg_copy_diagnostic_827e66f.py`, SHA-256
+`ed0e1d42552061bcec65ee39432a87994085f41c38f9d2d93a790ad7aeb33b00`.
+Its guarded output directory is
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-copy-diagnostic-827e66f-v1`.
+It refuses overwrite and uses three separate byte-exact disposable copies of
+`multiple-colors.kra`:
+
+- Case A requests and reads back `normal`, applies Group 1 only, and requires
+  the known 178 correct opaque pixels plus the exact 143-pixel
+  RGB-under-alpha-zero footprint.
+- Case B requests and reads back `copy`, applies Group 1 only, and requires
+  exactly 178 changes, zero missing/unexpected pixels, and exact
+  `[13,117,241,255]` output.
+- Case C requests and reads back `copy`, applies Group 1 then Group 2, and
+  requires exactly 187 changes, zero missing/unexpected pixels, and exact
+  per-group colors.
+
+Every case records requested/read-back composite mode, full selection bytes,
+foreground `componentsOrdered()`, active target, target before/after
+`waitForDone()`, exact changed/missing/unexpected/wrong-RGBA records, and Line
+and Guide hashes. It does not call production `apply_gap_colors()`, contains no
+Qt event pump, and does not execute Rows H–V. Each transient document is
+restored and verified before it is closed without saving. Recovery uses a
+self-contained local RGBA-to-BGRA converter rather than the invalid prior
+helper lookup. Python syntax compilation, AST scope checks, and a packed-byte
+conversion/round-trip vector all passed. The diagnostic has **not** been run,
+so neither `NATIVE_COPY_CANDIDATE_PASS` nor
+`NATIVE_COPY_CANDIDATE_FAIL` is assigned yet. It is prepared for one manual
+Scripter invocation.
+
+The separate Undo audit found the native one-action boundary explicitly.
+Every `KisFillActionFactory::run()` allocates a new
+`KisStrokeStrategyUndoCommandBased("Flood Fill Layer", ...)`, calls
+`image->startStroke()`, adds the processing/update jobs, and calls
+`image->endStroke()`. That strategy creates and publishes one undo macro for
+that stroke. A multi-color GapFill currently invokes the native action once per
+color group, so N color groups have an apparent N-stroke/N-history-entry
+architecture. A complete search of the installed public Python stub and the
+exact public LibKis `Document`/`View` headers found no supported begin/end undo
+macro, image undo-stack accessor, or equivalent transaction API:
+**NO_PUBLIC_UNDO_GROUPING_API_FOUND**. This is architecture evidence only;
+Row I remains **UNTESTED** and a release blocker.
+
+The authoritative state remains **A–F PASS; G FAIL; H–V UNTESTED**. Phase 6.5
+remains **OPEN / FAILED**. Exact-byte verification is unchanged, direct
+`Node.setPixelData()` remains only an unqualified fallback, and no production
+source changed in this audit/preparation step.
+
+## Row G COPY candidate real-host result and architecture boundary
+
+The focused diagnostic above was executed once in the qualified Windows 11
+Pro x64 / Krita 5.3.3 host and stopped as designed on the first COPY
+exact-byte failure. This subsection supersedes the preceding pre-execution
+status and its source-only expectation that integer RGBA/U8 COPY would recover
+mask-zero color channels. It does not reclassify any matrix row.
+
+The guarded capture is
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-copy-diagnostic-827e66f-v1`.
+Its principal evidence is:
+
+- `diagnostic-results.json`: 219,929 bytes, modified
+  2026-08-16 10:16:42.3020555 +09:00, SHA-256
+  `1c27c08f75e7fe9817e1277592a867f4d097ed2cab0509f5dc918a62edb43f9c`;
+- `diagnostic-arrays.npz`: 9,040 bytes, modified
+  2026-08-16 10:16:42.2980554 +09:00, SHA-256
+  `1d628f79254a35f898b97e1394ba06e1096c662ab2969b502324c086e526a370`;
+- `krita-before.log` / `krita-failure.log`: 34,807 / 35,923 bytes,
+  SHA-256 `9a933c69bd7fe6f2d7f9b037c6c0c477dafa1812999bd74ddadec33fd0721e19`
+  / `8bd227f0f45751073e8767f562131a6cbf74ab5c801908da53bdec2fc40e4429`;
+- `krita-sysinfo-before.log` and `krita-sysinfo-failure.log`: each 8,334
+  bytes and byte-identical, SHA-256
+  `3f7a0c625c87d4ef678a1fddb4fcbf780693bd1e3a89d2b95a287ae7de89b9c5`;
+  and
+- the three disposable `.kra` copies: each 43,251 bytes and each still
+  SHA-256
+  `3df7b2087c535d2e4eaab4409f3becb3379886bca8fc82f452bee63148911d79`.
+
+The JSON status is `DIAGNOSTIC_FAILED` with
+`NATIVE_COPY_CANDIDATE_FAIL`; the preserved traceback is
+`AssertionError: B_COPY_GROUP1 Group 1 failed exact intended-byte semantics.`
+Case A completed as `KNOWN_NORMAL_BASELINE_REPRODUCED`. Case B reached
+`action.trigger()` → `waitForDone()` and preserved the after-target, Line,
+Guide, and selection arrays before the exact comparison raised; it is
+therefore **FAIL**, although its in-progress case record remains `RUNNING`
+because the group record was appended only after that comparison. Restoration
+then completed. Persisted JSON contains no Case C record, the NPZ contains no
+Case C arrays, and the host log contains no Case C open/load event. The Case C
+file was only copied during preparation: **Case C was NOT RUN** and is not
+needed after the first-group failure.
+
+The NORMAL control is comparable and exact. Its 64×64 binary selection has
+raw SHA-256
+`db46885e3e247d2c9b909c774d0b67a836a972503be60bd3e649343e29867484`,
+178 full-strength pixels, and two four-connected components: the 13×13
+component at x=39–51, y=13–25 (169 pixels) and the 3×3 component at
+x=24–26, y=24–26 (9 pixels). NORMAL was requested and read back both before
+the trigger and after the wait. It changed 321 pixels: all 178 intended pixels
+became `[13,117,241,255]`, with zero missing or wrong intended pixels, and the
+known additional 143 pixels became `[13,117,241,0]`. That collateral footprint
+is exactly x=32–38 and x=52–55 for every y=13–25. Only the intended 178 alpha
+bytes changed; the additional 143 changes were RGB under alpha zero. Its final
+raw target SHA-256 is
+`a0b5ecb05aa2c610ab1d8189659bc285bfe012a4d723eaecf033f6f2ceaba6bd`.
+
+Case B used the identical before image and selection. The setter input was
+`copy`; the persisted immediate readback before the group was `copy`. The
+before-trigger readback was held in a local group record that was not appended
+after the assertion, but the script checked it for exact equality with `copy`
+*before* triggering the action. The preserved after-wait arrays prove that
+this guard passed. No separate normalized runtime identifier was captured.
+Exact source revision `858d352e52e68831693067763b9cdaf8bb9a05ce` and the
+mode-specific output close that evidence gap, so the result is
+**COPY_MODE_CONFIRMED_ACTIVE**, not merely a successful setter call.
+
+The Case B raw hashes are:
+
+- `BEFORE_B`:
+  `65bb88d6d6e39df02623588a1acb940cf2133d766416674f30e00c23106af383`;
+- intended exact `EXPECTED_B`:
+  `e385eedf81a568fe88fc9af1987b0ae87246bf52753efb17f3f760dac23f2390`;
+  and
+- `OBSERVED_B_AFTER_WAIT`:
+  `3389c75470814a8fe404f311dd6295dc91e12f3b841c88c89310e49219ab6459`.
+
+COPY also changed 321 pixels. All 178 selected pixels were exactly
+`[13,117,241,255]`: intended-correct=178, missing=0, wrong-intended=0, and
+unchanged-intended=0. The remaining 143 selection-zero pixels changed from
+`[0,0,0,0]` to `[255,255,255,0]`, with the exact same x=32–38 and x=52–55,
+y=13–25 footprint. Alpha changed only at the 178 intended pixels; all 143
+unexpected changes were RGB-under-zero-alpha changes. Relative to before,
+each RGB channel changed at 321 pixels and alpha at 178. Thus the pattern has
+the same selected result and collateral footprint as NORMAL, but a distinct
+collateral RGB value. It is specifically a selection-zero hidden-RGB
+replacement, not a selected-pixel error or an unselected-alpha change.
+
+The NORMAL and COPY after-images are not byte-identical. They differ at
+exactly those 143 collateral pixels and only in R, G, and B: NORMAL has
+`[13,117,241,0]`, while COPY has `[255,255,255,0]`; their alpha bytes are
+identical. The first divergence from the desired COPY contract is therefore
+the first selection-zero lane in that footprint, coordinate (32,13), where
+the expected `[0,0,0,0]` became `[255,255,255,0]`.
+
+The exact source establishes the complete resource path. LibKis
+`View::setCurrentBlendingMode("copy")` writes `CurrentCompositeOp` through
+`KisCanvasResourceProvider`. `KisCompositeOpResourceConverter` writes that
+value into the current paint-op preset, while
+`KisEffectiveCompositeOpResourceConverter` derives
+`CurrentEffectiveCompositeOp` from the same preset. Because the diagnostic
+sets eraser mode false, `effectivePaintOpCompositeOp()` returns the requested
+paint composite rather than `erase`. `KisFillActionFactory` then constructs a
+`KisResourcesSnapshot`, which reads `CurrentEffectiveCompositeOp`; its
+non-opacity fill branch changes only snapshot opacity to 1.0. `setupPainter()`
+installs the snapshotted composite ID. `FillProcessingVisitor::selectionFill()`
+does not enable its custom-blending override, and calls
+`KisPainter(target, selection).bitBlt(...)`. The fill action therefore does
+consume the requested `copy` operation; it does not normalize or override it
+to NORMAL.
+
+With a selection present, COPY cannot take `KisPainter`'s no-selection fast
+copy. `KisPainter` reads the selection projection and supplies it as the mask
+to `KoOptimizedCompositeOpCopy32`. All-mask-zero vector batches are no-ops and
+mask-255 selected lanes copy correctly. In a mixed vector batch over a
+transparent destination, however, a mask-zero lane has `newAlpha == 0`; the
+vector path divides premultiplied color by that zero alpha, substitutes the
+channel unit value for the resulting NaN, and writes alpha zero. The code then
+calls `PixelStateRecoverHelper`, but its generic integer-channel
+implementation is a no-op; only the `float` specialization restores original
+colors. For RGBA/U8 this yields `[255,255,255,0]` in the mixed mask-zero lanes.
+That source behavior exactly matches the preserved host bytes and corrects
+the earlier source-only mask-zero recovery claim.
+
+Containment passed. Case A recorded exact layer, selection, active-node,
+foreground, and view restoration, was closed without saving, and retained its
+fixture hash. Case B recorded the same exact restoration before the assertion
+propagated. Its `closed_without_saving` field was not reached, but the nested
+`finally` unconditionally calls `setModified(False)` and `document.close()`;
+the on-disk fixture is still byte-exact and no Case B document remained open.
+The restored view state was NORMAL, eraser off, global alpha lock off, opacity
+1.0, and flow 1.0. The before/failure host-log delta contains only the Case A
+and B open/load records and no host error. No manual cleanup is required.
+
+The production Row G defect remains
+**NATIVE_FILL_UNSELECTED_TRANSPARENT_RGB_WRITE**. The COPY candidate is more
+narrowly **NATIVE_COPY_CANDIDATE_FAIL_COLLATERAL_RGB**: COPY is active and all
+selected bytes are correct, but 143 unselected transparent pixels receive
+white hidden RGB. No additional composite-mode search or Case C run is
+justified.
+
+The remaining mutation choices and their Row I implications are:
+
+- Native fill followed by collateral restoration can reconstruct exact bytes
+  only by an additional raw write such as `Node.setPixelData()`. That write
+  cannot be included atomically in the action's private native stroke through
+  public LibKis, and the per-color native actions already create separate
+  strokes. This is incompatible with one GapFill Apply → one Undo in the
+  current Python architecture.
+- A full exact read/modify/`Node.setPixelData()` write is straightforward for
+  Row G, but exact LibKis source calls the paint device's `writeBytes()`
+  directly without creating an undo command. With no public undo-grouping API,
+  this is likewise incompatible with Row I in the current architecture.
+- Relaxing equality for RGB under alpha zero would be a frozen-specification
+  change, is not authorized, and would not resolve the independent multi-stroke
+  Undo issue.
+- A compiled Krita-side helper could, in principle, perform one exact
+  multi-color mutation inside one explicit native undo transaction. It is the
+  only remaining direction compatible in principle with both Row G and Row I,
+  but introduces ABI/Krita-version/platform packaging coupling and requires
+  its own real-host qualification.
+- The exact public LibKis/API audit found no other concrete mutation primitive
+  that supplies both exact bytes and a groupable user-visible undo command.
+
+Accordingly, the next boundary is an explicit architecture decision, not a
+production patch or another blend-mode experiment. If exact byte semantics and
+one-step Undo remain mandatory, the best-supported direction is a narrowly
+scoped native mutation/undo helper while retaining the Python acquisition,
+prediction, planning, and UI layers. No further public-action experiment is
+source-justified, so none was prepared. Row I remains **UNTESTED**; this source
+assessment is not a Row I execution or failure classification.
+
+The authoritative matrix remains **A–F PASS; G FAIL; H–V UNTESTED**. Phase 6.5
+remains **OPEN / FAILED**, Krita remains not release-qualified, and Rows H and
+I were not begun. The frozen fixture manifest, ONNX model, and sidecar hashes
+remain respectively
+`6243be8f2a26b383ef0293bd585318c0072011ccabf959cb25f42127aba5908c`,
+`8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78`,
+and `2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5`.
+No production source was changed, and future OFFF work remains out of scope.
+
+## Version-pinned native transactional-helper feasibility gate
+
+This bounded study was performed at repository commit
+`827e66ffe00fca3ed4387e4f896a41e479c5322e` on
+`qualify/csp-host-adapter`. Before this note, the only worktree changes were
+the existing Phase 6.5 evidence changes in this file and
+`krita-plugin/host_tests/matrix.json`; there were no staged changes. No
+installed plugin file, production source, fixture, model, or matrix status was
+changed by the study.
+
+The installed Row-F-qualified artifact remains
+`/tmp/gapfill-krita-phase6.5-rowF-managedcolor-win-x64-py313-454d345-worktree.zip`,
+47,842,605 bytes, 1,007 ZIP entries / 892 file payloads, SHA-256
+`bf19c8dc2fb3e44f160614f61fa189d52dac62bc24790b0094170ccd93fbe146`.
+A fresh read-only comparison found all 892 payloads present and byte-exact in
+the user resource tree, with no non-cache extra; the 116 extra files were all
+recognized `__pycache__`/bytecode products. The plugin remains under
+`C:\Users\marck\AppData\Roaming\krita\pykrita\gapfill_krita`. The last
+authoritative host record remains Windows 11 build 26200 AMD64, Krita 5.3.3
+(`git 858d352`), Qt 5.15.7, embedded CPython 3.13.5 AMD64, and PyQt5 5.15.11.
+The current WSL-to-Windows process query failed at the pre-existing vsock
+boundary, so this study does not make a new process-liveness claim.
+
+The frozen fixture manifest, ONNX model, and sidecar hashes were rechecked and
+remain respectively
+`6243be8f2a26b383ef0293bd585318c0072011ccabf959cb25f42127aba5908c`,
+`8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78`,
+and `2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5`.
+
+### Decision
+
+The exact classification is:
+
+> **NATIVE_TRANSACTION_HELPER_FEASIBLE_BUT_VERSION_PINNED**
+
+The one preferred integration is a **CPython 3.13 native extension (`.pyd`)
+inside `gapfill_krita/`**, built against the exact Krita 5.3.3 / git `858d352`
+Windows x64 ABI. It accepts only simple Python integers, strings, and byte
+buffers, resolves Krita objects itself, and exposes one synchronous exact-patch
+call. It does not accept PyKrita/SIP wrapper pointers. Detection, prediction,
+decisions, selection eligibility, stale provenance, and color conversion stay
+in Python.
+
+This is an architecture result, not a load or mutation result. No helper was
+implemented, built, installed, or loaded, and no native mutation was run. The
+missing local build surface is an explicit prerequisite for a future prototype,
+not evidence that the transaction design is unavailable.
+
+### Exact internal transaction and undo pattern
+
+The study used the exact public source revision
+`858d352e52e68831693067763b9cdaf8bb9a05ce`. The audited source archive was
+kept outside the repository as `/tmp/krita-858d352-source.tar.gz`, SHA-256
+`0039425577a8b27506bc332134714d4ed7a021e985ee0111029dea19ac6883a6`.
+The required installed DLL symbols are exported, including
+`KisTransactionData`, `KisTransactionBasedCommand`,
+`KisProcessingApplicator`, `KisStrokeStrategyUndoCommandBased`,
+`KisPaintDevice::readBytes()` / `writeBytes()` / `sequenceNumber()`,
+`KisLayerUtils::findNodeByUuid()`, and image start/end/cancel/wait methods.
+
+The source establishes this supported mechanism:
+
+1. `KisTransaction` obtains a tile memento from the target
+   `KisPaintDevice`.
+2. A `KisTransactionBasedCommand::paint()` implementation performs the work
+   once and returns `transaction.endAndTake()` as its `KUndo2Command`.
+3. One undo-command-based stroke executes that one command with
+   `BARRIER` / `EXCLUSIVE` scheduling and publishes one
+   `KisSavedMacroCommand` with the label `GapFill Apply`.
+4. `KisTransactionData` suppresses the first redo because the original write
+   already happened. Undo rolls the saved tile memento back; Redo rolls it
+   forward without rerunning GapFill or color conversion.
+5. The initial successful write explicitly calls
+   `targetNode->setDirty(affectedRunRects)`; transaction Undo/Redo derives its
+   dirty extent from the memento and invalidates it through
+   `KisTransactionData::startUpdates()`.
+
+Krita's Smart Patch tool is the direct production precedent: its
+`InpaintCommand` derives from `KisTransactionBasedCommand`, opens one
+`KisTransaction`, returns `endAndTake()`, submits the command through one
+`KisProcessingApplicator` as `BARRIER` / `EXCLUSIVE`, ends the applicator, and
+waits for the image.
+
+For GapFill's fail-closed requirement, the future helper should add a minimal
+failure-aware subclass of `KisStrokeStrategyUndoCommandBased` around that
+single `ExactPatchCommand`. The command reports a shared result. The strategy
+adds the command to its undo macro only after successful exact readback. On a
+rejection or mutation error it follows the strategy cancellation path, which
+deletes the unpublished macro and schedules inverse jobs for anything already
+saved. This avoids publishing a semantic-failure/no-op history entry. The
+normal success path still contains exactly one transaction command in exactly
+one user-visible stroke.
+
+The command must call `KisTransaction::revert()` on any failure after the
+transaction begins. `KisTransaction::end()` is explicitly unsuitable for
+rollback: it discards the memento without reverting already changed pixels.
+The future prototype must failure-inject and prove the custom strategy's
+success/cancel paths; source inspection alone does not qualify that new code.
+
+### Exact raw write and Python/native contract
+
+The recommended write is
+`KisPaintDevice::writeBytes(data, QRect(x, y, length, 1))`, once per validated
+horizontal run, inside the single transaction. `readBytes()` checks the same
+runs before and after the writes. This path has no painter, compositing,
+selection mask, blend mode, SIMD composite operation, or fill algorithm and
+therefore does not expose the Row-G hidden-RGB behavior. Paint-device
+iterators are possible but add cursor/stride state without improving the
+contract; `KisPainter` is rejected.
+
+Python should send **exact native/raw four-byte pixels**, not ordered RGBA for
+native conversion. `CanvasColorBridge` remains authoritative for converting
+the frozen prediction into target-profile ordered RGB. Python then performs
+the already established RGBA-to-raw BGRA/U8 layout conversion and submits one
+plan containing all final colors. Native code treats replacement pixels only
+as opaque bytes and does no color management.
+
+The proposed serializable call payload is:
+
+- an opaque document/target binding token;
+- expected document origin and width/height;
+- target node UUID;
+- expected `RGBA` / `U8`, pixel size four, and profile unique ID;
+- expected paint-device sequence number; and
+- a sorted, non-overlapping tuple of `(x, y, length, expected_before_bytes,
+  replacement_bytes)` horizontal runs, with both byte buffers exactly
+  `4 * length` bytes.
+
+The extension copies and validates all Python buffers before scheduling work.
+It does not retain NumPy memory or wrapper pointers. Combining blue and red
+runs in this one payload is what makes the whole Row-G plan one transaction,
+instead of one fill action per color.
+
+### Native target resolution and final stale boundary
+
+Python's existing full provenance/stale validation remains primary. Native
+code adds only the final race boundary:
+
+- The extension issues an unguessable opaque token bound in module state to a
+  `QPointer<KisDocument>`, its `KisImageWSP`, target UUID, paint-device
+  identity, and initial sequence number. Tokens are explicit per document and
+  target, expire when the document closes, and avoid an ambiguous “current
+  document” singleton protocol.
+- On apply, the native job must run on Krita's GUI-owned call path, resolve the
+  same document/image from the token, find the node freshly from the image
+  root with `KisLayerUtils::findNodeByUuid()`, and require the same paint
+  device. It must not select or mutate whichever layer is currently active.
+- Immediately inside the exclusive job it rechecks open document/image,
+  document bounds/origin, node UUID/type/ownership, editable/unlocked state,
+  alpha lock, animation exclusion, device position, color model/depth,
+  four-byte pixel size, profile `uniqueId()`, and device sequence number.
+- It rejects empty, unsorted, overlapping, duplicate, out-of-bounds,
+  overflowing, oversized, or length-mismatched runs. It then reads and
+  compares every run with `expected_before_bytes` before starting writes.
+- After all writes it reads every run back and requires exact replacement
+  bytes before finalizing the transaction. A different device sequence,
+  target replacement, profile change, or byte mismatch is stale/rejected,
+  not a reason to retarget the active layer.
+
+The token is host identity only; it does not move detection, decision, or
+color semantics into native code. A future implementation may bind it during
+snapshot acquisition, but must not weaken the existing Python hashes or
+context checks.
+
+### Integration-form ranking
+
+| Candidate | Ranking | Feasibility and transport |
+|---|---|---|
+| A — CPython 3.13 `.pyd` in `gapfill_krita/` | **preferred** | Direct Python values/bytes and structured result; internally resolves `KisPart`/document/node state. The shipped `PyKrita/krita.pyd` already imports `python313.dll`, Qt5, libc++, `libkritaimage.dll`, `libkritalibkis.dll`, and `libkritaui.dll`, proving this kind of in-process bridge for this build. It is still pinned to CPython 3.13 and the exact Krita C++ ABI. |
+| B — plain DLL loaded through a narrow C ABI | **viable fallback** | A packed byte request and caller-owned result buffer could cross `ctypes.PyDLL`; the DLL could resolve Krita internals itself, so no wrapper pointer is needed. It does not remove the Krita C++ ABI/toolchain requirement and adds manual buffer ownership, exception translation, GUI-thread enforcement, and DLL-load handling. |
+| C — normal native Krita C++ plugin | **impractical for the current package** | Mechanically capable, but normal modules install under `lib/kritaplugins` (with metadata embedded by `K_PLUGIN_FACTORY_WITH_JSON` and optional files under `share/kritaplugins`). The Python Plugin Importer copies only a desktop file, optional action, and Python package into the user resource tree; it does not install native modules into Krita's program directories. A separate native installer/admin/manual step plus a QObject/QByteArray service bridge would be required. |
+
+Candidate B's only acceptable transport would be a versioned C function over
+packed caller-owned bytes, with all C++ exceptions caught before the C ABI.
+Candidate C's least ambiguous transport would be a per-document native
+`QObject` service receiving a `QByteArray`, not action properties or global
+mutable state. Neither offers an advantage over Candidate A for the existing
+single-ZIP installation model.
+
+### Installed Windows ABI and build surface
+
+The installed `krita.exe`, `krita.dll`, `libkritaimage.dll`, Qt5 DLLs, and
+`python313.dll` are PE32+ x86-64. Qt reports
+`x86_64-little_endian-llp64` and exact compiled/loaded Qt 5.15.7.
+`libkritaimage.dll` exports Itanium-mangled C++ symbols and imports
+`libc++.dll`, `libunwind.dll`, `libwinpthread-1.dll`, UCRT API sets, Qt5, and
+Krita libraries; it does not use the MSVC C++ ABI. Its CodeView record says
+`LLD PDB.`. Runtime strings contain the llvm-mingw build path. The bundled
+LLVM runtime DLLs have 2025-11-18 timestamps, matching the official
+[`llvm-mingw-20251118-ucrt`](https://docs.krita.org/en/untranslatable_pages/building_krita.html)
+toolchain; the
+[`20251118` toolchain release](https://github.com/mstorsjo/llvm-mingw/releases/tag/20251118)
+is LLVM/Clang 21.1.6. This identifies LLVM-MinGW/UCRT + libc++/libunwind,
+not MSVC or clang-cl. The Python runtime is CPython 3.13.5 AMD64 /
+`python313.dll` and itself imports `VCRUNTIME140.dll`; that does not change
+the Krita C++ ABI.
+
+The distribution is release-style and has `.gnu_debuglink` / LLD CodeView
+records, but the referenced `.debug` sidecars are not installed. Exact core
+libraries relevant to the helper include `libkritaversion.dll`,
+`libkritacommand.dll`, `libkritapigment.dll`, `libkritaimage.dll`,
+`libkritaui.dll`, and `libkritalibkis.dll`.
+
+The installed Krita tree contains **zero** C/C++ headers, import/static
+libraries (`.lib`, `.a`, or `.dll.a`), CMake package files, or pkg-config
+files. The current Windows/WSL environment has only Linux ELF GCC/G++/Make;
+it has no LLVM-MinGW cross compiler, Windows clang/clang-cl, CMake, Ninja, or
+matching Krita dependency developer prefix. No current SDK/dev package was
+found.
+
+The exact Krita source tree is necessary but not sufficient by itself: the
+build also needs generated configuration/export headers, Qt/KF and other
+dependency headers/import libraries, and an import-library/developer surface
+for the installed Krita DLLs. Because the required symbols are already
+exported, a helper does not inherently require modified Krita libraries; with
+an exact developer prefix it could be built out of tree. In the current
+environment, however, the safe reproducible route is to recreate the official
+LLVM-MinGW 20251118 / dependency environment and perform a full exact-commit
+configure/build/install, then build the extension in that tree. Building only
+the transitive `kritaversion`/command/pigment/image/ui/libkis targets is
+theoretically possible but the dependency closure is not packaged here and is
+not the recommended qualification route. Compatibility with the official
+binary must still be checked by static imports and a no-op real-host load.
+
+### Packaging and version policy
+
+Candidate A preserves one Python Plugin Importer ZIP. It adds a file such as
+`gapfill_krita/_native_exact_patch.cp313-win_amd64.pyd` plus a small build/ABI
+manifest and license/provenance material. Krita's importer copies arbitrary
+files under the detected Python module directory, so the `.pyd` is installed
+with the package. The helper must link only to DLLs already shipped by this
+Krita build; it must not bundle a second Qt, Krita, libc++, or Python runtime.
+Krita must be fully restarted after install. Windows locks the loaded `.pyd`,
+so overwrite/uninstall is deterministic only while Krita is exited; a clean
+reinstall must remove the old package directory before copying the replacement.
+
+Initial support is exactly **official Krita 5.3.3, git `858d352`, Windows x64,
+Qt 5.15.7, embedded CPython 3.13.5**. At import and again before mutation, the
+helper must reject unless `KritaVersionWrapper::versionString(true)` is exactly
+`5.3.3 (git 858d352)`, Qt is 5.15.7, the process is Windows x64/LLP64, the
+extension is running under the expected CPython 3.13 cell, and fingerprints of
+the core Krita DLLs match the qualified package manifest. A different Krita
+version or rebuild receives a separate binary and qualification; there is no
+claim of a stable Krita C++ ABI.
+
+### Failure containment and result protocol
+
+The future native implementation sequence is:
+
+1. parse, bound, copy, and preallocate the complete request;
+2. resolve and validate the explicit target and every expected-before run;
+3. begin one `KisTransaction` only after validation;
+4. write all runs, exact-readback all runs, and dirty only affected rects;
+5. on success, `endAndTake()` and publish the single stroke macro;
+6. on any failure after transaction start, call `revert()`, verify the original
+   run bytes, cancel/delete the unpublished macro, and return failure.
+
+No C++ exception may cross the CPython or C ABI. The synchronous return is a
+closed enum plus detail, with at least `SUCCESS`, `STALE_REJECTED`,
+`UNSUPPORTED_HOST`, `MUTATION_FAILURE`, and `INTERNAL_EXCEPTION`. Python then
+performs its existing exact full-target readback. Buffer arithmetic uses
+checked sizes and explicit pixel/run caps. The extension rejects calls off the
+Krita GUI thread. A crash is not a supported outcome and a future prototype
+must cover allocation/write/readback failure injection before production use.
+
+### Complexity and future real-host proof
+
+For `K` changed pixels in `R` horizontal runs, parsing, expected-before
+validation, writing, and exact readback are `O(K)` with `O(R)` paint-device
+calls and `O(K)` request storage. Krita's undo is tile-memento based, so undo
+storage is proportional to touched tiles rather than a copied full document.
+Dirty propagation uses the run rects (or their bounded union). This is adequate
+for the 187-pixel proof; correctness takes precedence over iterator or batching
+micro-optimization.
+
+The smallest future real-host prototype is one disposable copy of the Row-G
+two-color fixture and one native call containing all 187 target pixels. It must
+prove:
+
+- after apply, exactly those 187 pixels changed to their exact raw expected
+  colors and every other byte, including RGB under alpha zero, stayed equal;
+- one user-visible Undo returns the complete document to S0;
+- one Redo restores exact S1;
+- Line, Guide, selection, foreground, active node, blending, opacity, flow,
+  global alpha lock, and eraser state are unchanged; and
+- stale/unsupported/failure injections leave S0 exact and publish no command.
+
+That prototype may inform both Row G and Row I, but neither matrix row may be
+updated from a standalone prototype. Only a later production-integrated
+real-host qualification can reclassify them.
+
+### No-op spike and remaining gate state
+
+The optional no-op binary spike was **SKIPPED**. A viable `.pyd` form is clear,
+but the matching LLVM-MinGW compiler, CMake/Ninja, Krita headers/import
+libraries, generated headers, and dependency developer prefix are absent.
+Building with Linux GCC, MSVC, or a guessed ABI would not be a meaningful load
+test. No source directory, build command, or binary was produced.
+
+The exact future build prerequisites are therefore: obtain the official
+LLVM-MinGW 20251118 (LLVM 21.1.6) UCRT toolchain without mixing runtimes;
+reconstruct the matching Krita dependency developer prefix; configure/build
+exact source `858d352e52e68831693067763b9cdaf8bb9a05ce`; build the one `.pyd`;
+inspect its imports to exclude duplicate runtimes; then perform a no-op load in
+a disposable Krita 5.3.3 cell before any mutation prototype. Those are pending
+implementation/build tasks, not authorization to begin them here.
+
+The authoritative matrix remains **A–F PASS; G FAIL; H–V UNTESTED**. Row I
+remains **UNTESTED** and a release blocker; architecture evidence is not a Row-I
+execution. Phase 6.5 remains **OPEN / FAILED**, Krita remains not
+release-qualified, H–V were not begun, and OFFF remains out of scope.

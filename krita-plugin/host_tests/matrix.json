@@ -20,6 +20,15 @@
     "row_f_results_sha256": "9bbf01083a3b59610e6609ce3a80ed13eb13ca95a787b51c961b7c1f8bd86ad8",
     "row_f_arrays_sha256": "927b27ddd5327dca40d3713ffaefa2a98db073f5f9e48a58924da7ce678d755c",
     "row_f_harness_sha256": "e3043bbf5a4f93c45c06c581021c7122a5d67a7fe3cf23574e9c0e078a768f25",
+    "row_g_capture_directory": "C:\\Users\\marck\\AppData\\Local\\Temp\\gapfill-phase65-gl-rowfpass-827e66f",
+    "row_g_host_results_sha256": "c55fc40eadda59c87766268eb36fc86980219261e51da60090c7fc4652111c2a",
+    "row_g_apply_selected_npz_sha256": "8eeaae330e1c60a957f46d00f1e8aa71dae7b3ac3dc89a70d87406f6f5014e6d",
+    "row_g_apply_all_failure_npz_sha256": "4d49bd5364c342af484baa156f2c594011d7fb4672ca72d4a7ac9fcc7d6d478d",
+    "row_g_harness_sha256": "b2433e929baa3502b2f568b301786c1dd694dc21927a79069acd613ebe2207d3",
+    "row_g_diagnostic_directory": "C:\\Users\\marck\\AppData\\Local\\Temp\\gapfill-phase65-rowg-multigroup-diagnostic-827e66f-v1",
+    "row_g_diagnostic_results_sha256": "ee7293d90d93b1f4f3551120af248bde1562e3ab9b51ce006af3860fae26b96a",
+    "row_g_diagnostic_arrays_sha256": "190f1aa4baed638ecf209e422de7d09c9c9f124cd736896a4626b76b29df2daa",
+    "row_g_diagnostic_harness_sha256": "631c2a1037c7673cdf5bb20bff07dad5cb5fac56b5ceb137f4294680383a1ea1",
     "model_sha256": "8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78",
     "gui_executable": true
   },
@@ -35,7 +44,12 @@
       "status": "PASS",
       "evidence": "Fresh repaired real-host capture produced the exact Learned candidate and changed exactly its nine pixels to RGBA [13,117,241,255], with exact full-target verification, unchanged Line/Guide, restored selection/user state, and no recovery. Historical failure evidence remains in docs/addon-phase6.5.md."
     },
-    {"id": "G", "case": "apply multiple colors", "status": "UNTESTED"},
+    {
+      "id": "G",
+      "case": "apply multiple colors",
+      "status": "FAIL",
+      "evidence": "The corrected-decision/Apply Selected subcase completed byte-exactly for two nine-pixel gaps and two color actions. A fresh Apply All scan failed production exact-target verification. A dedicated diagnostic then proved the first divergence in Group 1: Krita read back the exact intended 178-pixel/two-component selection and filled all selected pixels correctly, but also wrote RGB [13,117,241] with alpha 0 into 143 unselected transparent pixels. Group 2 added exactly its intended nine red pixels and preserved the Group-1 footprint. Diagnostic observation passed; its separate harness state restoration failed before it began because a private helper was omitted, although the nested finalizer still closed the disposable document without saving. H-V were not started."
+    },
     {"id": "H", "case": "selection presence and exact bytes restored", "status": "UNTESTED"},
     {"id": "I", "case": "Undo / redo and visible command count", "status": "UNTESTED"},
     {"id": "J", "case": "foreground and view/tool state restored", "status": "UNTESTED"},
