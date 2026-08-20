@@ -44,6 +44,7 @@ def _observation() -> HostObservation:
     return HostObservation(
         document_key=11,
         view_key=22,
+        image_root_id="{00000000-0000-0000-0000-000000000010}",
         document_geometry=(0, 0, 5, 5),
         source_space=("RGBA", "U8", "sRGB-elle-V2-srgbtrc.icc"),
         target=_node(),
@@ -84,6 +85,7 @@ def test_stale_context_rejects_every_relevant_mutation() -> None:
         "active node switched": replace(original, active_node_id="line"),
         "active document switched": replace(original, document_key=12),
         "active view switched": replace(original, view_key=23),
+        "document image identity changed": replace(original, image_root_id="replacement"),
     }
     for reason, current in variants.items():
         with pytest.raises(StaleScanError, match=reason):

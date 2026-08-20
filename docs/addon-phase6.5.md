@@ -2086,3 +2086,1312 @@ The authoritative matrix remains **A–F PASS; G FAIL; H–V UNTESTED**. Row I
 remains **UNTESTED** and a release blocker; architecture evidence is not a Row-I
 execution. Phase 6.5 remains **OPEN / FAILED**, Krita remains not
 release-qualified, H–V were not begun, and OFFF remains out of scope.
+
+## Native no-op build/load feasibility — 2026-08-16
+
+This section supersedes only the preceding statement that the optional no-op
+spike was skipped. It does not supersede the transaction architecture, does not
+qualify mutation, and changes no host-test row. The exact result is:
+
+> **NOOP_EXTENSION_BUILT_AND_STATICALLY_VALIDATED**
+
+The no-op was not installed in the GapFill package and was not loaded in Krita.
+No document, selection, Undo stack, foreground color, active node, tool, or
+other user state was touched.
+
+### Frozen baseline
+
+| Item | Frozen value |
+|---|---|
+| Repository commit | `b4acabf3cea64c118ea7eb62510d73e7bb0e887b` |
+| Branch | `qualify/csp-host-adapter` |
+| Initial repository status | clean |
+| Windows host | Windows 11 Pro x64, version `10.0.26200`, build `26200` |
+| Running host process | PID `43608`, `C:\Program Files\Krita (x64)\bin\krita.exe` |
+| Krita identity | `5.3.3 (git 858d352)` |
+| Host runtime | Qt `5.15.7`; CPython `3.13.5`; PyQt5 `5.15.11` |
+| Installed qualification artifact | `/tmp/gapfill-krita-phase6.5-rowF-managedcolor-win-x64-py313-454d345-worktree.zip` |
+| Qualification ZIP SHA-256 | `bf19c8dc2fb3e44f160614f61fa189d52dac62bc24790b0094170ccd93fbe146` |
+| Installed artifact comparison | 892/892 payload files exact; zero missing/changed; 116 extras, all recognized `*.cpython-313.pyc` caches; zero other extras |
+| Fixture manifest SHA-256 | `6243be8f2a26b383ef0293bd585318c0072011ccabf959cb25f42127aba5908c` |
+| ONNX SHA-256 | `8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78` |
+| Sidecar SHA-256 | `2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5` |
+
+Relevant installed-file fingerprints were re-read before the spike was built:
+
+| Installed file | SHA-256 |
+|---|---|
+| `krita.exe` | `4e40b4e63d31d281a3239317ffdc9c204656b8328df97ec5eb56726ef7966373` |
+| `Qt5Core.dll` | `e6ec243ce0791dc3406547f85a3582024a0fe69bc7cc5c49afa4b1538fea31b9` |
+| `python313.dll` | `df56bb381bffbdd80863110ee88654625c09eb325fb99ceaceeca7f4402c7b5a` |
+| `libc++.dll` | `7583e11bdd380d367003b55b90e459b04d105be55f6e4900606503487bb4bccf` |
+| `libunwind.dll` | `cc0d3c1a55e848cd064949346855225e39779ece3b807407ea851875930ca9d2` |
+| `libwinpthread-1.dll` | `cfcb538f66f69bec04ebb8c55e6bc484f213bf3266a122045234e643a420c71b` |
+| `libkritaversion.dll` | `0812b1500e53e9cc6bc2d8251df3a9160d4d8125ec2f5995a029b32d2637a95c` |
+| `libkritacommand.dll` | `db9a968484787c1e03b69bff796d906c211c5bf75c5d6d7d25412bc5d9d27691` |
+| `libkritapigment.dll` | `d39a933c612847f0aa37ad9827c4f903796f92264ef4d0b218758d063bc78e9b` |
+| `libkritaimage.dll` | `2580944bea1d72561dd54c31e146c269b690ebbe979d8e0e3767ea83f1db8cc9` |
+| `libkritaui.dll` | `1bf7372a819a9cf7f3a64a95b6c8fd8f0264bda3bf8478284ee454d32fa00e12` |
+| `libkritalibkis.dll` | `5aaf7ddd71d4a91d87ad4558eeaeceee82abe93e653964b1e8d12bfbf5dc2507` |
+| `PyKrita/krita.pyd` | `7fd53d08f60ed2b72fd70df1592431cfb21398eddb2803e600a0091574f3b661` |
+
+### Exact official Windows build route
+
+The authoritative source-to-binary route is the successful KDE GitLab
+[`windows-release-qt5` job 4762524](https://invent.kde.org/graphics/krita/-/jobs/4762524)
+in [pipeline 1301828](https://invent.kde.org/graphics/krita/-/pipelines/1301828).
+The job checked out `release/6.0.3` at exact revision
+`858d352e52e68831693067763b9cdaf8bb9a05ce`; the Qt5 branch of that source
+declares Krita `5.3.3`. The surviving raw job trace is
+`/tmp/krita-858d352-windows-qt5-trace-raw.log`, SHA-256
+`0c27740e4d2eb0f5eef3e2f47d49430ae83a2b9c7b8bdd26fd288f622e0e1239`.
+The job's CMake cache and package artifact expired on 2026-08-05 and return
+HTTP 404, so they cannot be used as a developer archive.
+
+The job used VM image
+`storage.kde.org/vm-images/krita-windows-clang21-twinpy`, cloned
+`krita-deps-management` master as it existed at
+`e1171184a8c98d962a9e19ca13000b506d56a299`, and cloned
+`krita-ci-utilities` master as it existed at
+`9285a277a971fcea3e0332bb5b7906ecfe6116bd`. Most dependency packages were
+the caches produced at dependency revision
+`890295fc42249606a471254e622f14612e087e8e`; the three x265 packages used
+the later `e1171184` revision. The dependency registry is the public
+`teams/ci-artifacts/krita-windows` project, ID `16406`.
+
+The exact build sequence was:
+
+1. generate `.kde-ci.yml` from the dependency seed;
+2. merge cached dependency archives into
+   `C:\builds\graphics\krita\_install`, with its `bin` and `lib` first on
+   `PATH`;
+3. configure exact Krita source with CMake `3.31.8` and generator `Ninja`;
+4. build and install the `all` / `install` targets into `_install`;
+5. run `packaging/windows/package-complete.py`, `windeployqt`, binary signing,
+   ZIP creation, and NSIS installer creation.
+
+The exact configure invocation recorded by the trace was:
+
+```text
+cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_TESTING=ON \
+  -DCMAKE_INSTALL_PREFIX="C:\builds\graphics\krita\_install" \
+  -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DKRITA_ENABLE_PCH=OFF \
+  -DFOUNDATION_BUILD=ON -G Ninja -DHIDE_SAFE_ASSERTS=ON \
+  -DBUILD_TESTING=OFF "C:\builds\graphics\krita"
+```
+
+The last `BUILD_TESTING` value wins. The compiler was
+`C:\Tools\llvm-mingw-20251118-ucrt-x86_64\bin\c++.exe`, LLVM/Clang
+`21.1.6` at LLVM revision `a832a5222e489298337fbb5876f8dcaf072c5cca`;
+the linker was LLD `21.1.6`. The target was x86-64 Windows GNU/Itanium ABI,
+UCRT, libc++, libunwind, and POSIX-thread llvm-mingw. It was not MSVC ABI and
+did not use libstdc++.
+
+Relevant source-derived compile/link settings were C++17 with CMake's GNU
+extensions (`-std=gnu++17`), RelWithDebInfo (`-O2 -g -DNDEBUG`),
+`-gdwarf-aranges`, exceptions enabled, and Qt5's Windows floor defines
+`_WIN32_WINNT=0x0602`, `WINVER=0x0602`, and `_WIN32_IE=0x0602`. Module
+hardening was `--dynamicbase`, `--nxcompat`, `--disable-auto-image-base`,
+`--high-entropy-va`, and image base `0x180000000`. The expired cache prevents
+recovery of the literal final `CMAKE_CXX_FLAGS` string; the values above are
+the corresponding CMake/Krita source settings and are the ABI/security-
+relevant flags reproduced by the spike. The trace did not record the Ninja
+version.
+
+The dependency prefix contained the custom Qt `5.15.7` tree at Qt fork commit
+`835aaa7afeffe87151c4c4614d54827c1d997a09`, ECM/KF5 `5.101.0`, Boost
+`1.90.0`, LCMS `2.19`, and the other cached dependencies listed by the job.
+It also contained normal `include`, `lib`, `bin`, and `lib/cmake` development
+surfaces. The build bootstrap interpreter was CPython `3.13.14` and CMake
+found its `C:\Tools\Python-3.13\libs\python313.lib`; the separately pinned
+`ext_python` package supplied the shipped CPython `3.13.5` embeddable runtime.
+This explains the two patch versions in the official trace. Both use the
+`python313.dll` ABI; the shipped runtime, not the bootstrap interpreter, is
+the no-op load target.
+
+### Reproducible inputs and workspace
+
+No package manager or system installation was changed. The isolated workspace
+is `/tmp/gapfill-krita-native-build/`, separated into `source/`, `toolchain/`,
+`deps/`, `build/`, `install/`, `spike/`, and `evidence/`.
+
+| Input | SHA-256 / verification |
+|---|---|
+| Exact Krita source archive, `/tmp/krita-858d352-source.tar.gz` | `0039425577a8b27506bc332134714d4ed7a021e985ee0111029dea19ac6883a6` |
+| `krita-deps-management` `e1171184` archive | `22813fa89f19eb3929574c6c942f21acaa419a73a9a4039baad49cbb93e83076` |
+| `krita-ci-utilities` `9285a277` archive | `69829bf93ddea679edcf989736e17d1a7c86597cf6c8a00fe2def65bc0da790b` |
+| Upstream `llvm-mingw-20251118-ucrt-ubuntu-22.04-x86_64.tar.xz` | `53a0c22caa46b501e1c089e1c31b24a7c0e0d5a86f8ad12b131aafd4cee01ef4`; exact match to the digest published by the upstream `20251118` release |
+| Exact KDE `ext_python/master-1783414987` archive | `66714cf6d0de0b128ee3dba5941f538523a29d759835811c169a82d6a3479f68`; versioned registry metadata identifies dependency revision `890295fc` |
+| Its metadata JSON | `2fa3445d4969a6117965ec3d55872706d877de329d446d6be8abd183930c4230` |
+| Exact Qt cache metadata, `ext_qt/master-1783419270` | `0421ed4c3389c40dd6f95933376503465f9fcc3996d9c7171e59faa6a632da4f`; dependency revision `890295fc` |
+| CPython `3.13.5` source | `93e583f243454e6e9e4588ca2c2662206ad961659863277afcdb96801647d640`; MD5 `dbaa8833aa736eddbb18a6a6ae0c10fa` exactly matches Krita's dependency recipe |
+
+The exact 345,149,440-byte Qt developer archive remains available from the
+registry, but was intentionally not downloaded: the no-op has no Qt or Krita
+C++ dependency. Fetching that archive and the rest of the full dependency
+closure would have been unrelated to the load-only spike.
+
+Before acquisition, the WSL environment had GCC/G++ `13.3.0`, Python
+`3.12.3`, Git `2.43.0`, GNU binutils/objdump `2.42`, and Make. It had no
+clang/clang++, LLVM-MinGW, CMake, Ninja, Python 3.13 development install, or
+LLVM binary tools. The isolated download now provides the exact
+LLVM-MinGW/Clang/LLD/llvm-readobj/llvm-objdump/llvm-dlltool `21.1.6` tools.
+CMake `3.31.8`, Ninja, a runnable local Python 3.13, the Qt/KF developer
+prefix, and Krita import libraries remain absent locally because the no-op
+does not require them.
+
+### Future helper dependency and import-library decision
+
+Installed exports and exact headers establish this minimum future dependency
+graph:
+
+| Helper surface | Header | Defining DLL / direct consequence |
+|---|---|---|
+| `KritaVersionWrapper::versionString()` | `libs/version/KritaVersionWrapper.h` | `libkritaversion.dll` → `Qt5Core.dll` |
+| `KUndo2Command` / `KUndo2MagicString` | `libs/command/kundo2command.h` | `libkritacommand.dll` → Qt5 Core/Gui/Widgets, KF5, Krita global/widget utilities |
+| `KisTransaction` / `KisTransactionData` | `libs/image/kis_transaction.h`, `kis_transaction_data.h` | inline wrapper plus exported `libkritaimage.dll` transaction data → command/pigment/image closure |
+| `KisTransactionBasedCommand` | `libs/image/commands_new/kis_transaction_based_command.h` | `libkritaimage.dll` |
+| `KisPaintDevice::readBytes()`, `writeBytes()`, `sequenceNumber()` | `libs/image/kis_paint_device.h` | `libkritaimage.dll` |
+| `KisNode`, `KisPaintLayer`, `KisLayerUtils::findNodeByUuid()` | `libs/image/kis_node.h`, `kis_paint_layer.h`, `kis_layer_utils.h` | `libkritaimage.dll`; `KisPaintLayer::paintDevice()` and `alphaLocked()` are exported |
+| `KisImage` start/add/end/cancel/wait | `libs/image/kis_image.h` | `libkritaimage.dll` |
+| `KisStrokeStrategyUndoCommandBased` and `BARRIER` / `EXCLUSIVE` job data | `libs/image/kis_stroke_strategy_undo_command_based.h`, `kis_stroke_job_strategy.h` | `libkritaimage.dll` |
+| `KisPart` and `KisDocument::image()` host resolution | `libs/ui/KisPart.h`, `libs/ui/KisDocument.h` | `libkritaui.dll` → image/pigment/command/version, Qt5, KF5, and its wider UI closure |
+| CPython bridge | CPython `Include/Python.h` and generated Windows `pyconfig.h` | `python313.dll`; no SIP/PyKrita pointer transport |
+
+The named constructors, destructors, read/write/sequence methods, target lookup,
+stroke methods, transaction command methods, and version/host-resolution
+methods were all re-confirmed in the official installed DLL export tables.
+The eventual helper's direct DLL set is therefore at least
+`python313.dll`, `libkritaversion.dll`, `libkritacommand.dll`,
+`libkritapigment.dll`, `libkritaimage.dll`, `libkritaui.dll`, Qt5 Core/Gui/
+Widgets, libc++, libunwind, and UCRT. `libkritalibkis.dll` is not intrinsically
+required by the preferred internal host-resolution design, although the
+shipped `PyKrita/krita.pyd` imports it.
+
+For the no-op only, `llvm-dlltool` generated a five-symbol CPython C import
+library from the exact `python313.dll` export names. The unsigned cached DLL
+and signed installed DLL have identical 1,655-name export sets, so this is a
+narrow, technically safe C-ABI thunk library.
+
+That decision does **not** authorize the analogous shortcut for Krita's C++
+internals. An import library reconstructed from decorated exports can name the
+right thunk, but cannot itself prove matching class layout, inline/template
+code, RTTI, exceptions, Qt value types, generated configuration/export headers,
+or correct data/vtable treatment. The future transaction helper is therefore
+classified **FULL_BUILD_REQUIRED**: reconstruct the complete exact KDE
+dependency prefix, configure exact source `858d352`, and build/install the
+needed Krita library closure with its generated headers and native import
+libraries before compiling the mutation helper. A no-op CPython-only build is
+not evidence that a partial Krita developer prefix is sufficient.
+
+### No-op binary and static validation
+
+The source is
+`/tmp/gapfill-krita-native-build/spike/gapfill_krita_native.cpp`, SHA-256
+`39e96cead7dd223b0754bd6d9eab5b44082273f17f3ce19abd737ad7d82f06d9`.
+It exposes only `abi_info()` and a read-only `host_probe()`. Import fails closed
+unless the process is 64-bit CPython 3.13 inside `krita.exe`. The source has no
+Krita document, paint-device, transaction, Undo, selection, foreground, node,
+or tool mutation API.
+
+The complete build command is preserved in
+`/tmp/gapfill-krita-native-build/spike/build.sh`, SHA-256
+`302a5620ea3c515d28edab5862d4b1ac6f51dcfbd412392346bc35199aca89a1`.
+Its two effective commands are:
+
+```text
+llvm-dlltool -m i386:x86-64 -D python313.dll \
+  -d spike/python313.def -l install/lib/libpython313.dll.a
+
+x86_64-w64-mingw32-clang++ -std=gnu++17 -O2 -g \
+  -gdwarf-aranges -fexceptions -DNDEBUG \
+  -D_WIN32_WINNT=0x0602 -DWINVER=0x0602 -D_WIN32_IE=0x0602 \
+  -Ispike/include -Isource/cpython-3.13.5/Include -shared \
+  -Wl,--dynamicbase -Wl,--nxcompat -Wl,--disable-auto-image-base \
+  -Wl,--high-entropy-va -Wl,--no-insert-timestamp \
+  -Wl,--image-base,0x180000000 \
+  spike/gapfill_krita_native.cpp -Linstall/lib -lpython313 \
+  -o spike/out/gapfill_krita_native.cp313-win_amd64.pyd
+```
+
+The built file is
+`/tmp/gapfill-krita-native-build/spike/out/gapfill_krita_native.cp313-win_amd64.pyd`,
+130,560 bytes, SHA-256
+`8c239b66244a258493c8965713ccd51b94d02f498d73955e43c4afea55218227`.
+It is PE32+ AMD64, Windows GUI DLL, has `HIGH_ENTROPY_VA`, `DYNAMIC_BASE`, and
+`NX_COMPAT`, and exports exactly the required
+`PyInit_gapfill_krita_native` initializer.
+
+Two consecutive clean link invocations produced that same SHA-256. The only
+change required after detecting PE timestamp variance was LLD's
+`--no-insert-timestamp`; it changes no code, imports, ABI, or hardening.
+
+Its DLL imports are `python313.dll`, `libc++.dll`, `libunwind.dll`,
+`KERNEL32.dll`, and UCRT API-set DLLs for runtime/string/private/stdio/heap.
+Every non-system DLL is already in the qualified Krita `bin` directory. There
+is no MSVC C++ runtime, libstdc++, libgcc, second Qt, or Krita DLL dependency.
+The installed `PyKrita/krita.pyd` is likewise PE32+ AMD64 with the same
+`python313.dll`/libc++/libunwind/UCRT runtime family and the same PE hardening;
+its additional Qt/Krita imports are expected because it is the full binding.
+This is a static compatibility pass, not an import result.
+
+### Prepared but unexecuted load-only harness
+
+The one-shot Scripter harness is
+`/tmp/gapfill-krita-native-build/spike/load_harness.py`, SHA-256
+`f1e1c5ba615b4df51cc9f6036819fe004aa4f43ec79b3016821ef99be90e0d5e`;
+its AST parse passed. The exact `.pyd` and harness were staged, without
+installation, at:
+
+```text
+C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-noop-spike-b4acabf-8c239b66\
+```
+
+The staged file hashes match the isolated originals. The guarded result path
+is:
+
+```text
+C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-noop-result-b4acabf-8c239b66\result.json
+```
+
+The result directory is absent, proving the harness was not run. It refuses a
+pre-existing output directory or preloaded module, verifies the `.pyd` hash,
+Windows x64, CPython 3.13, Krita 5.3.3, and Qt 5.15.7, temporarily adjusts only
+`sys.path` and the process DLL search handle, imports the no-op, calls its two
+read-only methods, writes one JSON result, and restores `sys.path`. It contains
+zero document and zero Undo calls. Static inspection supports one manual
+load-only invocation in this exact host cell; that future execution is still
+required before any claim of real-host load PASS.
+
+An obsolete first-iteration staging directory created during this build was
+removed after the final hash-keyed staging directory was verified. It contained
+only the superseded temporary no-op binary and harness and was not recoverable;
+no Krita resource, plugin, configuration, or repository file was removed.
+
+### Ephemeral workspace replay — 2026-08-20
+
+After the WSL `/tmp` workspace was cleared between sessions, it was reconstructed
+from the same pinned archives. Every recorded input digest matched; the no-op
+source and build-script digests matched; two fresh builds again produced the
+same 130,560-byte `8c239b66...18227` binary; and that binary remained byte-for-
+byte identical to the staged Windows copy. The staged harness still matched
+`f1e1c5ba...e0d5e`, and its guarded result directory remained absent. This was
+a static reproducibility replay only: the harness was not invoked and no host
+test row changed.
+
+### Native no-op load attempt 1 false reject — 2026-08-20
+
+The first manual invocation of the original load-only harness did **not** reach
+the native module. The exact real-host error was:
+
+```text
+RuntimeError: unsupported Krita: 5.3.3 (git 858d352)
+```
+
+The failure was raised by `main()` at original harness line 52. The original
+harness remains preserved at
+`/tmp/gapfill-krita-native-build/spike/load_harness.py`, SHA-256
+`f1e1c5ba615b4df51cc9f6036819fe004aa4f43ec79b3016821ef99be90e0d5e`.
+Its staged copy remains byte-identical at:
+
+```text
+C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-noop-spike-b4acabf-8c239b66\load_harness.py
+```
+
+The faulty condition was an exact comparison of
+`Krita.instance().version()` to the bare string `"5.3.3"`. The qualified host
+correctly returned the combined string `"5.3.3 (git 858d352)"`, so that
+incorrect Python guard rejected the intended host. This event is classified:
+
+> **LOAD_HARNESS_HOST_VERSION_GUARD_FALSE_REJECT**
+
+Control flow and preserved filesystem state establish the exact attempt-1
+stage classification:
+
+| Stage | Classification | Evidence |
+|---|---|---|
+| `VERSION_GUARD` | EXECUTED | The supplied exception is the guard at lines 51–52. |
+| `SYS_PATH_INSERTION` | NOT_EXECUTED | It was at line 78, after the failed guard. |
+| `IMPORT` | NOT_EXECUTED | `import_module()` was at line 83, after the failed guard and path insertion. |
+| `PyInit` | NOT_EXECUTED | No import was attempted, so the Python loader could not call the initializer. |
+| `ABI_INFO` | NOT_EXECUTED | It was called only after successful import at line 84. |
+| `HOST_PROBE` | NOT_EXECUTED | It was called only after successful import at line 85. |
+
+The harness had also already proved that `gapfill_krita_native` was absent from
+`sys.modules`, because its preloaded-module refusal at lines 42–43 did not fire.
+The output directory creation was after the faulty guard, so the original
+guarded output directory remains absent and no result JSON was written:
+
+```text
+C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-noop-result-b4acabf-8c239b66\
+```
+
+Accordingly, the `.pyd` did not enter the process through this harness,
+attempt 1 says nothing about DLL resolution or ABI compatibility, and it is
+neither a native load PASS nor a native load/ABI FAIL.
+
+### Prepared load-only harness v2 — not executed
+
+The corrected harness is
+`/tmp/gapfill-krita-native-build/spike/load_harness_v2.py`, SHA-256
+`6deed287c63a8e79e06c51a79ee917d1ea7dd86c8c9a360cc8c0496f31e34612`.
+It accepts only an exact full match for the qualified combined host identity:
+
+```text
+^5\.3\.3 \(git 858d352\)$
+```
+
+Thus both product version `5.3.3` and short revision `858d352` are mandatory;
+other revisions, versions, arbitrary suffixes, and malformed identities remain
+rejected. The frozen native binary was not rebuilt or changed. Its local,
+attempt-1, and v2-staged copies are byte-identical: 130,560 bytes, SHA-256
+`8c239b66244a258493c8965713ccd51b94d02f498d73955e43c4afea55218227`.
+
+The v2 harness and unchanged binary are staged, without installation, at:
+
+```text
+C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-noop-spike-v2-b4acabf-8c239b66\
+```
+
+Its new one-invocation guarded output is:
+
+```text
+C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-noop-result-v2-b4acabf-attempt2\result.json
+```
+
+That output directory is absent, proving v2 was not run. The harness refuses
+overwrite and reuse of a preloaded module. It persists the required stage
+sequence—`HARNESS_STARTED`, `HOST_IDENTITY_ACCEPTED`,
+`SYS_PATH_TEMPORARILY_ADDED`, `IMPORT_ATTEMPTED`, `IMPORT_SUCCEEDED`,
+`ABI_INFO_SUCCEEDED`, `HOST_PROBE_SUCCEEDED`, and `LOAD_PROOF_PASS`—and records
+`IMPORT_FAILED`, exception type, message, traceback, and last stage when import
+raises.
+
+Before import and after restoring `sys.path`, v2 takes read-only snapshots of
+the active document identity, modified flag, active node identity, selection
+presence/bounds/hash when within the safety limit, and foreground color. It
+requires both the stable host state and complete `sys.path` value to match
+before marking `LOAD_PROOF_PASS`. It does not create a document and contains no
+document mutation, transaction, Undo, target-node resolution, or production
+plugin import.
+
+Python syntax compilation and AST parsing passed. The AST contained all
+required stage labels and no forbidden mutation calls. Ruff was unavailable in
+the isolated WSL environment (`No module named ruff`), so no Ruff result is
+claimed. Static review supports exactly one future manual load-only invocation
+in the qualified host cell; v2 has not supplied that proof yet.
+
+### Gate state
+
+Production Python source is unchanged. `krita-plugin/host_tests/matrix.json`
+is unchanged. The authoritative matrix remains **A–F PASS; G FAIL; H–V
+UNTESTED**. Row I remains **UNTESTED** and a release blocker. Phase 6.5 remains
+**OPEN / FAILED**, Krita remains not release-qualified, and no H–V row or
+transactional mutation prototype has begun.
+
+## Native exact-transaction prototype preparation — 2026-08-20
+
+This section supersedes only the preceding no-op gate statement and the claim
+that a transaction prototype had not begun. It preserves the failed Row-G
+native-fill evidence and does not change a matrix result. The no-op extension
+has now passed its separately authorized real-host load proof, and the smallest
+isolated exact-transaction prototype has been built and prepared for a future
+one-shot host proof. The mutation prototype and proof harness were **not
+executed** in this task.
+
+The exact classifications remain:
+
+```text
+architecture feasibility = NATIVE_TRANSACTION_HELPER_FEASIBLE_BUT_VERSION_PINNED
+no-op build/static status = NOOP_EXTENSION_BUILT_AND_STATICALLY_VALIDATED
+no-op real-host load status = PASS
+mutation prototype status = BUILT_AND_STATICALLY_VALIDATED_NOT_EXECUTED
+```
+
+### Frozen baseline and no-op real-host load
+
+The baseline immediately before transaction-prototype work was:
+
+| Item | Value |
+|---|---|
+| Repository commit | `b4acabf3cea64c118ea7eb62510d73e7bb0e887b` |
+| Branch | `qualify/csp-host-adapter` |
+| Initial status | one existing evidence-only modification: `docs/addon-phase6.5.md`; no production change |
+| Qualified host | Windows 11 x64; Krita `5.3.3 (git 858d352)`; Qt `5.15.7`; CPython `3.13.5` |
+| Installed production artifact | `gapfill-krita-phase6.5-rowF-managedcolor-win-x64-py313-454d345-worktree.zip` |
+| Production artifact SHA-256 | `bf19c8dc2fb3e44f160614f61fa189d52dac62bc24790b0094170ccd93fbe146` |
+| No-op binary | `/tmp/gapfill-krita-native-build/spike/out/gapfill_krita_native.cp313-win_amd64.pyd` |
+| No-op binary SHA-256 | `8c239b66244a258493c8965713ccd51b94d02f498d73955e43c4afea55218227` |
+| No-op result | `C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-noop-result-v2-b4acabf-attempt2\result.json` |
+| No-op result SHA-256 / size | `03a428a75233471e36b660670f2d3ebd3e55336b3c1d391dda42bfc7456963d1`; 6,195 bytes |
+| Fixture manifest SHA-256 | `6243be8f2a26b383ef0293bd585318c0072011ccabf959cb25f42127aba5908c` |
+| ONNX SHA-256 | `8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78` |
+| Model sidecar SHA-256 | `2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5` |
+
+The no-op result records `status = PASS`, exact host identity, and the complete
+stage chain `HARNESS_STARTED` → `HOST_IDENTITY_ACCEPTED` →
+`SYS_PATH_TEMPORARILY_ADDED` → `IMPORT_ATTEMPTED` → `IMPORT_SUCCEEDED` →
+`ABI_INFO_SUCCEEDED` → `HOST_PROBE_SUCCEEDED` → `LOAD_PROOF_PASS`. The module
+therefore entered the real Krita process and returned from both read-only calls.
+The result also records `host_state_unchanged = true`,
+`sys_path_restored = true`, `document_mutation_calls = 0`, and `undo_calls = 0`.
+This is real-process evidence for the no-op binary only; it is not a mutation or
+Undo result.
+
+### Exact developer-prefix reconstruction
+
+The earlier `FULL_BUILD_REQUIRED` decision was followed. Everything remains
+under `/tmp/gapfill-krita-native-build/`; no system package was installed and
+no installed Krita file was modified.
+
+- Exact Krita source revision:
+  `858d352e52e68831693067763b9cdaf8bb9a05ce`; source archive SHA-256
+  `0039425577a8b27506bc332134714d4ed7a021e985ee0111029dea19ac6883a6`.
+- Exact official Windows Qt5 trace:
+  `/tmp/krita-858d352-windows-qt5-trace-raw.log`, SHA-256
+  `0c27740e4d2eb0f5eef3e2f47d49430ae83a2b9c7b8bdd26fd288f622e0e1239`.
+- LLVM-MinGW `20251118`, Clang/LLD `21.1.6`, UCRT/POSIX/libc++/libunwind;
+  archive SHA-256
+  `53a0c22caa46b501e1c089e1c31b24a7c0e0d5a86f8ad12b131aafd4cee01ef4`.
+- CMake `3.31.8`, archive SHA-256
+  `630615d8e98ac33eba7fbe472626dff5c899c85af3c024585ae109166a6909d0`;
+  Ninja `1.13.1`, archive SHA-256
+  `0830252db77884957a1a4b87b05a1e2d9b5f658b8367f82999a941884cbe0238`.
+- The exact official dependency set comprises 85 archives. The resolved
+  registry records are in
+  `/tmp/gapfill-krita-native-build/evidence/package-manifest.tsv`, SHA-256
+  `7755e25cfbc7f0e95f9d6e68ed17578abe44407026f08ed3ce129181e76fe3f`;
+  the archive digest list is `dependency-archive-sha256.txt`, SHA-256
+  `a8670762c57b21726ad16c30c6375526154b70734b0b5127f977caa77d0463ab`.
+  All 85 archives passed extraction/integrity checks. Eighty-two match the
+  trace's `890295...` dependency revision and the three x265 packages match
+  its later `e117...` revision.
+- The merged prefix is
+  `/tmp/gapfill-krita-native-build/deps/official-prefix`, approximately
+  1.8 GiB, and identifies Qt `5.15.7` and KF5 `5.101.0`.
+
+Cross-building generated Qt resources required build-host tools. The original
+Windows `rcc.exe` and `uic.exe` remain preserved in the prefix with SHA-256
+`3474f1d2...99bd` and `5712a037...a9d`; build-only symlinks point to exact Qt
+`5.15.7` Linux-host `rcc` (`6692376c...d6bd`) and `uic`
+(`4dddbfc7...760`). That host Qt archive is
+`ext_qt-linux-host-835aaa7.tar`, SHA-256 `0313cc1...151`. The isolated host
+`uic` runtime uses Ubuntu `libicu70` archive SHA-256 `58a154f6...dfd9a` and
+`libpcre2-16` archive SHA-256 `d4b3cd60...9d87`. These substitutions are build
+tools only; no host Linux Qt/ICU/PCRE library is linked into the Windows helper.
+
+Exact source was configured in
+`/tmp/gapfill-krita-native-build/build/krita-exact-5` as `RelWithDebInfo`, with
+tests off, foundation build on, PCH off, safe asserts hidden, and
+`HAVE_BACKTRACE=0`. The last setting reproduces the official Windows trace's
+`Looking for backtrace - not found`; it is a cache setting, not a source patch.
+The `kritaimage` and `kritaui` targets and their `kritapigment`,
+`kritacommand`, `kritaversion`, and `kritaglobal` closure built successfully,
+including native DLL import libraries. This satisfies the exact-header,
+generated-header, class-layout, inline/template, exception, and import-library
+requirements that prevented a decorated-export-only shortcut.
+
+### Narrow prototype contract and target resolution
+
+The module exposes only `abi_info()` and one mutation operation,
+`apply_exact_patch(...)`. It accepts simple Python strings, integers, a sequence
+of tuples, and exact `bytes`; it accepts no SIP/PyKrita C++ pointer. The
+operation contract is:
+
+```text
+document_path
+target_uuid
+expected_width, expected_height
+expected_origin_x, expected_origin_y
+expected_color_model, expected_color_depth, expected_profile
+runs = [(x, y, pixel_count, expected_before_bytes, replacement_bytes), ...]
+```
+
+For this constrained prototype, document identity is the canonical path of a
+saved disposable file. It scans `KisPart::instance()->documents()`, compares
+canonical paths case-insensitively on Windows, and requires exactly one match.
+This is deterministic for the one disposable fixture, but it is explicitly
+**not** a production-strength document-generation token: unsaved documents and
+multiple open aliases need a stronger production design.
+
+Within only the resolved document's `KisImage`, the helper recursively counts
+the supplied UUID and requires exactly one match. It verifies that the node's
+image pointer is the resolved image, that it is a `KisPaintLayer`, is editable
+and unlocked, is not animated, and exposes the expected `KisPaintDevice`.
+The active document and active node are irrelevant to resolution.
+
+Before any transaction, it fails closed unless all of these checks pass:
+
+- Windows x64 `krita.exe`, exact Krita `5.3.3 (git 858d352)`, exact Qt
+  `5.15.7`, CPython 3.13, and the Krita GUI thread;
+- unique canonical document path and unique target UUID;
+- same document/image/node/device binding;
+- exact image/device origin and bounds;
+- target paint layer editable, unlocked, and nonanimated;
+- color model `RGBA`, depth `U8`, pixel size 4, and exact profile name;
+- positive image dimensions and a non-null UUID;
+- nonempty sorted, non-overlapping horizontal runs wholly inside bounds;
+- each expected/replacement payload exactly `pixel_count * 4` bytes;
+- at most 1,000,000 pixels and 16 MiB combined expected/replacement payload;
+- every expected-before run exactly equal to a current device read.
+
+An image barrier protects the outer expected-before validation. The exclusive
+stroke command repeats document/node/device resolution and expected-before
+validation immediately before creating the transaction. A mismatch returns
+`STALE_REJECTED`, performs zero writes, and publishes zero Undo commands.
+
+### One-command transaction, rollback, update, and Redo design
+
+The complete two-color patch is one `ExactPatchCommand`, derived from
+`KisTransactionBasedCommand`, inside one exclusive
+`KisStrokeStrategyUndoCommandBased` stroke. Static control flow contains
+exactly one `startStroke()`, one `addJob()`, and one `endStroke()`. The job is
+`BARRIER`/`EXCLUSIVE`; the strategy does not create its own macro. Only after
+the command reports success does the finish callback add the single command to
+the image's post-execution Undo adapter. The intended counts are therefore:
+
+```text
+startStroke calls                  1
+endStroke calls                    1
+top-level user-visible commands    1
+KisTransactionBasedCommand objects 1
+```
+
+`paint()` creates one `KisTransaction` on the target device. It writes only the
+validated horizontal runs using `KisPaintDevice::writeBytes()`, then reads each
+run back and requires byte-exact replacement. It never creates a `KisPainter`,
+selection, fill action, compositing operation, or bounding-box padding write.
+It marks one union dirty rectangle with `node->setDirty()`; that invalidation
+does not add another history command.
+
+On success, `transaction.endAndTake()` supplies the one transaction-data
+command. Krita's tile memento skips the already-performed first Redo, rolls back
+on Undo, and rolls forward on later Redo; no prototype-side manual Redo buffer
+exists. `KisSavedCommand` replays the same one command in Krita's normal Undo/
+Redo strokes.
+
+All conditions that can be checked are checked before transaction creation. If
+a C++ exception or replacement readback failure occurs after creation, the
+catch path calls `KisTransaction::revert()`, destroys the transaction, verifies
+every expected-before run again, marks the same dirty rect, and does not publish
+the command. `KisTransaction::end()` is not used as rollback. This design does
+not claim recovery from process termination, access violation, or another
+non-C++ catastrophic failure.
+
+By construction, the helper does not read or write the global selection,
+foreground color, active node, blending mode, opacity, flow, eraser state,
+global alpha lock, rotation, mirror, zoom, wraparound, or level-of-detail mode.
+
+### Mutation binary and static ABI result
+
+| Artifact | Path | SHA-256 |
+|---|---|---|
+| C++ source | `/tmp/gapfill-krita-native-build/spike/txn/src/gapfill_krita_native_txn.cpp` | `e9a16ffb32e74dadfb98b5f37f28b48c647ee20feaf4070447bbf0ae282f5107` |
+| CPython import definition | `/tmp/gapfill-krita-native-build/spike/txn/python313-txn.def` | `b3c64f7c71b3748c238785d599266c59daa5477f578575b81e9cf28b5c5ecf73` |
+| Build script | `/tmp/gapfill-krita-native-build/spike/txn/build-txn.sh` | `411fd90136198519e0af74bc570b9e4f97316d217bf9e8e2b5b6885ed5d4b0a6` |
+| Mutation binary | `/tmp/gapfill-krita-native-build/spike/txn/out/gapfill_krita_native_txn.cp313-win_amd64.pyd` | `6ee912013bfb917c676836b9103809480301e185cfff62cf8982badf6525efb1` |
+
+The mutation binary is 1,337,344 bytes. Two clean output directories produced
+the same SHA-256 and `cmp` passed. The PE/COFF timestamp is zero. Static
+inspection reports PE32+ AMD64, 64-bit address size, DLL, large-address-aware,
+`DYNAMIC_BASE`, `HIGH_ENTROPY_VA`, and `NX_COMPAT`; it exports exactly
+`PyInit_gapfill_krita_native_txn`.
+
+Direct imports are `python313.dll`, `libkritaui.dll`, `libkritaimage.dll`,
+`libkritapigment.dll`, `libkritacommand.dll`, `libkritaversion.dll`,
+`libkritaglobal.dll`, `Qt5Core.dll`, `libc++.dll`, `libunwind.dll`,
+`KERNEL32.dll`, and UCRT API-set DLLs. Imported Krita symbols include the
+document/image resolvers, UUID/node/device checks, `readBytes`, `writeBytes`,
+stroke strategy/job methods, transaction command methods, dirty invalidation,
+and the post-execution Undo adapter. There is no MSVC C++ runtime,
+`libstdc++`, `libgcc`, second Qt copy, wrong Python ABI, or wrong architecture.
+Qt Gui/Widgets and the wider UI closure are supplied transitively by the exact
+host `libkritaui.dll`; LLD removed unused direct imports.
+
+A final name-by-name comparison against the actual installed DLL export tables
+also passed: all 13 imported CPython names, 4 `libkritaui` names, 54
+`libkritaimage` names, 1 `libkritapigment` name, 15 `libkritacommand` names, 1
+`libkritaversion` name, 4 `libkritaglobal` names, 25 Qt5 Core names, 28 libc++
+names, and 1 libunwind name are present. Only the normal Windows Kernel/UCRT
+API-set imports were treated as system-provided. There is therefore no missing
+named import in the installed host closure at static inspection time.
+
+### Disposable fixture and exact raw patch
+
+The future proof fixture is an exact copy of the preserved Row-G capture:
+
+```text
+/tmp/gapfill-krita-native-build/spike/txn/fixture/multiple-colors.kra
+SHA-256 3df7b2087c535d2e4eaab4409f3becb3379886bca8fc82f452bee63148911d79
+size 43,251 bytes
+```
+
+It is 64×64, origin (0,0), `RGBA/U8`, profile
+`sRGB-elle-V2-srgbtrc.icc`, with unique paint-layer UUIDs Coloring
+`{50e9f493-3640-44e7-8037-542594f7f62b}`, Line Art
+`{7d6486fa-b754-431d-9c88-fc9a4958cdcd}`, and Guides
+`{95d3b93c-d702-44e2-b400-ba3b42414465}`. The machine-readable patch plan is
+`fixture/patch-plan.json`, SHA-256
+`0c919e41fad4b38445674d4f4475d354430f7a1af4e16d94c2ad237ea5a08e0f`.
+Mechanical validation passed: 19 sorted non-overlapping horizontal runs, 187
+unique pixels, 178 blue and 9 red.
+
+The frozen ordered colors and final device bytes are:
+
+| Group | Canonical ordered RGBA | Target-profile ordered RGBA | Native `pixelData`/`writeBytes` BGRA/U8 |
+|---|---|---|---|
+| Blue | `[13,117,241,255]` | `[13,117,241,255]` | `[241,117,13,255]` |
+| Red | `[227,61,17,255]` | `[227,61,17,255]` | `[17,61,227,255]` |
+
+Color management is complete before the helper call; the helper receives only
+the final native bytes. Expected-before is `[0,0,0,0]` at every target pixel.
+The 187-pixel identity is:
+
+- blue gap 0: x 39–51, y 13–25, 169 pixels;
+- blue gap 1: indices 1560–1562, 1624–1626, and 1688–1690, 9 pixels;
+- red gap 2: indices 2990–2992, 3054–3056, and 3118–3120, 9 pixels.
+
+Both colors are passed in the same one-call, one-command plan.
+
+### Prepared one-shot real-host harness — not executed
+
+The harness is:
+
+```text
+/tmp/gapfill-krita-native-build/spike/txn/gapfill_phase65_native_txn_proof_b4acabf_6ee91201_v1.py
+SHA-256 2d4e871a6dfa527ceea8c9fb4cd09f507726265a5bc33114ba94d5e55f666ceb
+size 21,098 bytes
+```
+
+The harness, exact `.pyd`, and fixture are staged outside the installed plugin
+at:
+
+```text
+C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-txn-spike-b4acabf-6ee91201-v1\
+```
+
+All three staged hashes match the isolated originals. No file was copied into
+the Krita resource directory or production GapFill package. The unique guarded
+output directory is:
+
+```text
+C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-txn-result-b4acabf-6ee91201-v1\
+```
+
+It is absent, which is direct filesystem evidence that this harness has not
+run. The harness refuses an existing output directory or preloaded module,
+checks exact host/module/fixture hashes, copies the source to a disposable KRA,
+resolves all three UUIDs, and captures whole-layer raw arrays and editor state
+at S0/S1/S2/S3. It temporarily adds only the isolated module path and Krita DLL
+search directory, then restores `sys.path` and closes the disposable document
+without save or `setModified(false)`.
+
+Static AST inspection finds exactly one `apply_exact_patch()` call and two
+`QAction.trigger()` call sites: one for `edit_undo` and one for `edit_redo`.
+Runtime counters require one native call and one Undo; the Redo branch is
+reachable only if S2 Coloring is byte-identical to S0 and is capped at one
+call. The harness requires exact 187-pixel APPLY with zero missing,
+unexpected, wrong-color, or non-target byte changes; Line/Guide and all captured
+editor state except the normal modified flag must remain exact. It stops before
+Redo if one Undo does not restore S0. One Redo must restore exact S1. It writes
+machine-readable `result.json` and `raw-states.npz` in the guarded directory.
+
+Python syntax compilation and AST parsing passed. The AST also finds zero
+`setPixelData`, `setSelection`, `setForeGroundColor`, `setActiveNode`,
+`setModified`, `save`, or `saveAs` calls. The C++ source contains one
+`writeBytes` call site inside the validated-run loop; no `KisPainter`, fill
+action, selection mutation, or production-plugin import exists. Ruff remains
+unavailable in this isolated WSL environment, so no Ruff result is claimed.
+
+The artifacts are statically suitable for **one future explicitly authorized
+manual attempt** in the exact qualified host cell, using only the guarded
+Scripter harness and disposable fixture. This is permission/readiness for an
+attempt, not evidence that the mutation binary loads, applies, undoes, or
+redoes in the real host. The helper was not imported and
+`apply_exact_patch()` was not called in this task.
+
+### Verification and unchanged gates
+
+The fixture manifest, ONNX, and sidecar re-hashed to their frozen values above.
+`git diff --check` passed. The only repository path changed remains this
+evidence document; production source, the installed production plugin, and
+`krita-plugin/host_tests/matrix.json` are unchanged. No production ZIP includes
+the prototype.
+
+The authoritative matrix remains **A–F PASS; G FAIL; H–V UNTESTED**. Row G
+remains `NATIVE_FILL_UNSELECTED_TRANSPARENT_RGB_WRITE`; neither its NORMAL nor
+COPY result is reclassified. Row I remains **UNTESTED** and a release blocker;
+prototype control-flow and static ABI evidence are not a one-step Undo result.
+Phase 6.5 remains **OPEN / FAILED**, and Krita remains not release-qualified.
+Rows H–V and OFFF were not begun.
+
+## Native transaction prototype real-host result and production integration — 2026-08-20
+
+This section is later, time-ordered evidence. It supersedes only the preceding
+prototype section's `NOT_EXECUTED` status. It does **not** reclassify a matrix
+row: the isolated prototype was not the production GapFill Apply route.
+
+### Frozen integration baseline and preserved prototype proof
+
+The integration began on branch `qualify/csp-host-adapter` at commit
+`b4acabf3cea64c118ea7eb62510d73e7bb0e887b`. Before production integration,
+the only repository modification was this evidence document. The prototype
+source, build recipe, import definition, binary, fixture, result JSON, and raw
+arrays remain at their original paths and hashes; none was overwritten:
+
+| Evidence | SHA-256 |
+|---|---|
+| Prototype source | `e9a16ffb32e74dadfb98b5f37f28b48c647ee20feaf4070447bbf0ae282f5107` |
+| Prototype build script | `411fd90136198519e0af74bc570b9e4f97316d217bf9e8e2b5b6885ed5d4b0a6` |
+| Prototype import definition | `b3c64f7c71b3748c238785d599266c59daa5477f578575b81e9cf28b5c5ecf73` |
+| `gapfill_krita_native_txn.cp313-win_amd64.pyd` | `6ee912013bfb917c676836b9103809480301e185cfff62cf8982badf6525efb1` |
+| `multiple-colors.kra` | `3df7b2087c535d2e4eaab4409f3becb3379886bca8fc82f452bee63148911d79` |
+| Real-host `result.json` | `12c8760eba3e1e6f6ae391a5e4ca535511879259b06b421f6b0efda2298c12d6` |
+| Real-host `raw-states.npz` | `72b094172f967c6231f73222ada818b82c49a53a37be68cb0b827ef6992fc223` |
+
+The previously prepared prototype was run once on the qualified Windows 11
+x64 / Krita 5.3.3 git `858d352` / Qt 5.15.7 / CPython 3.13.5 host. Its guarded
+result directory is
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-txn-result-b4acabf-6ee91201-v1`.
+The result is `PASS`:
+
+- one native call carried 19 horizontal runs and 187 pixels in two colors;
+- exactly 187 intended pixels changed, with zero missing, unexpected, or
+  wrong-valued pixels and byte-exact non-target data;
+- Line and Guide were unchanged;
+- the helper reported one start stroke, one end stroke, one top-level Undo
+  command, one transaction command, and one published transaction;
+- one normal Krita Undo restored exact S0, and one Redo restored exact S1;
+- selection, foreground, active node, and captured view/tool state were
+  unchanged except for the normal document-modified flag;
+- the disposable document closed without save, the source fixture remained
+  byte-identical, the prior view and `sys.path` were restored.
+
+This is the architectural classification
+`NATIVE_TRANSACTION_PROTOTYPE_PASS`. Row G remains failed on the historical
+production fill implementation, and formal production Row I remains untested.
+
+### Minimum production architecture
+
+The existing Python application plan, correction precedence, selection
+eligibility, and `CanvasColorBridge` remain authoritative. For one user Apply,
+Python now:
+
+1. revalidates the immutable scan context and complete application plan;
+2. reads the whole target's exact native BGRA/U8 bytes and requires equality
+   with the frozen Coloring snapshot, including RGB under alpha zero;
+3. converts each final source-profile RGB through the existing qualified
+   `CanvasColorBridge` into target-profile ordered RGB;
+4. writes those final colors into an expected-after byte image and merges the
+   complete, strictly sorted pixel set into nonoverlapping same-row runs;
+5. loads one exact helper, sends every selected gap and every color in one
+   `apply_exact_patch` call, validates its command counters, waits for Krita,
+   and requires the complete target raw image to equal expected-after.
+
+Apply Selected and Apply All therefore share the same invariant:
+
+```text
+one user Apply -> one Python native call -> one native stroke -> one transaction
+```
+
+The production route no longer calls
+`fill_selection_foreground_color`, constructs a selection, changes foreground
+or paint state, or uses direct Python `setPixelData` recovery. There is no
+fallback to the historical fill action. A successful native call followed by
+a Python full-layer mismatch fails loudly and instructs the user to invoke one
+Undo; it does not create a second cleanup/history command.
+
+The production document token reuses Phase-6 scan provenance instead of a
+saved path. Python freezes the LibKis image-root node UUID together with its
+existing document/view object identity and full node/content provenance. The
+native helper enumerates `KisPart::instance()->documents()` and requires that
+UUID to resolve to exactly one open `KisImage` root. This supports unsaved
+documents without path ambiguity, fails closed if multiple documents match,
+and naturally rejects a closed/reopened image because the root UUID changes.
+It never chooses `activeDocument()`.
+
+Inside only that resolved image, the helper recursively counts the exact target
+UUID and requires one paint-layer match whose image/device binding, dimensions,
+origin, bounds, editability, lock/animation/visibility/opacity/composite/alpha
+state, RGBA/U8 pixel size, and profile match the Python request. Active node is
+irrelevant. Runs must be nonempty, sorted, nonoverlapping, in-bounds, below the
+pixel/payload caps, and contain exact expected-before bytes. An outer image
+barrier validates before scheduling; the exclusive stroke command resolves and
+validates again before constructing the transaction.
+
+After the transaction starts, a C++ exception or replacement-readback mismatch
+calls `KisTransaction::revert()`, destroys the transaction, verifies all
+expected-before run bytes, and publishes no successful Undo command. On success
+`endAndTake()` supplies the one transaction command, which is added once through
+the post-execution Undo adapter. Native and Python both use strict byte equality;
+there is no alpha-zero equivalence.
+
+### Exact production helper identity and packaging
+
+The helper is production-named
+`gapfill_krita_native_5_3_3.cp313-win_amd64.pyd`, version
+`1.0.0-krita-5.3.3-858d352`. It admits exactly Windows x64, Krita
+`5.3.3 (git 858d352)`, Qt 5.15.7, and CPython 3.13.5. Python checks the host
+before import, the expected file SHA before import, the loaded module's exact
+resolved path and hash after import, ABI metadata, and operation presence. The
+C++ module independently checks process architecture, exact Krita/Qt/Python,
+and the GUI thread. Unsupported or mismatched hosts fail closed with no old
+fill/direct-write fallback.
+
+The production build source is
+`krita-plugin/native/krita_5_3_3/gapfill_krita_native_5_3_3.cpp` (SHA-256
+`72fc77cbcc93b41028925319d7dfb48e2d0c2fd9b6d9b3eed2edd6b6adaa412d`),
+with the pinned build script
+`da089b936a5363a70574a4b6df6adb6be3d07d6c5fb2c766e2135d1f9c17b8bc`
+and import definition
+`b3c64f7c71b3748c238785d599266c59daa5477f578575b81e9cf28b5c5ecf73`.
+Two independent output directories produced byte-identical 1,328,128-byte
+binaries at SHA-256
+`ad2fa7463d59dca74a92dc867734b38eb7aa49821b163547da442147348f8746`.
+
+Static inspection identifies PE32+ AMD64, Windows GUI DLL, zero COFF timestamp,
+large-address-aware, ASLR/high-entropy/NX, and the single export
+`PyInit_gapfill_krita_native_5_3_3`. Its non-system imports are only the pinned
+host's `python313.dll`, Krita UI/image/pigment/command/version/global DLLs,
+Qt5 Core, libc++, and libunwind; it does not bundle a second runtime. The ZIP
+path is exactly:
+
+```text
+gapfill_krita/_native/gapfill_krita_native_5_3_3.cp313-win_amd64.pyd
+```
+
+The builder validates the filename/hash, includes the action metadata, uses
+fixed timestamps/modes and sorted entries, and excludes caches. Krita must be
+fully exited before binary replacement because Windows locks loaded `.pyd`
+files.
+
+### Focused and full regression evidence
+
+The focused native-loader/adapter/host-contract/build suite passed **44/44**.
+It covers exact-host admission and every host-cell mismatch, missing/wrong-path/
+wrong-hash/import/ABI rejection, run ordering/merging/bounds/duplicates,
+native BGRA layout and hidden-RGB expected-before payloads, one-call Apply
+Selected, one-call multi-color Apply All, no selection/tool changes, native
+failure mapping with verified rollback, strict full-layer mismatch handling,
+and an unreachable legacy fill action. These fakes do not prove real-host Undo.
+
+The complete Krita-independent suite passed **72/72**, and Ruff passed. All 39
+non-vendored Python sources compiled via `compile()` without writing bytecode.
+The source ZIP built successfully, passed ZIP integrity, contained desktop,
+action, package, model/sidecar and the native package initializer, and correctly
+omitted both binary dependencies and the optional `.pyd`. Web reference tests
+passed **15/15** with zero skips; ESLint and the TypeScript/Vite build passed.
+No sanitizer result is claimed for the version-pinned Windows/Krita native
+binary in this WSL environment, and no new real-Krita matrix row was executed.
+
+The canonical frozen hashes remain exact:
+
+| Frozen input | SHA-256 |
+|---|---|
+| Fixture manifest | `6243be8f2a26b383ef0293bd585318c0072011ccabf959cb25f42127aba5908c` |
+| ONNX model | `8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78` |
+| Model sidecar | `2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5` |
+
+### New release candidate and prepared host harnesses
+
+The final qualification candidate is:
+
+```text
+/tmp/gapfill-krita-phase6.5-native-transaction-win-x64-py313-b4acabf-worktree-final-c.zip
+SHA-256 46c98b98ec16a7618842db1a0b9f1da59af3ccebce583552a29fca3b7428c1bf
+size 48,197,789 bytes
+895 file entries; 103,302,091 uncompressed bytes
+canonical per-entry manifest SHA-256
+62178de2bc63659a6680e6c0ff5e852b242f7b6723ae41d2d234e80d6a3de5b1
+```
+
+An independent `final-d` build is byte-identical (`cmp` and SHA-256 pass), and
+ZIP integrity passes. The model, sidecar, and native helper entries have their
+frozen/pinned hashes above. The candidate is also staged, byte-identically, at:
+
+```text
+C:\Users\marck\AppData\Local\Temp\gapfill-phase65-production-native-b4acabf-v1\
+gapfill-krita-phase6.5-native-transaction-win-x64-py313-b4acabf-worktree.zip
+```
+
+Formal production Row-G-only and Row-I-only harnesses are prepared in that same
+staging directory. Their WSL source paths and SHA-256 values are:
+
+| Prepared file | SHA-256 |
+|---|---|
+| `/tmp/gapfill_phase65_production_requalification_common.py` | `3ed60727011c8ca394de6e79dd6648827386eda95be50141b860c4213a723f26` |
+| `/tmp/gapfill_phase65_rowg_production_native_b4acabf_v1.py` | `302848e977bf836b767bfcd10d568bb87ea7f12d5a3f3aded1c76349ac9cd3b1` |
+| `/tmp/gapfill_phase65_rowi_production_native_b4acabf_v1.py` | `76d9486e0b330256888e09b5650faa332b3b0a9359b8f63548d62ecfdeba30ef` |
+
+Both wrappers and their common implementation pass syntax and Ruff checks. The
+common harness verifies the exact ZIP and installed tree, frozen model/sidecar,
+native binary, unchanged 64×64 fixture, exact host cell, and fresh output
+directory before mutation. Row G uses fresh disposable documents to test
+production corrected-decision Apply Selected (18 exact pixels) and production
+Apply All (187 exact blue/red pixels), requiring one native call per user Apply,
+whole-target byte equality, unchanged Line/Guide, and unchanged editor state.
+Row I uses one production multi-color `apply_all()`, requires one native call,
+then at most one normal Undo to exact S0 and—only if that passes—one Redo to
+exact S1. Both preserve raw arrays/JSON and close disposable documents without
+saving.
+
+The guarded future output directories are:
+
+```text
+C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v1
+C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowi-production-native-b4acabf-v1
+```
+
+Both directories were confirmed absent after preparation. Neither harness was
+executed; the installed production plug-in was not replaced in this task.
+
+### Gate state after integration
+
+Production integration and a deterministic qualification candidate are
+complete, but host qualification has not advanced. The authoritative matrix
+remains **A–F PASS; G FAIL; H–V UNTESTED**. Row I remains **UNTESTED** and a
+release blocker. Phase 6.5 remains **OPEN / FAILED**, and Krita remains not
+release-qualified. Rows H/J–V and OFFF were not begun.
+
+## Production Row-G requalification harness-preflight attempt 1
+
+The first formal production Row-G requalification attempt used the preserved
+v1 wrapper at
+`/tmp/gapfill_phase65_rowg_production_native_b4acabf_v1.py` (SHA-256
+`302848e977bf836b767bfcd10d568bb87ea7f12d5a3f3aded1c76349ac9cd3b1`)
+and the unchanged production candidate at SHA-256
+`46c98b98ec16a7618842db1a0b9f1da59af3ccebce583552a29fca3b7428c1bf`.
+It is classified narrowly as
+`PRODUCTION_ROW_G_HARNESS_PREFLIGHT_FAIL_ZIPINFO_SORT`. This result does not
+qualify the new production mutation backend as either passing or failing.
+
+The preserved guarded evidence is
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v1\result.json`
+(1,911 bytes, SHA-256
+`e9ff242d577528dbb33d6803497c95d5fbfd274b43f097383d882da8dbc297de`).
+It records the qualified Windows 11 / Krita 5.3.3 git `858d352` / Qt 5.15.7 /
+CPython 3.13.5 host, the expected artifact hash, and an unchanged source
+fixture before and after at SHA-256
+`3df7b2087c535d2e4eaab4409f3becb3379886bca8fc82f452bee63148911d79`.
+No case JSON, raw-state NPZ, or disposable document was created.
+
+The exact execution boundary, proven from the persisted traceback and v1
+control flow, is:
+
+| Boundary | Result | Evidence |
+|---|---|---|
+| Artifact staged/copied | EXECUTED | The exact artifact and fixture were already present in the guarded staging directory. |
+| Artifact SHA verified | EXECUTED | `verify_installed_artifact()` passed its first SHA guard and entered the ZIP. |
+| Installed-payload verification begun | EXECUTED | `ZipFile.infolist()` returned entries and reached their ordering step. |
+| Installed-payload verification completed | NOT EXECUTED | Ordering raised before the per-entry installed-file loop. |
+| Production module import | EXECUTED, Python only | The common module imported the production controller/adapter/types before `run()`; the production native `.pyd` was not loaded. |
+| Production scan/snapshot | NOT EXECUTED | `run_row_g()` and `open_case()` were never reached. |
+| Apply Selected | NOT EXECUTED | No application case began. |
+| Corrected decision | NOT EXECUTED | `fixture_gaps()` was never reached. |
+| Apply All | NOT EXECUTED | No application case began. |
+| Native apply | NOT EXECUTED | `load_native_helper()` / `apply_exact_patch()` were never reached. |
+
+The defect was the raw-object comparison in v1:
+
+```python
+entries = sorted(info for info in archive.infolist() if not info.is_dir())
+```
+
+CPython 3.13 correctly reported that two `ZipInfo` objects do not define `<`.
+The v2 preflight changes only this harness boundary: it retains complete
+`ZipInfo` objects but orders them with `key=lambda info: info.filename`.
+Consequently the existing CRC, size, compression, external-attribute,
+`archive.read(info)`, installed-path allowlist, installed-file hashing, extra
+file detection, and pinned native/model/sidecar checks remain available. The
+v1 verifier had no explicit duplicate-member rejection; v2 strengthens this
+boundary by rejecting adjacent equal filenames after deterministic ordering,
+rather than silently accepting ambiguous duplicate paths. The nearby v1
+common helper contains no other `sorted()` call; all v2 nearby sorts operate
+on filenames or integer pixel indices.
+
+A host-independent focused regression constructs real `ZipInfo` objects and
+checks deterministic filename ordering, retained CRC/file-size/compressed-size/
+external-attribute metadata, explicit duplicate-name rejection, unchanged
+delegation to the v1 path allowlist and `archive.read(info)`, and both the Row-G
+and Row-I wrapper preparation paths without importing or executing Krita. It
+passed **4/4** under the available CPython 3.12.3 environment; syntax checks and
+Ruff also passed. The actual failure was captured under embedded CPython 3.13.5,
+and no raw `ZipInfo` comparison remains in v2. The WSL-to-Windows PowerShell
+bridge was unavailable during preparation, so the focused regression was not
+separately executed by a standalone Windows CPython 3.13 process.
+
+The corrected files are prepared in `/tmp` and copied byte-identically beside
+the preserved v1 stage:
+
+| Prepared v2 file | SHA-256 |
+|---|---|
+| `/tmp/gapfill_phase65_zip_preflight_v2.py` | `9d9ed5ec9522bec1d2123848b45943188fb4efde6e0150840e85bdcd0fce61b9` |
+| `/tmp/gapfill_phase65_production_requalification_common_v2.py` | `ed708b61c22d1a5e242e9d207234f18ecdb17c2ca42088faed77d90cd58cc4ea` |
+| `/tmp/gapfill_phase65_rowg_production_native_b4acabf_v2.py` | `51727faab642e3ffc0ac418d0dba2bafe65bd26a15f8d2c6bb7f513b189fe7ce` |
+| `/tmp/gapfill_phase65_rowi_production_native_b4acabf_v2.py` | `7923dac9a57c584c6db9db581c7718f9bc9dbf83917bbb9f5f30527aac15a085` |
+| `/tmp/test_gapfill_phase65_zip_preflight_v2.py` | `7df377301d5ce805ebabd1a08000077c3abab4073de535bdedaafaacfc47deae` |
+
+Row G v2 preserves the v1 post-preflight cases and acceptance criteria,
+including corrected-decision Apply Selected and multi-color Apply All. Its new
+guarded output is
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v2`.
+Row I shared the same broken verifier, so a corrected v2 wrapper was prepared
+with output
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowi-production-native-b4acabf-v2`.
+Both output directories remain absent: neither v2 wrapper was executed, and
+Row I remains untested.
+
+The qualification artifact was not rebuilt and remains byte-identical. The
+fixture manifest, ONNX model, and canonical sidecar hashes remain
+`6243be8f2a26b383ef0293bd585318c0072011ccabf959cb25f42127aba5908c`,
+`8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78`,
+and `2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5`.
+No production source changed for this harness-only repair. The authoritative
+matrix remains **A–F PASS; G FAIL (historical production fill); H–V UNTESTED**.
+Row I remains **UNTESTED** and a release blocker. Phase 6.5 remains
+**OPEN / FAILED**.
+
+## Production Row-G requalification preflight attempt 2 and clean-install v3
+
+The formal production Row-G v2 wrapper at
+`/tmp/gapfill_phase65_rowg_production_native_b4acabf_v2.py` (SHA-256
+`51727faab642e3ffc0ac418d0dba2bafe65bd26a15f8d2c6bb7f513b189fe7ce`)
+was executed once. It is classified narrowly as
+`PRODUCTION_ROW_G_PREFLIGHT_FAIL_INSTALLED_ARTIFACT_MISMATCH`; it is not a
+PASS or FAIL result for the new production native mutation backend.
+
+The preserved guarded result is
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v2\result.json`
+(3,554 bytes, SHA-256
+`665842b92bd5d05f6aaec6240cdb1643b7907f18722c630a491deb1a4d1c45eb`).
+It records the exact qualification artifact at SHA-256
+`46c98b98ec16a7618842db1a0b9f1da59af3ccebce583552a29fca3b7428c1bf`
+and source-fixture hashes before and after of
+`3df7b2087c535d2e4eaab4409f3becb3379886bca8fc82f452bee63148911d79`.
+Only `result.json` exists in the guarded directory; no case JSON, NPZ, or
+disposable document was created.
+
+The exact v2 execution boundary is:
+
+| Boundary | Result | Evidence |
+|---|---|---|
+| Artifact staged/copied | EXECUTED | The pinned ZIP was already present in the guarded staging directory. |
+| Artifact SHA verification | EXECUTED | The verifier passed the SHA guard and opened the ZIP. |
+| Installed-payload verification | EXECUTED / FAILED | All mapped entries were compared and cache extras scanned; exactness failed before the later pinned-entry checks returned. |
+| Production native import | NOT EXECUTED | `native_backend.load_native_helper()` was never reached. |
+| Production scan | NOT EXECUTED | `run_row_g()` / `open_case()` were never reached. |
+| Apply Selected | NOT EXECUTED | No application case began. |
+| Corrected decision | NOT EXECUTED | `fixture_gaps()` was never reached. |
+| Apply All | NOT EXECUTED | No application case began. |
+| Native apply | NOT EXECUTED | `apply_exact_patch()` was never reached. |
+
+The persisted v2 exception printed the verifier's first five differences:
+missing `_native/__init__.py` and the production `.pyd`, plus changed
+`controller.py`, `host_contract.py`, and `krita_adapter.py`; it recorded no
+unexpected extras. The installed plug-in had explicitly not been replaced
+before this attempt.
+
+### Pre-replacement installed-tree identity
+
+An independent read-only comparison captured the complete current identity at
+`C:\Users\marck\AppData\Roaming\krita`. The installed package root is
+`pykrita\gapfill_krita`; it contains 1,006 files: 890 non-cache payload files
+and 116 files under `__pycache__` ending in `.cpython-313.pyc`. All 116 are
+recognized embedded-CPython cache products. The qualification ZIP expects 893
+package files plus one desktop and one action file, for 895 total files.
+
+The independent comparison explains that the persisted v2 message was
+truncated to its first five mismatches. The complete installed difference is:
+
+| Entry | Installed state/hash | Expected hash |
+|---|---|---|
+| `gapfill_krita/_native/__init__.py` | missing | `645d2f51894b14fdac912214213727eea30d8fc6d0cd35f8a73c2725b8c4785b` |
+| `gapfill_krita/_native/gapfill_krita_native_5_3_3.cp313-win_amd64.pyd` | missing | `ad2fa7463d59dca74a92dc867734b38eb7aa49821b163547da442147348f8746` |
+| `gapfill_krita/native_backend.py` | missing | `7fbadcf164b3e5517b7f2383d1bbbd6ed76af8f73b27bb1d2364c3b6382a2bab` |
+| `gapfill_krita/controller.py` | `eb045c85718a39f109695e89c528cc88d968ecf71676c22e018e3c43bcf2cbd8` | `c32bc5638b4ccc0026830394e8cd81cf0b6021e7b5e11b3684c4fae206a8797c` |
+| `gapfill_krita/host_contract.py` | `c8a38bb751153034713b13b4a8b28749be7e841dcf48f00b5e07f274d5c64f77` | `eb7e02e2b9aa0138326088eb0c2aa5544d7ff3422fd6b7f4b69b88e72dafd6df` |
+| `gapfill_krita/krita_adapter.py` | `5dd75e58d70602d70ffa027b578a508333b1d2319612276012e3d680c9c09bf5` | `c50b52ce5de0dee76460532e0c2e81f929a2ca7cc9a8d7185c9eb030d84a02ac` |
+| `gapfill_krita/qt_compat.py` | `bf39554b11457b71e79a74e4c5f629aa0beeae4b644d45dea0d5ca64ce353ab7` | `977f0a6c3ad6f859f87b59021e3ddfc5bb678ff83bdc3844586d2a875a40cf6a` |
+
+The `_native` directory is absent. The installed desktop and action are
+present and already exact: respectively
+`74ae85fdf002e17af88b2cf5807854eccdc3791d27f88698f85311fd7da2fb6a`
+and `f10b3e3a4761659e0695c98326c19ce87b9cfb2c7fa9fa7f7e4e0d6c057d3ff0`.
+There are zero unrecognized package extras.
+
+### Deterministic offline replacement
+
+The selected route is an offline resource-folder replacement, not Krita's
+in-process Python Plugin Importer. A package containing a version-pinned
+native `.pyd` must be replaced while every `krita.exe` process is fully
+exited; an in-process importer cannot provide that lock/lifecycle guarantee.
+The only admitted artifact remains
+`/tmp/gapfill-krita-phase6.5-native-transaction-win-x64-py313-b4acabf-worktree-final-c.zip`
+at the SHA-256 above. It was not rebuilt or modified.
+
+The prepared, unexecuted PowerShell procedure is
+`/tmp/gapfill_phase65_clean_install_production_native_b4acabf_v3.ps1`,
+SHA-256
+`0a8bbf9a53709c884dcfb92876df7a994acafb2409d504dd00893e42ff534036`.
+It refuses to proceed if `krita.exe` exists, if its fresh stage or backup guard
+already exists, if the artifact hash/count/member paths/duplicates differ, or
+if the pinned native/model/sidecar hashes differ. It expands and verifies all
+895 files before changing the resource tree.
+
+Replacement is limited to these three GapFill targets:
+
+```text
+C:\Users\marck\AppData\Roaming\krita\pykrita\gapfill_krita
+C:\Users\marck\AppData\Roaming\krita\pykrita\gapfill_krita.desktop
+C:\Users\marck\AppData\Roaming\krita\actions\gapfill_krita.action
+```
+
+The whole old package directory—including stale payload and recognized
+caches—is moved, not deleted, to
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-clean-install-backup-b4acabf-v3`.
+The exact artifact is expanded first under the separately guarded
+`gapfill-phase65-clean-install-stage-b4acabf-v3` directory. The three targets
+are then moved into place and every installed file is hashed again. Failure
+after replacement begins moves the new targets aside and restores preserved
+old targets. Other plug-ins, actions, brushes, documents, configuration,
+credentials, and all unrelated Krita user resources are outside the target
+set and remain untouched. Recognized caches may be regenerated only after a
+fresh Krita start.
+
+### Prepared read-only v3 preflight and row harnesses
+
+The read-only verifier is
+`/tmp/gapfill_phase65_installed_artifact_verifier_v3.py`, SHA-256
+`e2dbaaa04aaeb67e87a07dc51ae91247c698cd83ab68fd5f2d5dcc7f750e8bd0`.
+After restart and before scan/application it requires all 895 mapped files and
+hashes, exact desktop/action/native/model/sidecar, no duplicate/unsafe paths,
+no unexpected package files, and permits only extras located under
+`__pycache__` whose names end in `.cpython-313.pyc`. It reports the complete
+missing/changed/unexpected sets rather than truncating them.
+
+The v3 common helper then calls the production fail-closed native loader and
+records the loaded module path/hash, complete `abi_info()`, and callable
+operation identity without invoking `apply_exact_patch`. Only after both
+preflights pass does it enter the unchanged v2 Row-G application flow and
+byte-exact acceptance checks. Prepared identities are:
+
+| Prepared v3 file | SHA-256 |
+|---|---|
+| `/tmp/gapfill_phase65_production_requalification_common_v3.py` | `250c182f6a467381bf0209611a38053911d7daf2a34086886cd66e9e88900622` |
+| `/tmp/gapfill_phase65_rowg_production_native_b4acabf_v3.py` | `0a6262a6a552962168570f15568b42f33d83fa5cf511781afbd47120fb0ae9f4` |
+| `/tmp/gapfill_phase65_rowi_production_native_b4acabf_v3.py` | `88115937e8f279d9c055ea9aa6b459f70d0a3900b4645cbc10a8bfc394286ccb` |
+
+The new guarded outputs are respectively
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v3`
+and
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowi-production-native-b4acabf-v3`.
+Both remain absent. Neither v3 harness, Row G, nor Row I was executed. Row I v3
+was prepared because it shares the stricter installed/native preflight; Row I
+remains untested.
+
+The focused v3 verifier/preparation regression passed **6/6**, with PyCompile
+and Ruff passing. Windows PowerShell 5.1's parser accepted the prepared
+installer with zero syntax errors. The installer itself was not run. No
+installed file or production source was changed.
+
+The six production-required files hidden by local
+`.git/info/exclude:10:/krita-plugin/` remain an eventual-commit release hygiene
+blocker and must become tracked before the production work is committed. The
+authoritative matrix remains **A–F PASS; G FAIL (historical production fill);
+H–V UNTESTED**. Row I remains **UNTESTED** and a release blocker. Phase 6.5
+remains **OPEN / FAILED**; OFFF was not begun.
+
+## Production-native Row-G and Row-I v3 real-host qualification
+
+After the deterministic offline replacement, the exact production-native
+qualification artifact at SHA-256
+`46c98b98ec16a7618842db1a0b9f1da59af3ccebce583552a29fca3b7428c1bf`
+was exercised in the qualified Windows 11 x64 / Krita 5.3.3 git `858d352` /
+Qt 5.15.7 / embedded CPython 3.13.5 host. This new evidence is appended; it
+does not replace the historical native-fill Row-G failure, COPY failure,
+prototype proof, v1 ZipInfo harness failure, or v2 installed-artifact mismatch
+recorded above.
+
+Both v3 runs passed the read-only installation/native preflight before any
+mutation. Row G verified all 895 packaged files with zero missing, changed, or
+unexpected payload entries and 106 recognized CPython 3.13 caches; Row I did
+the same with 107 regenerated caches. Both loaded the expected production
+native helper from the installed `_native` package at SHA-256
+`ad2fa7463d59dca74a92dc867734b38eb7aa49821b163547da442147348f8746`,
+validated its complete pinned ABI metadata and callable operation, and retained
+the frozen model and sidecar hashes.
+
+### Row G — production apply multiple colors: PASS
+
+The preserved capture is
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v3`.
+Its top-level `result.json` is 28,226 bytes, SHA-256
+`0a6a8d17cceddfac44677b165bb0adb8a710ff870f9abf288cd284745d67e6b5`,
+and records final status `PASS`.
+
+Corrected-decision Apply Selected passed with:
+
+- exactly 18 target and 18 changed pixels;
+- zero missing, unexpected, or wrong-valued target pixels;
+- byte-exact non-target data and complete target raw equality;
+- unchanged Line and Guide;
+- one production native apply call; and
+- one top-level Undo command, one transaction command, and one published
+  transaction.
+
+Its case JSON/NPZ hashes are respectively
+`62408b40e9a50059fa739c192e349e78da0cb3d0602e0781571ac89a1e963527`
+and `cb1f965cd1332c12c0f436a8b5cd0f9cb479a4de9fc6c617a2620eb4280a28ca`.
+
+Apply All passed with:
+
+- exactly 187 target and 187 changed pixels;
+- zero missing, unexpected, or wrong-valued target pixels;
+- byte-exact non-target data and complete target raw equality;
+- unchanged Line and Guide;
+- one production native apply call; and
+- one top-level Undo command, one transaction command, and one published
+  transaction.
+
+Its case JSON/NPZ hashes are respectively
+`9692a6383897c17fee1b318d7ecd56e72e49bf797936099dcafcca1c268ec5f4`
+and `53d1344c1f387a9d8fd83067b95d663b9a0fd00887d8e49cbb2d80c7c3f4b371`.
+Both disposable documents closed without saving, and both retained the exact
+source-fixture SHA-256
+`3df7b2087c535d2e4eaab4409f3becb3379886bca8fc82f452bee63148911d79`.
+Therefore authoritative Row G is now **PASS** for this tested host/artifact
+cell.
+
+### Row I — production one-step Undo/Redo: PASS
+
+The preserved capture is
+`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowi-production-native-b4acabf-v3`.
+Its top-level `result.json` is 24,142 bytes, SHA-256
+`aca8687b10203118b3e36196937d94e2546d996e84047a136f209467cecbf5a0`,
+and its authoritative raw-state NPZ is SHA-256
+`72b094172f967c6231f73222ada818b82c49a53a37be68cb0b827ef6992fc223`.
+
+The run made exactly one production Apply and one native apply. The helper
+reported one top-level Undo command, one transaction command, and one
+published transaction. Exactly one normal Krita Undo restored exact S0, and
+exactly one Redo restored exact S1; the counters are one Apply, one native
+apply, one Undo, and one Redo. Line and Guide remained exact, the disposable
+document closed without saving, and the source fixture remained byte-identical.
+Therefore authoritative Row I is **PASS** and the demonstrated one-step Undo
+release blocker is resolved for this tested host/artifact cell.
+
+### Current Phase 6.5 gate
+
+The authoritative matrix is now **A–G PASS; H UNTESTED; I PASS; J–V
+UNTESTED**. Phase 6.5 remains **OPEN** because H and J–V have not been run.
+Krita is not yet release-qualified across the Phase 6.5 matrix. No H/J–V row
+or OFFF work was begun by this evidence update.
+
+The final staged-clone audit found that the native recipe had relied on a
+pre-existing 82-byte `spike/include/pyconfig.h` wrapper in its external build
+workspace. The tracked build script now generates that wrapper itself from the
+pinned external CPython 3.13.5 `PC/pyconfig.h.in` before compilation. At the
+default qualified workspace path the generated bytes are exactly the bytes
+used by the qualified build; compile/link flags and production source are
+unchanged. This is a build-reproducibility repair only. The qualified artifact
+was not rebuilt and no additional host row was run.

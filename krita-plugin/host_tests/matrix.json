@@ -7,7 +7,8 @@
     "embedded_python": "CPython 3.13.5",
     "os_arch": "Windows 11 Pro x64",
     "resource_directory": "C:\\Users\\marck\\AppData\\Roaming\\krita",
-    "plugin_zip_sha256": "bf19c8dc2fb3e44f160614f61fa189d52dac62bc24790b0094170ccd93fbe146",
+    "plugin_zip_sha256": "46c98b98ec16a7618842db1a0b9f1da59af3ccebce583552a29fca3b7428c1bf",
+    "row_f_plugin_zip_sha256": "bf19c8dc2fb3e44f160614f61fa189d52dac62bc24790b0094170ccd93fbe146",
     "row_a_plugin_zip_sha256": "12a30dcf57f7aa703064e8babad05abe92626949b03e1acee0d0a0e7a0a7b5b9",
     "prior_failed_plugin_zip_sha256": "46b27a4417e87bf5c5ccf4ef71bee212c7053ffcb30d006f8cfc1aa25d2da1fb",
     "be_capture_directory": "C:\\Users\\marck\\AppData\\Local\\Temp\\gapfill-phase65-be-ed7d2e1",
@@ -29,6 +30,18 @@
     "row_g_diagnostic_results_sha256": "ee7293d90d93b1f4f3551120af248bde1562e3ab9b51ce006af3860fae26b96a",
     "row_g_diagnostic_arrays_sha256": "190f1aa4baed638ecf209e422de7d09c9c9f124cd736896a4626b76b29df2daa",
     "row_g_diagnostic_harness_sha256": "631c2a1037c7673cdf5bb20bff07dad5cb5fac56b5ceb137f4294680383a1ea1",
+    "row_g_production_v3_capture_directory": "C:\\Users\\marck\\AppData\\Local\\Temp\\gapfill-phase65-rowg-production-native-b4acabf-v3",
+    "row_g_production_v3_results_sha256": "0a6a8d17cceddfac44677b165bb0adb8a710ff870f9abf288cd284745d67e6b5",
+    "row_g_production_v3_apply_selected_results_sha256": "62408b40e9a50059fa739c192e349e78da0cb3d0602e0781571ac89a1e963527",
+    "row_g_production_v3_apply_selected_arrays_sha256": "cb1f965cd1332c12c0f436a8b5cd0f9cb479a4de9fc6c617a2620eb4280a28ca",
+    "row_g_production_v3_apply_all_results_sha256": "9692a6383897c17fee1b318d7ecd56e72e49bf797936099dcafcca1c268ec5f4",
+    "row_g_production_v3_apply_all_arrays_sha256": "53d1344c1f387a9d8fd83067b95d663b9a0fd00887d8e49cbb2d80c7c3f4b371",
+    "row_g_production_v3_harness_sha256": "0a6262a6a552962168570f15568b42f33d83fa5cf511781afbd47120fb0ae9f4",
+    "row_i_production_v3_capture_directory": "C:\\Users\\marck\\AppData\\Local\\Temp\\gapfill-phase65-rowi-production-native-b4acabf-v3",
+    "row_i_production_v3_results_sha256": "aca8687b10203118b3e36196937d94e2546d996e84047a136f209467cecbf5a0",
+    "row_i_production_v3_arrays_sha256": "72b094172f967c6231f73222ada818b82c49a53a37be68cb0b827ef6992fc223",
+    "row_i_production_v3_harness_sha256": "88115937e8f279d9c055ea9aa6b459f70d0a3900b4645cbc10a8bfc394286ccb",
+    "production_native_helper_sha256": "ad2fa7463d59dca74a92dc867734b38eb7aa49821b163547da442147348f8746",
     "model_sha256": "8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78",
     "gui_executable": true
   },
@@ -47,11 +60,16 @@
     {
       "id": "G",
       "case": "apply multiple colors",
-      "status": "FAIL",
-      "evidence": "The corrected-decision/Apply Selected subcase completed byte-exactly for two nine-pixel gaps and two color actions. A fresh Apply All scan failed production exact-target verification. A dedicated diagnostic then proved the first divergence in Group 1: Krita read back the exact intended 178-pixel/two-component selection and filled all selected pixels correctly, but also wrote RGB [13,117,241] with alpha 0 into 143 unselected transparent pixels. Group 2 added exactly its intended nine red pixels and preserved the Group-1 footprint. Diagnostic observation passed; its separate harness state restoration failed before it began because a private helper was omitted, although the nested finalizer still closed the disposable document without saving. H-V were not started."
+      "status": "PASS",
+      "evidence": "The clean-installed production-native v3 artifact passed both formal real-host cases. Corrected-decision Apply Selected changed exactly 18/18 target pixels with zero missing, unexpected, or wrong values, byte-exact non-target data, unchanged Line/Guide, one native apply, and one top-level Undo command. Apply All changed exactly 187/187 target pixels with the same exactness and one native transaction. Historical native-fill and harness failures remain preserved in docs/addon-phase6.5.md."
     },
     {"id": "H", "case": "selection presence and exact bytes restored", "status": "UNTESTED"},
-    {"id": "I", "case": "Undo / redo and visible command count", "status": "UNTESTED"},
+    {
+      "id": "I",
+      "case": "Undo / redo and visible command count",
+      "status": "PASS",
+      "evidence": "The production-native v3 real-host run made exactly one production Apply and one native apply, reported one top-level Undo command/transaction command/published transaction, then one normal Undo restored exact S0 and one Redo restored exact S1."
+    },
     {"id": "J", "case": "foreground and view/tool state restored", "status": "UNTESTED"},
     {"id": "K", "case": "active node restored", "status": "UNTESTED"},
     {"id": "L", "case": "stale scan rejection", "status": "UNTESTED"},

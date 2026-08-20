@@ -8,9 +8,9 @@ from typing import Iterable, Optional
 import numpy as np
 
 try:
-    from krita import Krita, ManagedColor, Selection
+    from krita import Krita, ManagedColor
 except ImportError:  # Pure adapter-contract tests run outside a Krita process.
-    Krita = ManagedColor = Selection = None  # type: ignore[assignment]
+    Krita = ManagedColor = None  # type: ignore[assignment]
 
 from .engine.pixels import bgra_bytes_to_rgba
 from .engine.types import GapRegion, LayerImages, Rgb
@@ -25,7 +25,8 @@ from .host_contract import (
     require_fresh,
     require_supported_size,
 )
-from .qt_compat import QByteArray, QColor, QUuid
+from .native_backend import NativeHostError, load_native_helper
+from .qt_compat import QColor, QUuid
 
 SUPPORTED_MODEL = "RGBA"
 SUPPORTED_DEPTH = "U8"
@@ -36,6 +37,7 @@ NORMAL_BLEND = "normal"
 class ApplyResult:
     changed_pixels: int
     atomic_undo: bool
+    native_contract: dict[str, object]
 
 
 def iter_nodes(root) -> Iterable:
@@ -219,6 +221,7 @@ def _observation(
     return HostObservation(
         document_key=id(document),
         view_key=id(view),
+        image_root_id=_uuid_text(root.uniqueId()),
         document_geometry=(
             int(document.xOffset()),
             int(document.yOffset()),
@@ -438,160 +441,201 @@ def canvas_color_bridge(view, context: ScanContext) -> CanvasColorBridge:
     return CanvasColorBridge(view.canvas(), observation.source_space, target)
 
 
-def _require_deterministic_view(view) -> None:
-    required = (
-        "eraserMode",
-        "setEraserMode",
-        "globalAlphaLock",
-        "setGlobalAlphaLock",
-        "currentBlendingMode",
-        "setCurrentBlendingMode",
-        "paintingOpacity",
-        "setPaintingOpacity",
-        "paintingFlow",
-        "setPaintingFlow",
-    )
-    missing = [name for name in required if not callable(getattr(view, name, None))]
-    if missing:
+def _read_node_raw(node, width: int, height: int, x: int, y: int) -> bytes:
+    raw = bytes(node.pixelData(x, y, width, height))
+    expected_size = width * height * 4
+    if len(raw) != expected_size:
         raise RuntimeError(
-            "This Krita build does not expose the public view-state controls required for "
-            "deterministic apply: " + ", ".join(missing)
+            f"Krita returned {len(raw)} raw Coloring bytes; expected {expected_size}."
         )
+    return raw
 
 
-def _rgba_to_bgra_bytes(image: np.ndarray) -> QByteArray:
-    return QByteArray(np.ascontiguousarray(image[..., [2, 1, 0, 3]]).tobytes())
+def _target_rgb_to_native_bgra(rgb: Rgb) -> bytes:
+    """Encode one already-converted target-profile color in Krita's RGBA/U8 storage."""
+
+    if len(rgb) != 3 or any(value < 0 or value > 255 for value in rgb):
+        raise ValueError(f"Invalid target-profile RGB value: {rgb!r}")
+    return bytes((rgb[2], rgb[1], rgb[0], 255))
 
 
-def _managed_signature(color) -> tuple[object, ...]:
-    metadata = []
-    for name in ("colorModel", "colorDepth", "colorProfile"):
-        getter = getattr(color, name, None)
-        metadata.append(str(getter()) if callable(getter) else None)
-    return (*metadata, tuple(float(value) for value in color.components()))
+def build_native_patch_runs(
+    indices: np.ndarray,
+    width: int,
+    height: int,
+    expected_before: bytes,
+    expected_after: bytes,
+    *,
+    origin_x: int = 0,
+    origin_y: int = 0,
+) -> tuple[tuple[int, int, int, bytes, bytes], ...]:
+    """Merge a strict sorted pixel plan into non-overlapping horizontal runs."""
+
+    if width <= 0 or height <= 0:
+        raise ValueError("Native patch dimensions must be positive.")
+    expected_size = width * height * 4
+    if len(expected_before) != expected_size or len(expected_after) != expected_size:
+        raise ValueError("Native patch images must contain exactly width * height * 4 bytes.")
+    values = np.asarray(indices)
+    if values.ndim != 1 or values.dtype.kind not in "iu" or values.size == 0:
+        raise ValueError("Native patch indices must be a non-empty integer vector.")
+    normalized = values.astype(np.int64, copy=False)
+    if np.any(normalized < 0) or np.any(normalized >= width * height):
+        raise ValueError("Native patch index is outside the image bounds.")
+    if normalized.size > 1 and np.any(normalized[1:] <= normalized[:-1]):
+        raise ValueError("Native patch indices must be strictly sorted without duplicates.")
+
+    runs: list[tuple[int, int, int, bytes, bytes]] = []
+    start = int(normalized[0])
+    previous = start
+    for raw_value in normalized[1:]:
+        value = int(raw_value)
+        same_row = value // width == previous // width
+        if value != previous + 1 or not same_row:
+            runs.append(
+                _native_run(
+                    start,
+                    previous,
+                    width,
+                    expected_before,
+                    expected_after,
+                    origin_x,
+                    origin_y,
+                )
+            )
+            start = value
+        previous = value
+    runs.append(
+        _native_run(
+            start,
+            previous,
+            width,
+            expected_before,
+            expected_after,
+            origin_x,
+            origin_y,
+        )
+    )
+    return tuple(runs)
+
+
+def _native_run(
+    start: int,
+    end: int,
+    width: int,
+    expected_before: bytes,
+    expected_after: bytes,
+    origin_x: int,
+    origin_y: int,
+) -> tuple[int, int, int, bytes, bytes]:
+    count = end - start + 1
+    byte_start = start * 4
+    byte_end = (end + 1) * 4
+    before = expected_before[byte_start:byte_end]
+    after = expected_after[byte_start:byte_end]
+    if before == after:
+        raise ValueError("Native patch run does not change any raw bytes.")
+    return (
+        origin_x + start % width,
+        origin_y + start // width,
+        count,
+        before,
+        after,
+    )
+
+
+def _require_successful_native_result(
+    result: object, *, run_count: int, pixel_count: int
+) -> dict[str, object]:
+    if not isinstance(result, dict):
+        raise NativeHostError("The GapFill native helper returned a malformed result.")
+    status = result.get("status")
+    if status != "SUCCESS":
+        detail = str(result.get("detail", "no detail"))
+        if status in {"STALE_REJECTED", "TARGET_REJECTED"}:
+            raise StaleScanError(f"Native target validation rejected the stale scan: {detail}")
+        if status == "MUTATION_FAILURE" and not bool(result.get("rollback_verified")):
+            raise NativeHostError(
+                "Native Apply failed and could not verify byte-exact rollback: " + detail
+            )
+        raise NativeHostError(f"Native Apply rejected the operation ({status}): {detail}")
+    expected = {
+        "run_count": run_count,
+        "pixel_count": pixel_count,
+        "start_stroke_calls": 1,
+        "end_stroke_calls": 1,
+        "top_level_undo_commands": 1,
+        "transaction_commands": 1,
+        "transaction_started": 1,
+        "transaction_published": 1,
+        "production_version_pinned": 1,
+    }
+    mismatches = {
+        key: (value, result.get(key))
+        for key, value in expected.items()
+        if result.get(key) != value
+    }
+    if mismatches:
+        raise NativeHostError(f"Native Apply command contract mismatch: {mismatches}")
+    return result
 
 
 def apply_gap_colors(
     document, view, context: ScanContext, gaps: list[GapRegion]
 ) -> ApplyResult:
-    """Apply and verify fills while restoring exact user-visible host state.
-
-    Public LibKis does not expose an undo macro around selection actions. The
-    operation therefore cannot truthfully promise one-step atomic Undo; callers
-    surface that limitation and the real-host release gate remains open.
-    """
+    """Apply one complete exact patch through the pinned native transaction helper."""
     if not gaps:
-        return ApplyResult(0, False)
+        return ApplyResult(0, True, {})
     target, before = validate_scan_context(document, view, context)
     plan = build_application_plan(gaps, before)
-    _require_deterministic_view(view)
-    action = Krita.instance().action("fill_selection_foreground_color")
-    if action is None or not action.isEnabled():
-        raise RuntimeError("Krita's foreground-selection fill action is unavailable or disabled.")
-
     width, height = int(document.width()), int(document.height())
     x, y = int(document.xOffset()), int(document.yOffset())
     bridge = canvas_color_bridge(view, context)
-    converted = []
-    expected = before.copy()
-    expected_flat = expected.reshape((-1, 4))
+    expected_before = _read_node_raw(target, width, height, x, y)
+    snapshot_before = np.ascontiguousarray(before[..., [2, 1, 0, 3]]).tobytes()
+    if expected_before != snapshot_before:
+        raise StaleScanError("Coloring pixels changed while preparing native Apply.")
+    expected_after = bytearray(expected_before)
     for color, indices in plan.groups:
-        managed, target_rgb = bridge.source_rgb_to_target(color)
-        expected_flat[indices, :3] = target_rgb
-        expected_flat[indices, 3] = 255
-        converted.append((managed, indices))
+        _managed, target_rgb = bridge.source_rgb_to_target(color)
+        replacement = _target_rgb_to_native_bgra(target_rgb)
+        for raw_index in indices:
+            index = int(raw_index)
+            expected_after[index * 4 : index * 4 + 4] = replacement
 
-    original_node = document.activeNode()
-    original_selection = document.selection()
-    selection_present = original_selection is not None
-    saved_selection = original_selection.duplicate() if selection_present else None
-    saved_selection_bytes = (
-        bytes(original_selection.pixelData(x, y, width, height)) if selection_present else None
+    runs = build_native_patch_runs(
+        plan.indices,
+        width,
+        height,
+        expected_before,
+        bytes(expected_after),
+        origin_x=x,
+        origin_y=y,
     )
-    original_foreground = view.foregroundColor()
-    original_foreground_signature = _managed_signature(original_foreground)
-    original_eraser = bool(view.eraserMode())
-    original_alpha_lock = bool(view.globalAlphaLock())
-    original_blending = str(view.currentBlendingMode())
-    original_opacity = float(view.paintingOpacity())
-    original_flow = float(view.paintingFlow())
-    mutation_error = None
-    recovery_error = None
+    helper = load_native_helper(Krita.instance())
     try:
-        document.setActiveNode(target)
-        view.setEraserMode(False)
-        view.setGlobalAlphaLock(False)
-        view.setCurrentBlendingMode(NORMAL_BLEND)
-        view.setPaintingOpacity(1.0)
-        view.setPaintingFlow(1.0)
-        for managed, indices in converted:
-            document.setActiveNode(target)
-            mask = np.zeros(width * height, dtype=np.uint8)
-            mask[indices] = 255
-            selection = Selection()
-            selection.setPixelData(QByteArray(mask.tobytes()), x, y, width, height)
-            document.setSelection(selection)
-            view.setForeGroundColor(managed)
-            if document.activeNode() != target:
-                raise RuntimeError("Krita did not activate the scanned Coloring target.")
-            if not action.isEnabled():
-                raise RuntimeError("Krita disabled the fill action during apply.")
-            action.trigger()
-            document.waitForDone()
-            if document.activeNode() != target:
-                raise RuntimeError("Krita changed the active target during apply.")
-        after = read_node_rgba(target, width, height, x=x, y=y, projection=False)
-        if not np.array_equal(after, expected):
-            raise RuntimeError(
-                "Krita's fill action did not produce the exact requested target pixels."
-            )
+        native_result = helper.apply_exact_patch(
+            image_root_uuid=context.observation.image_root_id,
+            target_uuid=context.observation.target.unique_id,
+            expected_width=width,
+            expected_height=height,
+            expected_origin_x=x,
+            expected_origin_y=y,
+            expected_color_model=SUPPORTED_MODEL,
+            expected_color_depth=SUPPORTED_DEPTH,
+            expected_profile=context.observation.target.color_profile,
+            runs=runs,
+        )
     except Exception as error:
-        mutation_error = error
-        try:
-            current = read_node_rgba(target, width, height, x=x, y=y, projection=False)
-            if not np.array_equal(current, before):
-                if not target.setPixelData(_rgba_to_bgra_bytes(before), x, y, width, height):
-                    raise RuntimeError("Krita rejected emergency pixel recovery.")
-                document.refreshProjection()
-                document.waitForDone()
-                recovered = read_node_rgba(
-                    target, width, height, x=x, y=y, projection=False
-                )
-                if not np.array_equal(recovered, before):
-                    raise RuntimeError("Exact source-pixel recovery failed.")
-        except Exception as error:
-            recovery_error = error
-    finally:
-        view.setForeGroundColor(original_foreground)
-        view.setPaintingFlow(original_flow)
-        view.setPaintingOpacity(original_opacity)
-        view.setCurrentBlendingMode(original_blending)
-        view.setGlobalAlphaLock(original_alpha_lock)
-        view.setEraserMode(original_eraser)
-        document.setSelection(saved_selection if selection_present else None)
-        if original_node is not None:
-            document.setActiveNode(original_node)
-        document.waitForDone()
-
-    restored = document.selection()
-    if selection_present != (restored is not None):
-        raise RuntimeError("Krita did not restore the semantic selection presence.")
-    if selection_present and bytes(restored.pixelData(x, y, width, height)) != saved_selection_bytes:
-        raise RuntimeError("Krita did not restore the exact original selection pixels.")
-    if document.activeNode() != original_node:
-        raise RuntimeError("Krita did not restore the original active node.")
-    if _managed_signature(view.foregroundColor()) != original_foreground_signature:
-        raise RuntimeError("Krita did not restore the exact foreground color.")
-    if (
-        bool(view.eraserMode()) != original_eraser
-        or bool(view.globalAlphaLock()) != original_alpha_lock
-        or str(view.currentBlendingMode()) != original_blending
-        or float(view.paintingOpacity()) != original_opacity
-        or float(view.paintingFlow()) != original_flow
-    ):
-        raise RuntimeError("Krita did not restore the original view/tool state.")
-    if recovery_error is not None:
-        raise RuntimeError(f"Apply failed and emergency recovery failed: {recovery_error}")
-    if mutation_error is not None:
-        raise mutation_error
-    return ApplyResult(int(plan.indices.size), False)
+        raise NativeHostError(f"The GapFill native Apply call failed: {error}") from error
+    contract = _require_successful_native_result(
+        native_result, run_count=len(runs), pixel_count=int(plan.indices.size)
+    )
+    document.waitForDone()
+    actual_after = _read_node_raw(target, width, height, x, y)
+    if actual_after != bytes(expected_after):
+        raise NativeHostError(
+            "Native Apply returned success but the complete Coloring layer failed exact "
+            "raw-byte validation. Do not continue editing; invoke Undo once."
+        )
+    return ApplyResult(int(plan.indices.size), True, contract)

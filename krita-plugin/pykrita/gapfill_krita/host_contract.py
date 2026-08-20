@@ -79,6 +79,7 @@ class NodeState:
 class HostObservation:
     document_key: int
     view_key: int
+    image_root_id: str
     document_geometry: tuple[int, int, int, int]
     source_space: tuple[str, str, str]
     target: Optional[NodeState]
@@ -185,6 +186,8 @@ def require_fresh(context: ScanContext, current: HostObservation) -> None:
         raise StaleScanError("The active document switched after scanning.")
     if current.view_key != expected.view_key:
         raise StaleScanError("The active view switched after scanning.")
+    if current.image_root_id != expected.image_root_id:
+        raise StaleScanError("The document image identity changed after scanning.")
     if current.document_geometry != expected.document_geometry:
         raise StaleScanError("The document resized or moved after scanning.")
     if current.source_space != expected.source_space:

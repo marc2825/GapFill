@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 import numpy as np
 import pytest
 from gapfill_krita import krita_adapter as adapter
@@ -293,45 +291,60 @@ class _View:
         self._flow = value
 
 
-class _Action:
-    def __init__(
-        self, document, view, *, no_op=False, enabled=True, raise_after=False
-    ):
-        self.document = document
-        self.view = view
-        self.no_op = no_op
-        self.enabled = enabled
-        self.raise_after = raise_after
+class _NativeHelper:
+    def __init__(self, target):
+        self.target = target
+        self.calls = []
+        self.mode = "success"
 
-    def isEnabled(self):
-        return self.enabled
+    def apply_exact_patch(self, **request):
+        self.calls.append(request)
+        runs = request["runs"]
+        pixel_count = sum(run[2] for run in runs)
+        if self.mode == "exception":
+            raise RuntimeError("controlled native exception")
+        if self.mode == "failure":
+            return {
+                "status": "MUTATION_FAILURE",
+                "detail": "controlled native failure",
+                "rollback_verified": True,
+            }
 
-    def trigger(self):
-        if self.no_op:
-            return
-        assert not self.view.eraserMode()
-        assert not self.view.globalAlphaLock()
-        assert self.view.currentBlendingMode() == "normal"
-        assert self.view.paintingOpacity() == 1.0
-        assert self.view.paintingFlow() == 1.0
-        def apply():
-            mask = self.document.selection().data > 0
-            values = self.view.foregroundColor().componentsOrdered()
-            rgb = [round(value * 255) for value in values[:3]]
-            self.document.activeNode().image[mask, :3] = rgb
-            self.document.activeNode().image[mask, 3] = 255
-            if self.raise_after:
-                raise RuntimeError("controlled action failure")
+        if self.mode != "no-op-success":
+            width = request["expected_width"]
+            origin_x = request["expected_origin_x"]
+            origin_y = request["expected_origin_y"]
+            raw = bytearray(_bgra(self.target.image))
+            for x, y, count, before, replacement in runs:
+                offset = ((y - origin_y) * width + (x - origin_x)) * 4
+                size = count * 4
+                assert raw[offset : offset + size] == before
+                raw[offset : offset + size] = replacement
+            if self.mode == "collateral-success":
+                raw[0] = 127
+            bgra = np.frombuffer(bytes(raw), dtype=np.uint8).reshape(
+                self.target.image.shape
+            )
+            self.target.image = bgra[..., [2, 1, 0, 3]].copy()
 
-        self.document.pending_actions.append(apply)
+        return {
+            "status": "SUCCESS",
+            "detail": "fake exact native transaction",
+            "run_count": len(runs),
+            "pixel_count": pixel_count,
+            "start_stroke_calls": 1,
+            "end_stroke_calls": 1,
+            "top_level_undo_commands": 1,
+            "transaction_commands": 1,
+            "transaction_started": 1,
+            "transaction_published": 1,
+            "production_version_pinned": 1,
+        }
 
 
-@dataclass
 class _App:
-    action_value: object
-
     def action(self, _name):
-        return self.action_value
+        raise AssertionError("the legacy fill action must be unreachable")
 
 
 class _Krita:
@@ -349,10 +362,14 @@ def host(monkeypatch):
     target = _Node("{00000000-0000-0000-0000-000000000002}", rgba, parent=root)
     line = _Node("{00000000-0000-0000-0000-000000000003}", rgba, parent=root)
     document = _Document(root, target, line)
+    document.native_helper = _NativeHelper(target)
     view = _View(document)
-    monkeypatch.setattr(adapter, "Selection", _Selection)
     monkeypatch.setattr(adapter, "ManagedColor", _Managed)
     monkeypatch.setattr(adapter, "Krita", _Krita)
+    monkeypatch.setattr(
+        adapter, "load_native_helper", lambda _application: document.native_helper
+    )
+    _Krita.app = _App()
     return document, view, target, line
 
 
@@ -367,12 +384,10 @@ def _gap(identifier, index, color):
     )
 
 
-def test_apply_normalizes_and_exactly_restores_user_state(host) -> None:
+def test_apply_all_uses_one_native_call_and_preserves_user_state(host) -> None:
     document, view, target, line = host
     original_foreground = view.foregroundColor()
     snapshot = adapter.snapshot_host(document, view, target, line, None, 4)
-    _Krita.app = _App(_Action(document, view))
-
     result = adapter.apply_gap_colors(
         document,
         view,
@@ -381,11 +396,15 @@ def test_apply_normalizes_and_exactly_restores_user_state(host) -> None:
     )
 
     assert result.changed_pixels == 2
-    assert result.atomic_undo is False
+    assert result.atomic_undo is True
+    assert result.native_contract["top_level_undo_commands"] == 1
+    assert len(document.native_helper.calls) == 1
+    assert document.native_helper.calls[0]["image_root_uuid"] == document.root.identifier
+    assert document.native_helper.calls[0]["target_uuid"] == target.identifier
     assert target.image.reshape((-1, 4))[4].tolist() == [17, 83, 201, 255]
     assert target.image.reshape((-1, 4))[5].tolist() == [9, 6, 3, 255]
     assert document.selection() is None
-    assert document.selection_history[-1] is None
+    assert document.selection_history == []
     assert document.activeNode() is target
     assert view.foregroundColor() is original_foreground
     assert (view.eraserMode(), view.globalAlphaLock()) == (True, True)
@@ -396,55 +415,86 @@ def test_apply_normalizes_and_exactly_restores_user_state(host) -> None:
     )
 
 
-def test_soft_selection_is_restored_exactly(host) -> None:
+def test_apply_selected_uses_one_native_call_without_touching_soft_selection(host) -> None:
     document, view, target, line = host
     soft = np.arange(9, dtype=np.uint8).reshape((3, 3))
     document._selection = _Selection(soft)
     snapshot = adapter.snapshot_host(document, view, target, line, None, 5)
-    _Krita.app = _App(_Action(document, view))
     adapter.apply_gap_colors(document, view, snapshot.context, [_gap("gap-0", 4, (1, 2, 3))])
     assert np.array_equal(document.selection().data, soft)
+    assert document.selection_history == []
+    assert len(document.native_helper.calls) == 1
 
 
-def test_failed_postcondition_recovers_pixels_and_state(host) -> None:
+def test_apply_sends_exact_hidden_rgb_expected_before_and_native_bgra_after(host) -> None:
+    document, view, target, line = host
+    target.image.reshape((-1, 4))[4] = [91, 73, 55, 0]
+    snapshot = adapter.snapshot_host(document, view, target, line, None, 51)
+
+    adapter.apply_gap_colors(
+        document, view, snapshot.context, [_gap("gap-0", 4, (13, 117, 241))]
+    )
+
+    run = document.native_helper.calls[0]["runs"][0]
+    assert run[:3] == (1, 1, 1)
+    assert run[3] == bytes((55, 73, 91, 0))
+    assert run[4] == bytes((241, 117, 13, 255))
+
+
+def test_failed_exact_postcondition_is_reported_without_fill_fallback(host) -> None:
     document, view, target, line = host
     before = target.image.copy()
     snapshot = adapter.snapshot_host(document, view, target, line, None, 6)
-    _Krita.app = _App(_Action(document, view, no_op=True))
-    with pytest.raises(RuntimeError, match="did not produce"):
+    document.native_helper.mode = "no-op-success"
+    with pytest.raises(RuntimeError, match="complete Coloring layer failed"):
         adapter.apply_gap_colors(
             document, view, snapshot.context, [_gap("gap-0", 4, (101, 77, 33))]
         )
     assert np.array_equal(target.image, before)
     assert document.selection() is None
-    assert (view.eraserMode(), view.globalAlphaLock()) == (True, True)
+    assert len(document.native_helper.calls) == 1
 
 
-def test_action_exception_after_partial_mutation_recovers_pixels(host) -> None:
+def test_collateral_native_write_fails_strict_hidden_rgb_postcondition(host) -> None:
     document, view, target, line = host
     before = target.image.copy()
     snapshot = adapter.snapshot_host(document, view, target, line, None, 61)
-    _Krita.app = _App(_Action(document, view, raise_after=True))
-    with pytest.raises(RuntimeError, match="controlled action failure"):
+    document.native_helper.mode = "collateral-success"
+    with pytest.raises(RuntimeError, match="complete Coloring layer failed"):
+        adapter.apply_gap_colors(
+            document, view, snapshot.context, [_gap("gap-0", 4, (101, 77, 33))]
+        )
+    assert not np.array_equal(target.image, before)
+    assert document.selection() is None
+    assert len(document.native_helper.calls) == 1
+
+
+def test_native_failure_maps_without_legacy_fill_fallback(host) -> None:
+    document, view, target, line = host
+    snapshot = adapter.snapshot_host(document, view, target, line, None, 7)
+    before = target.image.copy()
+    document.native_helper.mode = "failure"
+    with pytest.raises(RuntimeError, match="controlled native failure"):
         adapter.apply_gap_colors(
             document, view, snapshot.context, [_gap("gap-0", 4, (101, 77, 33))]
         )
     assert np.array_equal(target.image, before)
     assert document.selection() is None
+    assert len(document.native_helper.calls) == 1
 
 
-def test_missing_or_disabled_action_fails_before_user_state_mutation(host) -> None:
+def test_native_exception_maps_without_legacy_fill_fallback(host) -> None:
     document, view, target, line = host
-    snapshot = adapter.snapshot_host(document, view, target, line, None, 7)
     before = target.image.copy()
-    for action in (None, _Action(document, view, enabled=False)):
-        _Krita.app = _App(action)
-        with pytest.raises(RuntimeError, match="unavailable or disabled"):
-            adapter.apply_gap_colors(
-                document, view, snapshot.context, [_gap("gap-0", 4, (101, 77, 33))]
-            )
-        assert np.array_equal(target.image, before)
-        assert document.selection() is None
+    snapshot = adapter.snapshot_host(document, view, target, line, None, 71)
+    document.native_helper.mode = "exception"
+    with pytest.raises(RuntimeError, match="native Apply call failed.*controlled"):
+        adapter.apply_gap_colors(
+            document, view, snapshot.context, [_gap("gap-0", 4, (101, 77, 33))]
+        )
+    assert np.array_equal(target.image, before)
+    assert document.selection() is None
+    assert len(document.native_helper.calls) == 1
 
 
 @pytest.mark.parametrize(
@@ -516,11 +566,9 @@ def test_canvas_bridge_rejects_unsupported_managed_color_space(host) -> None:
         adapter.CanvasColorBridge._managed(("CMYKA", "U8", "profile"), (1, 2, 3))
 
 
-def test_apply_waits_for_native_action_without_event_processing(host) -> None:
+def test_apply_waits_for_native_transaction_without_event_processing(host) -> None:
     document, view, target, line = host
     snapshot = adapter.snapshot_host(document, view, target, line, None, 11)
-    _Krita.app = _App(_Action(document, view))
-
     result = adapter.apply_gap_colors(
         document, view, snapshot.context, [_gap("gap-0", 4, (13, 117, 241))]
     )
@@ -528,3 +576,48 @@ def test_apply_waits_for_native_action_without_event_processing(host) -> None:
     assert result.changed_pixels == 1
     assert document.wait_count >= 1
     assert target.image.reshape((-1, 4))[4].tolist() == [13, 117, 241, 255]
+
+
+def test_native_patch_runs_merge_only_contiguous_same_row_pixels() -> None:
+    before = bytes(3 * 2 * 4)
+    after = bytearray(before)
+    for index, bgra in ((0, b"\x03\x02\x01\xff"), (1, b"\x03\x02\x01\xff"), (3, b"\x06\x05\x04\xff")):
+        after[index * 4 : index * 4 + 4] = bgra
+
+    runs = adapter.build_native_patch_runs(
+        np.asarray([0, 1, 3], dtype=np.int64), 3, 2, before, bytes(after)
+    )
+
+    assert [(x, y, count) for x, y, count, _old, _new in runs] == [
+        (0, 0, 2),
+        (0, 1, 1),
+    ]
+    assert runs[0][3] == bytes(8)
+    assert runs[0][4] == b"\x03\x02\x01\xff" * 2
+
+
+@pytest.mark.parametrize(
+    "indices",
+    [
+        np.asarray([1, 1], dtype=np.int64),
+        np.asarray([2, 1], dtype=np.int64),
+        np.asarray([-1], dtype=np.int64),
+        np.asarray([9], dtype=np.int64),
+        np.asarray([1.0]),
+    ],
+)
+def test_native_patch_runs_reject_duplicate_unsorted_out_of_bounds_or_noninteger(
+    indices,
+) -> None:
+    before = bytes(3 * 3 * 4)
+    after = bytearray(before)
+    after[4:8] = b"\x03\x02\x01\xff"
+    with pytest.raises(ValueError):
+        adapter.build_native_patch_runs(indices, 3, 3, before, bytes(after))
+
+
+def test_native_patch_runs_reject_bad_payload_lengths_and_no_op() -> None:
+    with pytest.raises(ValueError, match="exactly"):
+        adapter.build_native_patch_runs(np.asarray([0]), 1, 1, b"", b"")
+    with pytest.raises(ValueError, match="does not change"):
+        adapter.build_native_patch_runs(np.asarray([0]), 1, 1, bytes(4), bytes(4))

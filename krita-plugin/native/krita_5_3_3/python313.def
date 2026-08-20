@@ -1,0 +1,15 @@
+LIBRARY python313.dll
+EXPORTS
+    PyModule_Create2
+    PyArg_ParseTuple
+    PyArg_ParseTupleAndKeywords
+    PyBytes_AsStringAndSize
+    PySequence_Fast
+    Py_DecRef
+    Py_BuildValue
+    Py_GetVersion
+    PyErr_Format
+    PyErr_Occurred
+    PyErr_Clear
+    PyExc_RuntimeError DATA
+    PyExc_ImportError DATA

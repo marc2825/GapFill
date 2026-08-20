@@ -1,6 +1,6 @@
 # GapFill for Krita
 
-GapFill for Krita ports the paper's gap-detection and region-correspondence color-prediction workflow into a native Python docker. The code has PyQt5/PyQt6 import shims, but **no real Krita distribution has completed the Phase 6 host matrix yet**. Deterministic apply now requires the public view-state controls exposed by Krita 6; older builds fail closed if those controls are absent.
+GapFill for Krita ports the paper's gap-detection and region-correspondence color-prediction workflow into a Python docker with a narrowly version-pinned native mutation helper. **No real Krita distribution has completed the Phase 6.5 host matrix yet.** The only Apply host currently admitted by the implementation is Windows x64, Krita 5.3.3 git `858d352`, Qt 5.15.7, and CPython 3.13.5; every other host fails closed before loading the helper.
 
 ## Features
 
@@ -13,12 +13,12 @@ GapFill for Krita ports the paper's gap-detection and region-correspondence colo
   regions, and returns their deterministic modal RGB.
 - Shows temporary suggested fills, circular highlights, and a fixed 5× hover magnifier.
 - Supports in-circle drag-to-correct, out-circle sweep-to-apply, list-based correction, Apply Selected, and Apply All.
-- Applies fills through Krita's native selection-fill action, verifies exact target pixels, and restores user state. Public LibKis does not provide an undo macro for the internal selection actions, so one-step atomic Undo is not yet guaranteed.
+- Converts every selected correction through `CanvasColorBridge`, sends the complete exact BGRA/U8 patch in one native transaction, and validates the full Coloring layer byte-for-byte. Formal production Row I passed exact one-step Undo/Redo in the admitted Windows/Krita host cell; the remaining Phase 6.5 matrix is still incomplete.
 - Performs detection and inference off the UI thread and supports cancellation.
 
 ## Install a Release Bundle
 
-Use the bundle matching your operating system. The platform bundle contains NumPy, ONNX Runtime, and `unet32.onnx`; a plain source ZIP does not contain binary Python dependencies.
+Use only a qualification bundle built for the exact supported host cell. It contains NumPy, ONNX Runtime, `unet32.onnx`, and the hash-pinned native helper. A plain source ZIP does not contain binary Python dependencies or the helper and therefore cannot perform Apply.
 
 1. In Krita, choose **Tools → Scripts → Import Python Plugin From File…** and select `gapfill-krita-<platform>.zip`.
 2. Restart Krita.
@@ -26,6 +26,7 @@ Use the bundle matching your operating system. The platform bundle contains NumP
 4. Show the docker with **Settings → Dockers → GapFill**. If hidden, use **Tools → Scripts → Show GapFill Docker**.
 
 Python plugins are disabled by default in Krita, so the enable-and-restart step is required.
+Exit Krita completely before replacing or removing a bundle: Windows keeps a loaded `.pyd` locked until the process exits.
 
 ## Install from This Checkout
 
@@ -100,13 +101,18 @@ ONNX Runtime calls are synchronous and cannot be interrupted mid-call. Stop is
 checked before and after load and each inference; results are attached only
 after the complete batch reaches a cancellation boundary.
 
-Apply saves and normalizes foreground color, eraser mode, global alpha lock,
-blending mode, opacity, flow, active node, and the exact global selection. It
-restores semantic no-selection with `None`, reads back the entire Coloring layer,
-and keeps suggestions on failure. A successful apply invalidates every remaining
-suggestion and requires a rescan. The public selection-fill route creates host
-Undo commands that cannot be grouped by LibKis; exact command order and Undo/redo
-remain a real-host release gate.
+Apply does not create or replace a selection and does not change foreground
+color, active node, eraser mode, alpha lock, blending mode, opacity, or flow.
+Python retains the frozen application plan and profile conversion, then sends
+all colors and pixels in one call to the exact-host native helper. The helper
+resolves the scanned document by image-root UUID and the Coloring layer by node
+UUID, validates expected-before bytes, and writes sorted horizontal runs inside
+one Krita transaction. Native failure reverts and verifies the touched bytes;
+success must pass a full-layer exact raw-byte readback. There is no fallback to
+`fill_selection_foreground_color` or direct Python writeback. A successful apply
+invalidates every remaining suggestion and requires a rescan. Formal one-step
+Undo/Redo passed in the admitted Windows/Krita host cell; remaining Phase 6.5
+rows still gate overall release qualification.
 
 ## Build and Test
 
@@ -123,8 +129,14 @@ python3.13 -m pip install -r krita-plugin/requirements-runtime.txt \
   --target krita-plugin/vendor
 python3 krita-plugin/scripts/build_plugin.py \
   --vendor krita-plugin/vendor \
+  --native-helper /path/to/gapfill_krita_native_5_3_3.cp313-win_amd64.pyd \
   --output krita-plugin/dist/gapfill-krita-platform.zip
 ```
+
+The builder accepts only the exact helper filename and SHA-256 recorded in
+`scripts/build_plugin.py`. The reproducible helper source/build recipe is under
+`native/krita_5_3_3/`; the compiler, Krita headers/import libraries, and build
+workspace are not distributed in the plug-in ZIP.
 
 Run the engine tests and lint checks:
 
@@ -149,9 +161,10 @@ advertised real Krita distribution.
   rotation, mirror, HiDPI, and ambiguous split views fail closed until qualified.
 - Confirm Stop cancels a large scan and the canvas remains responsive.
 - Confirm missing/corrupt model errors are visible.
-- Confirm applied pixels land only on Coloring, the exact original selection
-  presence/bytes and foreground/tool state return, and record every visible Undo
-  and redo step. One-step atomic Undo is not currently claimed.
+- Confirm applied pixels land only on Coloring, selection and foreground/tool
+  state remain exact, and record every visible Undo and redo step. Row I is
+  qualified only for the admitted host cell and must be repeated for any future
+  supported host matrix.
 - Run every A–V row in `host_tests/matrix.json`; leave unavailable rows UNTESTED.
 
 ## Architecture
@@ -165,10 +178,13 @@ krita-plugin/
 │       ├── controller.py    # Application state and orchestration
 │       ├── host_contract.py # Immutable provenance and host-independent invariants
 │       ├── krita_adapter.py # LibKis acquisition, conversion, apply/readback
+│       ├── native_backend.py # Exact-host guard and hash/ABI-checked helper loader
+│       ├── _native/         # Packaged version-pinned Windows helper location
 │       ├── overlay.py       # Canvas preview and pointer interactions
 │       ├── docker.py        # User interface
 │       └── worker.py        # Cancellable background work
 ├── actions/                 # Krita action metadata
+├── native/krita_5_3_3/      # Reproducible pinned helper source/build definition
 ├── scripts/                 # Packaging and development installation
 └── tests/                   # Krita-independent regression tests
 ```

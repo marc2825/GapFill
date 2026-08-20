@@ -299,10 +299,9 @@ class GapFillController:
         self.snapshot = None
         self.gaps = []
         self.docker.set_regions([])
-        undo_note = " Atomic one-step Undo is not available through public LibKis."
         self.docker.set_status(
-            f"Applied and verified {result.changed_pixels} pixels. Rescan before another apply."
-            + undo_note
+            f"Applied and verified {result.changed_pixels} pixels in one native transaction. "
+            "Rescan before another apply. Formal Row-I Undo qualification remains pending."
         )
 
     def apply_all(self) -> None:

@@ -14,6 +14,7 @@ try:
         QUuid,
         pyqtSignal,
         pyqtSlot,
+        qVersion,
     )
     from PyQt6.QtGui import QColor, QImage, QPainter, QPen, QPolygonF, QTransform
     from PyQt6.QtWidgets import (
@@ -66,6 +67,7 @@ except ImportError:
         QUuid,
         pyqtSignal,
         pyqtSlot,
+        qVersion,
     )
     from PyQt5.QtGui import QColor, QImage, QPainter, QPen, QPolygonF, QTransform
     from PyQt5.QtWidgets import (
