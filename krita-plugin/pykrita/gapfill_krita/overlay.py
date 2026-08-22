@@ -123,7 +123,7 @@ class GapFillOverlay(QWidget):
         image_to_flake, invertible = flake_to_image.inverted()
         if not invertible:
             raise RuntimeError("Krita returned a non-invertible image transform.")
-        return self.view.flakeToCanvasTransform() * image_to_flake
+        return image_to_flake * self.view.flakeToCanvasTransform()
 
     def _canvas_to_image(self) -> QTransform:
         transform, invertible = self._image_to_canvas().inverted()

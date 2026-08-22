@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 
 import numpy as np
+import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
@@ -28,24 +29,26 @@ class _Canvas:
 
 
 class _View:
-    def __init__(self):
+    def __init__(self, scale=2.0, translation=(17.0, 23.0)):
         self._canvas = _Canvas()
-        self.transform = QTransform()
-        self.transform.translate(17.0, 23.0)
-        self.transform.scale(2.0, 2.0)
+        self.flake_to_image = QTransform.fromScale(1.0 / scale, 1.0 / scale)
+        self.flake_to_canvas = QTransform.fromTranslate(*translation)
 
     def canvas(self):
         return self._canvas
 
     def flakeToImageTransform(self):
-        return QTransform()
+        return self.flake_to_image
 
     def flakeToCanvasTransform(self):
-        return self.transform
+        return self.flake_to_canvas
 
 
 class _Bridge:
     def source_rgb_to_qcolor(self, color):
+        return QColor(*color)
+
+    def source_rgba_to_qcolor(self, color):
         return QColor(*color)
 
 
@@ -53,19 +56,36 @@ class _CanvasWidget(QWidget):
     pass
 
 
+_APPLICATION = None
+
+
 def _app():
-    return QApplication.instance() or QApplication([])
+    global _APPLICATION
+    _APPLICATION = QApplication.instance() or QApplication([])
+    return _APPLICATION
 
 
-def _gap():
+def _gap(gap_id="gap-0", center=(1, 1), index=5):
     return GapRegion(
-        "gap-0",
-        np.asarray([5], dtype=np.int64),
-        (1, 1),
+        gap_id,
+        np.asarray([index], dtype=np.int64),
+        center,
         GapKind.TRANSPARENT,
         predicted_rgb=(7, 29, 211),
-        application_indices=np.asarray([5], dtype=np.int64),
+        application_indices=np.asarray([index], dtype=np.int64),
     )
+
+
+def _overlay(scale, translation, *, size=(900, 700)):
+    canvas = _CanvasWidget()
+    canvas.resize(*size)
+    canvas.show()
+    overlay = GapFillOverlay(canvas, _View(scale, translation), _Bridge())
+    return canvas, overlay
+
+
+def _coordinates(point):
+    return point.x(), point.y()
 
 
 def test_pan_zoom_mapping_hit_test_sampling_and_preview_alignment() -> None:
@@ -82,7 +102,7 @@ def test_pan_zoom_mapping_hit_test_sampling_and_preview_alignment() -> None:
     overlay.set_content([gap], preview, composite)
     app.processEvents()
 
-    expected = view.transform.map(QPointF(1.5, 1.5))
+    expected = QPointF(20.0, 26.0)
     actual = overlay._screen_center(gap)
     assert (actual.x(), actual.y()) == (expected.x(), expected.y())
     assert overlay._hit_gap(expected) is gap
@@ -93,6 +113,155 @@ def test_pan_zoom_mapping_hit_test_sampling_and_preview_alignment() -> None:
     overlay._paint_gap_color(gap, gap.color)
     displayed = overlay.preview_image.pixelColor(1, 1)
     assert (displayed.red(), displayed.green(), displayed.blue()) == (7, 29, 211)
+
+    overlay.close()
+    canvas.close()
+
+
+@pytest.mark.parametrize(
+    ("scale", "translation", "expected"),
+    [
+        (1.0, (0.0, 0.0), (25.5, 25.5)),
+        (1.375, (0.0, 0.0), (35.0625, 35.0625)),
+        (1.0, (-49.0, -45.0), (-23.5, -19.5)),
+        (1.375, (417.0, 421.0), (452.0625, 456.0625)),
+        (20.0, (-49.0, -45.0), (461.0, 465.0)),
+    ],
+)
+def test_image_canvas_transform_order_and_reverse_mapping(
+    scale, translation, expected
+) -> None:
+    _app()
+    canvas, overlay = _overlay(scale, translation)
+
+    forward = overlay._image_to_canvas().map(QPointF(25.5, 25.5))
+    reverse = overlay._canvas_to_image().map(QPointF(*expected))
+    assert _coordinates(forward) == pytest.approx(expected, abs=1e-9)
+    assert _coordinates(reverse) == pytest.approx((25.5, 25.5), abs=1e-9)
+
+    overlay.close()
+    canvas.close()
+
+
+@pytest.mark.parametrize(
+    ("scale", "translation", "expected"),
+    [
+        (1.375, (417.0, 421.0), (452.0625, 456.0625)),
+        (20.0, (-49.0, -45.0), (461.0, 465.0)),
+    ],
+)
+def test_v6_exact_marker_hit_sweep_and_sampling(scale, translation, expected) -> None:
+    _app()
+    canvas, overlay = _overlay(scale, translation)
+    gap = _gap("gap-1", (25, 25), 25 * 64 + 25)
+    composite = np.zeros((64, 64, 4), dtype=np.uint8)
+    composite[25, 25] = (13, 117, 241, 255)
+    overlay.set_content([gap], qimage_from_rgba(np.zeros_like(composite)), composite)
+
+    independent_point = QPointF(*expected)
+    assert _coordinates(overlay._screen_center(gap)) == pytest.approx(expected, abs=1e-9)
+    assert overlay._hit_gap(independent_point) is gap
+    assert overlay._hit_gap(
+        QPointF(expected[0] + overlay.marker_radius + 1.0, expected[1])
+    ) is None
+
+    overlay._collect_swept(independent_point, independent_point)
+    assert overlay.swept_ids == {"gap-1"}
+    assert overlay._sample_color(independent_point) == (13, 117, 241)
+
+    overlay.close()
+    canvas.close()
+
+
+@pytest.mark.parametrize(
+    ("scale", "translation", "expected"),
+    [
+        (1.375, (417.0, 421.0), (452.0625, 456.0625)),
+        (20.0, (-49.0, -45.0), (461.0, 465.0)),
+    ],
+)
+def test_v6_exact_preview_marker_and_magnifier_alignment(
+    monkeypatch, scale, translation, expected
+) -> None:
+    from gapfill_krita import overlay as overlay_module
+
+    class _RenderHint:
+        Antialiasing = object()
+
+    class _RecordingPainter:
+        RenderHint = _RenderHint
+        Antialiasing = _RenderHint.Antialiasing
+        last = None
+
+        def __init__(self, _device):
+            type(self).last = self
+            self.transforms = []
+            self.images = []
+            self.ellipses = []
+            self.rectangles = []
+
+        def setRenderHint(self, *_args):
+            pass
+
+        def save(self):
+            pass
+
+        def setTransform(self, transform):
+            self.transforms.append(transform)
+
+        def drawImage(self, *args):
+            self.images.append(args)
+
+        def restore(self):
+            pass
+
+        def setPen(self, _pen):
+            pass
+
+        def setBrush(self, _brush):
+            pass
+
+        def drawEllipse(self, *args):
+            self.ellipses.append(args)
+
+        def drawRect(self, rectangle):
+            self.rectangles.append(rectangle)
+
+        def drawLine(self, *_args):
+            pass
+
+        def end(self):
+            pass
+
+    _app()
+    canvas, overlay = _overlay(scale, translation)
+    gap = _gap("gap-1", (25, 25), 25 * 64 + 25)
+    composite = np.zeros((64, 64, 4), dtype=np.uint8)
+    overlay.set_content([gap], qimage_from_rgba(np.zeros_like(composite)), composite)
+    monkeypatch.setattr(overlay_module, "QPainter", _RecordingPainter)
+
+    overlay.paintEvent(None)
+    painter = _RecordingPainter.last
+    assert painter is not None
+    assert len(painter.transforms) == 1
+    preview_point = painter.transforms[0].map(QPointF(25.5, 25.5))
+    assert _coordinates(preview_point) == pytest.approx(expected, abs=1e-9)
+    marker_center = painter.ellipses[0][0]
+    assert _coordinates(marker_center) == pytest.approx(expected, abs=1e-9)
+    assert painter.images
+
+    overlay._paint_magnifier(painter, gap)
+    magnifier_target = painter.rectangles[-1].adjusted(2, 2, -2, -2)
+    expected_left = min(
+        max(0.0, expected[0] + overlay.marker_radius + 8),
+        max(0.0, overlay.width() - 320),
+    )
+    expected_top = min(
+        max(0.0, expected[1] - 160), max(0.0, overlay.height() - 320)
+    )
+    assert (magnifier_target.left(), magnifier_target.top()) == pytest.approx(
+        (expected_left, expected_top), abs=1e-9
+    )
 
     overlay.close()
     canvas.close()
