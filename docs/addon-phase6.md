@@ -1,15 +1,16 @@
 # Add-on Phase 6 — Krita host integration
 
-Date: 2026-08-15 (Asia/Tokyo)
+Date: 2026-08-15–29 (Asia/Tokyo)
 
 Branch: `fix/krita-host-integration`
 
 Phase 5 baseline: `0d1c099def9119a523f21812c927229d4d1a66d4`
 
 Status: **Phase 6 implementation complete for the deliberately
-restricted/fail-closed host boundary; Phase 6.5 real-Krita qualification OPEN
-and BLOCKED because no executable real Krita host is available**. This external
-block is not a real-host PASS. No commit was created. Phase 7 was not started.
+restricted/fail-closed host boundary; Phase 6.5 real-Krita qualification
+CLOSED**. The final matrix is A–P PASS, Q
+`ROW_Q_HOST_CONDITION_UNAVAILABLE`, and R–V PASS. The detailed closure and
+historical evidence are in `docs/addon-phase6.5.md`.
 
 ## Scope and baseline
 
@@ -323,37 +324,29 @@ Phase 3 CSP safety, CSP/ML/Web algorithms, or any frozen expected value.
 
 ## Remaining release blockers and independent host-qualification gates
 
-The following are not resolved by implementation tests:
+Implementation tests alone did not resolve the host gate; the subsequent real
+Windows 11 Pro x64 / Krita 5.3.3 qualification did. Phase 6.5 is now **CLOSED**:
+all executable/available rows A–P and R–V passed, while Q is explicitly closed
+as `ROW_Q_HOST_CONDITION_UNAVAILABLE`, not PASS. The tested one-step Undo/Redo
+route passed. Historical failures remain visible in the Phase 6.5 record.
 
-- no supported real Krita distribution has loaded the plug-in or executed A–V;
-- profile/pixel acquisition, canvas conversion, native action output, selection
-  semantics, Undo/redo, and shutdown behavior are not host-verified;
-- public LibKis cannot provide the desired single atomic Undo for this action
-  route, and actual user-visible command consequences are unknown;
-- overlay QWidget discovery remains a private, conservative heuristic; real
-  pan/zoom/lifetime behavior is unknown and rotation/mirror/HiDPI/split ambiguity
-  are deliberately disabled;
-- Krita 5 deterministic apply is unsupported with its public view-state API;
-- full host performance/cancel latency is unmeasured;
-- package action/license/vendor cleanup and platform wheels remain Phase 8 work.
+The remaining explicit limits are narrower: Q's real HiDPI condition was not
+available; Row T qualifies only the tested alternate RGBA/U8 profile cell; and
+Row V qualified docker close through `closeEvent` and controller shutdown, not
+full Krita application close with a worker active. Packaging, broader support
+matrices, and performance/release work remain separate Phase 8 concerns.
 
-Phase 6 implementation is therefore **complete**. Phase 6.5 real-Krita
-qualification remains **OPEN and BLOCKED** solely because this environment has
-no executable real Krita host. Absence of a host is not a PASS: every A–V
-real-host row remains **UNTESTED**, the one-step Undo issue remains a Krita
-release blocker, and Phase 6.5 must pass for the tested support matrix before
-any Krita artifact is considered release-qualified.
+Phase 7 CSP/CELSYS feasibility remained technically independent. Its evaluated
+SDK/adapter combination later failed the canonical-input capability gate as
+`INSUFFICIENT_FOR_GAPFILL_PARITY`; Krita's closed host gate does not change that
+CSP disposition.
 
-Phase 7 CSP/CELSYS feasibility is technically independent of the unavailable
-Krita host and may proceed in parallel when separately authorized. Allowing
-Phase 7 to start does not mean that Phase 6.5 passed and does not establish
-Krita release readiness. Phase 7 was not started in this phase.
+Phase 8/release qualification preserves two separate host gates:
 
-Phase 8/release qualification must preserve two separate host gates:
-
-- Krita requires successful Phase 6.5 real-host qualification for its tested
-  support matrix;
-- CSP requires successful Phase 7 qualification for its tested support matrix.
+- Krita satisfied Phase 6.5 for its recorded tested host matrix, subject to the
+  explicit Q/T/V limits above;
+- the evaluated CSP SDK/adapter combination is ineligible for canonical
+  GapFill release after failing Phase 7 input feasibility.
 
 One host's successful gate must not be used as evidence that the other host or
 artifact is release-qualified.

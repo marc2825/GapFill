@@ -1579,18 +1579,21 @@ separately as Phase 6.5 and does not reopen that implementation status.
 
 ### Phase 6.5 — Qualify the Krita integration in a real host
 
-- **Status:** **OPEN and BLOCKED** because no executable real Krita host is
-  available in the current environment. This is not a PASS; all A–V real-host
-  rows remain **UNTESTED**.
-- **Exact scope:** Execute the frozen A–V matrix in each claimed Krita/OS/Python/
-  Qt support combination and record exact artifact and host metadata. The
-  one-step Undo issue remains a Krita release blocker.
-- **Acceptance criteria:** The applicable A–V rows pass for the published tested
-  support matrix, including the required Undo/data-safety behavior. Phase 6.5
-  must pass before any Krita artifact is considered release-qualified.
-- **Dependency:** Phase 7 CSP/CELSYS feasibility is technically independent and
-  may proceed in parallel when separately authorized. Starting Phase 7 does not
-  make Phase 6.5 pass and does not establish Krita release readiness.
+- **Status:** **CLOSED** in the recorded Windows 11 Pro x64 / Krita 5.3.3 host
+  cell. A–P and R–V passed; Q is closed as
+  `ROW_Q_HOST_CONDITION_UNAVAILABLE`, not PASS. Historical consumed failures
+  remain preserved in `docs/addon-phase6.5.md` and the machine-readable matrix.
+- **Exact scope:** The frozen A–V matrix was executed where the required host
+  condition was available, with exact artifact and host metadata recorded. The
+  tested one-step Undo/Redo route passed. Q's real HiDPI condition was
+  unavailable; Row T is limited to its tested alternate RGBA/U8 profile cell;
+  Row V excludes full application close with a worker active.
+- **Acceptance criteria:** The applicable/available A–V rows passed for the
+  recorded tested matrix, including Undo/data-safety behavior, and Q is
+  explicitly represented as unavailable rather than converted to PASS.
+- **Dependency:** Phase 7 CSP/CELSYS feasibility remained technically
+  independent. Its canonical-input capability failure does not alter the
+  closed Krita gate, and the Krita result does not alter CSP ineligibility.
 
 ### Phase 7 — Establish CSP feasibility and qualify the private adapter
 
@@ -1630,8 +1633,9 @@ separately as Phase 6.5 and does not reopen that implementation status.
 ### Phase 8 — UI, performance, packaging, and release qualification
 
 - **Exact scope:** Preserve separate host gates for release qualification:
-  Krita requires successful Phase 6.5 real-host qualification for its tested
-  support matrix. The evaluated CSP SDK/adapter combination failed its Phase 7
+  Krita has satisfied Phase 6.5 for its recorded tested host matrix, subject to
+  its explicit Q/T/V limits. The evaluated CSP SDK/adapter combination failed
+  its Phase 7
   canonical-input capability gate and has no canonical GapFill Phase 8 release
   track. Work for one host may not turn the other host's gate into a pass. Only
   new capability evidence from a supported CSP integration mechanism could

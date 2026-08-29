@@ -41,14 +41,15 @@ canonical multi-layer inputs, uses heuristic prediction where applicable, and
 must retain explicit confirmation for heuristic output. This record does not
 choose a final product name or begin that product/release work.
 
-Phase 6.5 remains independently `OPEN/BLOCKED`; nothing in this CSP decision is
-evidence that Krita host qualification passed.
+Phase 6.5 subsequently closed independently for its recorded Krita host matrix;
+nothing in this CSP decision supplied that evidence, and the later Krita result
+does not change this CSP capability failure.
 
 | Product gate | Final state |
 | --- | --- |
 | Krita Phase 6 implementation | `COMPLETE` |
-| Krita Phase 6.5 real-host qualification | `OPEN / BLOCKED` |
-| Krita release qualification | `NOT YET SATISFIED` |
+| Krita Phase 6.5 real-host qualification | `CLOSED`: A–P and R–V PASS; Q host condition unavailable |
+| Krita release qualification | Phase 6.5 host gate satisfied for the recorded matrix; separate Phase 8 packaging/release work remains |
 | CSP Phase 7 input feasibility | `C. INSUFFICIENT_FOR_GAPFILL_PARITY` |
 | CSP Phase 7 host qualification | `5. NOT_APPLICABLE_BECAUSE_INPUT_INFEASIBLE` |
 | CSP canonical GapFill Phase 8 eligibility | `INELIGIBLE` for the evaluated SDK/adapter combination |
@@ -303,7 +304,7 @@ failed with that environmental diagnostic, not a product leak report.
 | Private MSVC build | Passed; compile only |
 | ASan/UBSan | Passed with leak detection disabled |
 | LSan | Environmentally unavailable under ptrace |
-| Real Krita Phase 6.5 | Still blocked/unavailable; not rerun or passed |
+| Real Krita Phase 6.5 | Subsequently `CLOSED` independently: A–P and R–V PASS; Q `ROW_Q_HOST_CONDITION_UNAVAILABLE` |
 | Real CSP manual matrix | All rows `UNTESTED` after input infeasibility decision |
 
 Final public-diff checks require `git diff --check`, an ignored/restricted-file

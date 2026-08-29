@@ -1,9 +1,11 @@
 # Phase 6 real-Krita qualification kit
 
-This directory is a versioned test kit, not evidence that a Krita host passed.
-At the Phase 6 handoff no Krita executable or embedded `krita` Python module was
-available in the audit environment. Every row in `matrix.json` is therefore
-`UNTESTED`.
+This directory began as the versioned Phase 6 test kit and now contains the
+authoritative machine-readable Phase 6.5 closure matrix. The recorded Windows
+11 Pro x64 / Krita 5.3.3 cell closed with A–P and R–V PASS and Q
+`ROW_Q_HOST_CONDITION_UNAVAILABLE`. Historical consumed failures and their
+hashes remain preserved in `matrix.json` and `docs/addon-phase6.5.md`; Q is not
+an executed HiDPI PASS.
 
 ## Generate the documents
 
@@ -46,4 +48,6 @@ Frozen host-parity observations:
   observation is deliberately not the Phase 6 host expectation. Host parity is
   the frozen near-white pure prediction.
 
-Do not change `UNTESTED` to `PASS` from an offscreen Qt/fake-adapter run.
+Do not change a row to `PASS` from an offscreen Qt/fake-adapter run. The final
+statuses here are backed by the real-host closure evidence, except Q's explicit
+unavailable-host-condition classification.

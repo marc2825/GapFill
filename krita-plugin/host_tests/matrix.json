@@ -1,6 +1,8 @@
 {
   "schema": 1,
   "phase": 6,
+  "qualification_phase": "6.5",
+  "phase_status": "CLOSED",
   "host": {
     "krita_version": "5.3.3",
     "qt_pyqt": "Qt 5.15.7 / PyQt5 5.15.11",
@@ -45,6 +47,109 @@
     "model_sha256": "8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78",
     "gui_executable": true
   },
+  "phase65_closure": {
+    "checkpoint": "68551a667f473bc0e9f1768f3d5702bdfd6c0efb",
+    "branch": "qualify/csp-host-adapter",
+    "status": "CLOSED",
+    "closure_definition": "All executable/available real-host rows A-P and R-V passed; Q is closed as ROW_Q_HOST_CONDITION_UNAVAILABLE; historical consumed failures remain preserved; no qualification row remains open.",
+    "operator_crash_observations": {
+      "evidence_kind": "external_operator_observation_not_formal_result_json",
+      "T-v11": "NO",
+      "U-v1": "NO",
+      "V-v2": "NO"
+    },
+    "governance": {
+      "T": "ROW_T_DISPLAY_ORACLE_V2_GOVERNANCE_ADOPTED",
+      "T_reason": "The former qualification oracle conflated target-profile component values with same-canvas display QColor; production behavior did not change.",
+      "V": "ROW_V_WORKER_ACTIVE_SHUTDOWN_CONTRACT_V1_GOVERNANCE_ADOPTED",
+      "V_reason": "Historical requirements required worker-active shutdown testing but did not freeze the exact phase, synchronization seam, host action, or lifecycle details; the deterministic Row-M detector seam is a qualification fixture choice, not recovered historical semantics."
+    },
+    "final_attempts": {
+      "T-v11": {
+        "classification": "ROW_T_FORMAL_PASS_ALTERNATE_PROFILE_PREVIEW_SAMPLE_COMMIT_CONSISTENT",
+        "support_sha256": "d968147deccd8c0baab30e3432716a735ba2d8c0e0fb1946c859ced158c86779",
+        "harness_sha256": "62f55e2c8590d9239626638678f9687a8b7d24bd18e092377069b278a9428d3c",
+        "launcher_sha256": "8f449faacb1e7baa33cd4923101397785a56397ea9539072fc2bd7154dc4dbb2",
+        "bootstrap_sha256": "145797ac2e666da17f938eb0cd7672f2f0c92d15893db955e15753daaca7e650",
+        "result_sha256": "768bffeed2a988bfa98c371c60efbcaee1208a8a56377d649e16fc46abf1793a",
+        "harness_entry_sha256": "5ceac4afe31c61ad87916c6fcb9e275804c0e4648c168ac32dac30c6bb3dcdb7",
+        "ownership_sha256": "44ed267f9a40a20fb42db0bcbf283ee9179e8e4f846ae536dc7e74a2b079efc9",
+        "preflight_continuity_sha256": "305dd779ab8abf475f6385b66825163e5a25c99ae6a2c28ad9024f7e8e88cb1e",
+        "launcher_attempt_sha256": "daf899bcfe878ae2f16b9fce0b93efd6f63120c422d31ccef68048d8d6070494",
+        "attempt_consumed_at": "HARNESS_RUN_CALL_STARTED",
+        "successful_return_boundaries": ["HARNESS_RUN_RETURNED", "LAUNCHER_RETURN_READY"]
+      },
+      "U-v1": {
+        "classification": "ROW_U_FORMAL_PASS_TWO_VIEWS_ONE_WINDOW_AMBIGUOUS_CANVAS_FAIL_CLOSED",
+        "support_sha256": "3f36a362a1a6115c7bec1f914396b9a60b1e805ba9eed84d703fdaf523656154",
+        "harness_sha256": "371a03492d986eb60e9f94366e17fc3ac0d356ac96b55f9af067153fe41078f4",
+        "launcher_sha256": "3db896531fd773550621a123aaf53a47b9f00ab727c50b6ebe6c90a1c6804520",
+        "bootstrap_sha256": "95d669cc1defe2f609e876c0957ee29321b5618f49aa90622c162d4295f8bc07",
+        "result_sha256": "3ae2e4be8076b6d467fb0fb34e009de16cf689367d8013d17a4cca4c1d46db46",
+        "harness_entry_sha256": "90682614d4725a97378824a15b949723a5bef39a714359d4e63374acfe9e5f73",
+        "ownership_sha256": "54ba336b7692c048e52c5d4ba85880f4155e2b288cb91bd809d92ce4e9a480b9",
+        "preflight_continuity_sha256": "6d985ad3de5ba7bf8b62edf698c2097f9cb72be42bd8b389f49792ba38ccb369",
+        "launcher_attempt_sha256": "c5d701667a4853e1ecb7e3079f97e75bbef52f22fa8e84f92315f7efedf5695e",
+        "attempt_consumed_at": "HARNESS_RUN_CALL_STARTED",
+        "successful_return_boundaries": ["HARNESS_RUN_RETURNED", "LAUNCHER_RETURN_READY"]
+      },
+      "V-v2": {
+        "classification": "ROW_V_FORMAL_PASS_WORKER_ACTIVE_DOCKER_CLOSE_STALE_PUBLISH_SUPPRESSED",
+        "support_sha256": "94cc3651bd5128ef0f07c19b62cd781086fd5272fad21f08f6732aa26386b61e",
+        "harness_sha256": "9514855583deddc88d54f671dff7296b138a4f243b5c71aa51ede7994ae62520",
+        "launcher_sha256": "33e1d88d0957c6e8248e79c4b31d639787f6bc071e557bd1532e105c3ee69414",
+        "bootstrap_sha256": "5d3732fcac035e5faf32415aa84b1e819a33a43d50eb548ab80810b28dafd08c",
+        "result_sha256": "33c11bee9eaf5404f659857fbe532464ec41bbb47500cf244f67a77575d5449c",
+        "harness_entry_sha256": "bc4b12171b058d4015db170545236c074de416b75a9cb796061c8ae3a50474bb",
+        "ownership_sha256": "6f7f28d74988f4d41bbf5de09c92830af464743c36a698ac60b3be76525112b9",
+        "launcher_attempt_sha256": "8a7ad626cd80f063f665496d8ff41a7090f8b7f50147c85352549e746545e4b1",
+        "attempt_consumed_at": "HARNESS_RUN_CALL_STARTED",
+        "successful_return_boundaries": ["HARNESS_RUN_RETURNED", "LAUNCHER_RETURN_READY"]
+      }
+    },
+    "historical_attempts": {
+      "T-v1": {"classification": "ROW_T_V1_FORMAL_INVOCATION_CONSUMED_HARNESS_ENTRY_FAIL_CORE_UNJUDGED", "result_sha256": "2d5c33e01cab0a13753cd31003f7032a3cf6727f0e0aa2f447022d30eaf64a45", "launcher_attempt_sha256": "ce16b1af6d64668b63bde506159bf61c031892d49cfb017a7b97ea804d2eed47"},
+      "T-v2": {"classification": "ROW_T_V2_FORMAL_INVOCATION_CONSUMED_HARNESS_ENTRY_FAIL_CORE_UNJUDGED", "result_sha256": "2f25856e66d6f33d66df3fad0130cc1ef59cb6ab5277abb9fc140dac6c9e2181", "launcher_attempt_sha256": "31ba2508e1ce85f224e179bb51ba5ab6daf1674f5a6b4541ab9945d58a4931b5"},
+      "T-v3": {"classification": "ROW_T_V3_FORMAL_INVOCATION_CONSUMED_HARNESS_ENTRY_FAIL_CORE_UNJUDGED", "result_sha256": "26a712f318fcf6eef91c841f82f8794d9855e23280c1874c8a00aedbe6c29cc0", "launcher_attempt_sha256": "476c11a9391ebfd37a4372a8f25cb625730f087fb4c9423d2d32d58b0dbe0c5b"},
+      "T-v4": {"classification": "ROW_T_V4_FORMAL_INVOCATION_CONSUMED_HARNESS_ENTRY_FAIL_CORE_UNJUDGED", "result_sha256": "1180481bf37a0282932a20d2c59e21815f6df71dd4ca95e96d55ca307f261eae", "launcher_attempt_sha256": "975101aa40ed87976eafc62e09391dddf71449347375ccfee1f47669fbde9225"},
+      "T-v5": {"classification": "ROW_T_V5_FORMAL_INVOCATION_CONSUMED_HARNESS_ENTRY_FAIL_CORE_UNJUDGED", "result_sha256": "feaa586dbdf0a5579679241e6268b5cde0a8012795ba441965f9137e1653a626", "launcher_attempt_sha256": "23e030d82edacc1c830ba511dbfc2919db7b65102901115d6342226874d3cafd"},
+      "T-v6": {"classification": "ROW_T_V6_FORMAL_INVOCATION_CONSUMED_HARNESS_ENTRY_FAIL_CORE_UNJUDGED", "result_sha256": "2eab433614e01836150f34710912ddeb4068881078524d8419080f1b899534b6", "launcher_attempt_sha256": "e538e7f9384efb2f17f71fbad2f76cd9dda18bb1233d44aba1034908699fab21"},
+      "T-v7": {"classification": "ROW_T_V7_FORMAL_INVOCATION_CONSUMED_HARNESS_DEPENDENCY_INTERFACE_FAIL_CORE_UNJUDGED", "result_sha256": "7520d7097a472d10a49ba417664fbcde9d28d16257729f021c3cda10b95d74d6", "launcher_attempt_sha256": "454605575346868d8bc5a2fc83a3b1a3c927b30a158b6a61bf85711d2285024a"},
+      "T-v8": {"classification": "ROW_T_SEMANTIC_CORE_FAIL_COLOR_CONVERSION", "forensic_classification": "ROW_T_V8_QUALIFICATION_DISPLAY_ORACLE_DEFECT", "result_sha256": "b56f37547811480a5ad1affacc26d70ea22bb38ac059d73c093fb7aa53f1f6ff", "launcher_attempt_sha256": "ffaa429334299dd36e169e11c3c95a9edc6c4e6bef7f46da1565b311b57d64fe"},
+      "T-v9": {"classification": "ROW_T_PREPARING", "status": "PREPARING", "note": "Consumed transitional persisted result preserved unchanged.", "result_sha256": "466b3f6af01e60b1471eec35013e5b47299c66c4fa13e1431c8b88091dbfac31", "launcher_attempt_sha256": "957d602a45e71d15ad4c29c9b4ecdf3da8229dea5ba2cfb1f7eedc8f4cd02c66"},
+      "T-v10": {"classification": "ROW_T_SEMANTIC_CORE_FAIL_COLOR_CONVERSION", "note": "Historical FAIL despite positive governed Display Oracle V2 evidence.", "result_sha256": "f3e835dc95a54d67c2548b6cf8eeeabcf442ecd869e9e0b06d5d0c0d711cb747", "launcher_attempt_sha256": "1634e0c936802fbefc4149e1b96cd656193a4c6581cbee93524e79cd253690a2"},
+      "V-v1": {
+        "classification": "ROW_V_V1_FORMAL_INVOCATION_CONSUMED_HARNESS_FAIL_CORE_UNJUDGED",
+        "forensic_classification": "ROW_V_V1_QUALIFICATION_POST_CORE_FIXTURE_COMPARISON_SCHEMA_DEFECT",
+        "support_sha256": "3ab264ba361a755fd75d47df85aeced258622302fbc37fea76cefa3f9ab6e9da",
+        "harness_sha256": "40775ed7fbd07a0d068a5eafa4c0fcefffcf1678415f24bc8a1c5f84d54bd946",
+        "launcher_sha256": "3b07a5c2643cc4fc4a48842a7e2f4419f25ae4814de52c79f41fb40ba9e21a92",
+        "bootstrap_sha256": "d6cc783bcec2f50ae04c9464efdfea37ca1537732736b6b88a1b88d017580ed6",
+        "result_sha256": "bba8b3b6269b77a2a42d80d1f4f7ace7c5d7b245264afc84622d2a19e80dfdf3",
+        "harness_entry_sha256": "759735ed845736e5cc9a9e16c839eaf7afb26f797574d2029e04fdeeec5d157e",
+        "ownership_sha256": "61f413d7446506741ed268652e628700675fb871524c5ad3941b1b9a02afe09e",
+        "launcher_attempt_sha256": "d9a74294d7a118a9e0529f69e53d0e8e3afe540eacfc234b984ee07e3014c8db"
+      }
+    },
+    "frozen_hashes": {
+      "production_semantic_sha256": "b3812c8a00aa359097d9395b13d27e55433b311584a00e6906de0f426f5acc38",
+      "lifecycle_sha256": "94b42368efc0df7c37333fe864f57593254557c2b181676106efd0a45e535e5f",
+      "display_oracle_v2_sha256": "a0d6a02bcc678ed316a18e26da17a693293e0ac22d4579d992de6eeb21844f35",
+      "native_helper_sha256": "ad2fa7463d59dca74a92dc867734b38eb7aa49821b163547da442147348f8746",
+      "onnx_sha256": "8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78",
+      "sidecar_sha256": "2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5",
+      "fixture_manifest_sha256": "6243be8f2a26b383ef0293bd585318c0072011ccabf959cb25f42127aba5908c",
+      "overlay_production_sha256": "e9aeb11334be91f81025ea2e1b19e2cd28bbe2b3da01f80c5ec66e3c07e5a609",
+      "repaired_plugin_artifact_identity": "7001c1bf92aa7abb5840baf52fe07457ab06cb80074297488e67ded212ab74e2",
+      "artifact_manifest_sha256": "14ab81ed4d6688a0e8a9800a032db53158e91c6094b8f7b5f88ed7e50cad2f61"
+    },
+    "known_limitations": [
+      "Row Q: the required real HiDPI condition was unavailable; Q is not PASS.",
+      "Row V: full Krita application close with a worker active is outside the adopted V1/V2 formal scope.",
+      "Row T qualifies only the tested alternate RGBA/U8 profile cell, not unrelated profiles, mixed-profile states, HDR, non-U8, or unsupported states.",
+      "Canonical native CSP integration remains INSUFFICIENT_FOR_GAPFILL_PARITY for the evaluated SDK/adapter combination."
+    ]
+  },
   "results": [
     {"id": "A", "case": "loading / enable / restart", "status": "PASS"},
     {"id": "B", "case": "scan ordinary gap", "status": "PASS"},
@@ -63,25 +168,25 @@
       "status": "PASS",
       "evidence": "The clean-installed production-native v3 artifact passed both formal real-host cases. Corrected-decision Apply Selected changed exactly 18/18 target pixels with zero missing, unexpected, or wrong values, byte-exact non-target data, unchanged Line/Guide, one native apply, and one top-level Undo command. Apply All changed exactly 187/187 target pixels with the same exactness and one native transaction. Historical native-fill and harness failures remain preserved in docs/addon-phase6.5.md."
     },
-    {"id": "H", "case": "selection presence and exact bytes restored", "status": "UNTESTED"},
+    {"id": "H", "case": "selection presence and exact bytes restored", "status": "PASS"},
     {
       "id": "I",
       "case": "Undo / redo and visible command count",
       "status": "PASS",
       "evidence": "The production-native v3 real-host run made exactly one production Apply and one native apply, reported one top-level Undo command/transaction command/published transaction, then one normal Undo restored exact S0 and one Redo restored exact S1."
     },
-    {"id": "J", "case": "foreground and view/tool state restored", "status": "UNTESTED"},
-    {"id": "K", "case": "active node restored", "status": "UNTESTED"},
-    {"id": "L", "case": "stale scan rejection", "status": "UNTESTED"},
-    {"id": "M", "case": "cancel / deactivate race", "status": "UNTESTED"},
-    {"id": "N", "case": "pan / zoom at DPR 1", "status": "UNTESTED"},
-    {"id": "O", "case": "rotation fails closed", "status": "UNTESTED"},
-    {"id": "P", "case": "mirror fails closed", "status": "UNTESTED"},
-    {"id": "Q", "case": "HiDPI fails closed", "status": "UNTESTED"},
-    {"id": "R", "case": "moved Coloring target rejected", "status": "UNTESTED"},
-    {"id": "S", "case": "target masks/effects rejected", "status": "UNTESTED"},
-    {"id": "T", "case": "alternate RGBA/U8 profile conversion", "status": "UNTESTED"},
-    {"id": "U", "case": "two views/windows and ambiguous split view", "status": "UNTESTED"},
-    {"id": "V", "case": "shutdown with plug-in active", "status": "UNTESTED"}
+    {"id": "J", "case": "foreground and view/tool state restored", "status": "PASS"},
+    {"id": "K", "case": "active node restored", "status": "PASS"},
+    {"id": "L", "case": "stale scan rejection", "status": "PASS"},
+    {"id": "M", "case": "cancel / deactivate race", "status": "PASS"},
+    {"id": "N", "case": "pan / zoom at DPR 1", "status": "PASS"},
+    {"id": "O", "case": "rotation fails closed", "status": "PASS"},
+    {"id": "P", "case": "mirror fails closed", "status": "PASS"},
+    {"id": "Q", "case": "HiDPI fails closed", "status": "ROW_Q_HOST_CONDITION_UNAVAILABLE", "evidence": "The production-resolved real canvas QWidget DPR and screen DPR remained 1.0 and DPI remained 96, so the required real HiDPI host condition could not be exercised. This is not PASS."},
+    {"id": "R", "case": "moved Coloring target rejected", "status": "PASS"},
+    {"id": "S", "case": "target masks/effects rejected", "status": "PASS"},
+    {"id": "T", "case": "alternate RGBA/U8 profile conversion", "status": "PASS", "classification": "ROW_T_FORMAL_PASS_ALTERNATE_PROFILE_PREVIEW_SAMPLE_COMMIT_CONSISTENT", "governance": "ROW_T_DISPLAY_ORACLE_V2_GOVERNANCE_ADOPTED"},
+    {"id": "U", "case": "two views/windows and ambiguous split view", "status": "PASS", "classification": "ROW_U_FORMAL_PASS_TWO_VIEWS_ONE_WINDOW_AMBIGUOUS_CANVAS_FAIL_CLOSED"},
+    {"id": "V", "case": "shutdown with plug-in active", "status": "PASS", "classification": "ROW_V_FORMAL_PASS_WORKER_ACTIVE_DOCKER_CLOSE_STALE_PUBLISH_SUPPRESSED", "governance": "ROW_V_WORKER_ACTIVE_SHUTDOWN_CONTRACT_V1_GOVERNANCE_ADOPTED"}
   ]
 }
