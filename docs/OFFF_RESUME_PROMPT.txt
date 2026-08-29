@@ -2,51 +2,75 @@ You are starting a fresh OFFF development thread in:
 
     /home/marc2825/GapFill
 
-This prompt is self-contained. Begin with read-only investigation and an OFFF
-specification freeze/gap analysis. Do not begin coding, branch integration, or
-formal host qualification in the first task.
+This prompt is self-contained. Assume no access to any prior conversation.
+Begin with read-only investigation and an OFFF specification freeze/gap
+analysis. Do not begin coding, branch integration, or formal host qualification
+in the first task.
 
 ======================================================================
-FROZEN GAPFILL RELEASE — DO NOT MODIFY OPPORTUNISTICALLY
+FINAL GAPFILL RELEASE AND MAINTENANCE HEAD — KEEP DISTINCT
 ======================================================================
 
-GapFill 1.0.0 release commit:
+RELEASE BASELINE:
 
-    0c30afce131f330b4f0cc10ac0cf54c21b1c72b2
+    GapFill 1.0.1
+    tag krita-v1.0.1
+    annotated tag object abc7b901fb8a912ade9d8c37743df24f5cb60e26
+    release/tag commit 3a551736654db94325e37e6bbeb457d1e4dd12b0
+    subject: fix(krita): make release ZIP importer-compatible
+    release ID 379107741
+    https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.1
 
-Commit subject:
+MAINTENANCE HEAD:
 
-    ci(krita): publish frozen GapFill 1.0.0 artifact
+    branch hotfix/krita-v1.0.1
+    commit 9a87fa1a11644c1e90124532ce2fddc284e86cfb
+    subject: ci(krita): install Qt EGL runtime for tests
+    parent: 3a551736654db94325e37e6bbeb457d1e4dd12b0
 
-Annotated tag:
+The maintenance commit changes only .github/workflows/ci.yml. It installs
+Ubuntu libegl1 and adds a PyQt6 QtGui preflight. It is a non-semantic CI-only
+descendant and is NOT the release payload commit. Begin read-only and explicitly
+decide whether a new OFFF integration branch should start at the release baseline
+or this maintenance head. Do not silently conflate them.
 
-    krita-v1.0.0
+The commit containing this finalized prompt is a later documentation-only
+descendant. Inspect the checked-out branch HEAD before choosing a base;
+9a87fa1 remains the last non-documentation maintenance checkpoint, not a claim
+that no later documentation commit exists.
 
-Tag object and target:
-
-    4e119534e1fc0e9a9ccd9702458098c0e55b8bdc
-    0c30afce131f330b4f0cc10ac0cf54c21b1c72b2
-
-Published GitHub Release:
-
-    GapFill 1.0.0
-    release ID 379020840
-    https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.0
-
-Frozen production asset:
+Final production asset:
 
     gapfill-krita-windows-x86_64.zip
+    repository path:
+      krita-plugin/release/artifacts/1.0.1/gapfill-krita-windows-x86_64.zip
     Windows x86_64 only
-    asset ID 535364662
-    SHA-256 7001c1bf92aa7abb5840baf52fe07457ab06cb80074297488e67ded212ab74e2
+    asset ID 535762207
+    SHA-256 e001ad4db0a049db23f2839d780ff0ede810fc3f21c2d3fc574ef8bc12c93b19
+    size 48218711 bytes
+    1012 entries: 895 files and 117 directories
+    required entry gapfill_krita/ present
+    canonical verifier FROZEN_RELEASE_ARTIFACT_VERIFICATION_PASS
+    importer result PLUGIN_DISCOVERABLE
 
-The published asset was verified byte-for-byte. Linux and macOS are not
-qualified GapFill 1.0.0 release artifacts.
+The GitHub Release asset was byte-identical to the repository artifact. Linux
+and macOS are not qualified GapFill 1.0.1 release artifacts.
 
-GapFill 1.0.0 is frozen. OFFF work must not opportunistically modify GapFill
-production or semantics. A future GapFill production change requires an
+The provisional handoff commit
+f5ad58d334b07f3ac5a3e0ea1b612e1b003a6c96 remains historical evidence from
+when GapFill 1.0.0 was believed to be final; do not amend or rewrite it.
+
+Historical GapFill 1.0.0 had
+GAPFILL_1_0_0_KRITA_IMPORTER_DIRECTORY_ENTRY_PACKAGING_DEFECT: its ZIP included
+gapfill_krita/__init__.py but omitted the explicit gapfill_krita/ directory
+record, so Krita 5.3.3 could report `No plugins found in archive`. Version 1.0.1
+adds deterministic directory entries. All 895 ordinary file payloads are
+byte-identical to 1.0.0; runtime, model, and prediction semantics are unchanged.
+
+GapFill 1.0.1 is final and frozen. OFFF work must not opportunistically modify
+GapFill production or semantics. A future GapFill production change requires an
 explicit reason, separate regression analysis, Phase 6.5/release impact review,
-and coexistence testing. Do not amend or move the release commit or tag.
+and coexistence testing. Do not amend, move, recreate, or retag the release.
 
 ======================================================================
 FROZEN GAPFILL SEMANTICS
@@ -113,14 +137,15 @@ Historical branch HEAD:
     0caa23c658e6c589b8ff1ea0ed4a1ae9fa2a5043
     prototype for overflow floodfill
 
-Merge base with the frozen release:
+Merge base with the final release baseline:
 
     2044d8f163367b25ed6cb81f2c0c86949d9fdf0f
 
 Divergence:
 
     OFFF branch:    1 unique commit
-    release line:  23 unique commits
+    release baseline:  25 unique commits
+    maintenance head:  26 unique commits
 
 The OFFF commit changes 27 files with 2,296 insertions and 173 deletions. It is a
 mixed commit containing spec, web UI, pure OFFF code, tests, and edits to shared
@@ -176,7 +201,7 @@ IMPLEMENTED on the historical web branch:
 - two OFFF-specific test files with five cases total;
 - the historical branch passes npm test and npm run build.
 
-PARTIALLY IMPLEMENTED:
+PARTIAL:
 
 - web interaction, cancellation/stale-request handling, hover, fallback and
   undo-retry behavior exist, but lack dedicated semantic/lifecycle coverage;
@@ -191,7 +216,7 @@ TODO:
 - OFFF real-host qualification;
 - anti-aliased topology/fringe and debug overlays.
 
-AMBIGUOUS / UNKNOWN — do not guess:
+UNKNOWN — do not guess:
 
 - whether OFFF v1 targets web, Krita, or both;
 - whether the existing ONNX model is valid for OFFF's eventual tensor;
@@ -271,8 +296,9 @@ gapDetection.ts or onnxInference.ts.
 Recommended sequence after the semantic freeze:
 
 1. Preserve feature/overflow-floodfill unchanged as historical evidence.
-2. Create a new OFFF branch from krita-v1.0.0 / 0c30afce, or a reviewed docs-only
-   descendant whose production tree is identical.
+2. After read-only inspection, explicitly choose a new OFFF branch base:
+   krita-v1.0.1 / 3a551736 (the release baseline), or hotfix/krita-v1.0.1 /
+   9a87fa1 (the non-semantic maintenance head). Do not conflate those identities.
 3. Recreate the reviewed OFFF spec first.
 4. Selectively reconstruct pure OFFF modules and tests, one file/boundary at a
    time, comparing to historical code.
@@ -291,13 +317,15 @@ YOUR FIRST TASK — READ ONLY
 
 Perform an OFFF SPEC FREEZE / GAP ANALYSIS. Do not code.
 
-1. Verify repository status, frozen commit/tag, and historical OFFF branch HEAD.
+1. Verify repository status, release baseline/tag, maintenance HEAD, and
+   historical OFFF branch HEAD.
+   Also inspect the documentation-only commits after 9a87fa1 before proposing a
+   branch base.
 2. Read docs/OFFF_HANDOFF.md and the frozen GapFill sources listed there.
 3. Inspect feature/overflow-floodfill read-only without checkout or mutation.
 4. Read the OFFF spec and every web/src/overflow module plus its UI integration.
 5. Compare spec to code at every observable stage.
-6. Classify each behavior as SPECIFIED, IMPLEMENTED, PARTIALLY IMPLEMENTED, TODO,
-   or AMBIGUOUS.
+6. Classify each behavior as SPECIFIED, IMPLEMENTED, PARTIAL, TODO, or UNKNOWN.
 7. Compare OFFF semantics against frozen GapFill boundaries.
 8. Resolve or explicitly defer the Line/Guide channel-0 decision.
 9. Propose an OFFF v1 semantic decision register and freeze candidate.
@@ -315,13 +343,13 @@ transforms/profiles, and coexistence.
 FILES TO READ FIRST
 ======================================================================
 
-Current frozen line:
+Current final line:
 
     docs/OFFF_HANDOFF.md
     docs/addon-spec.md
     docs/addon-release.md
     docs/addon-phase6.5.md
-    krita-plugin/release/freeze.json
+    krita-plugin/release/1.0.1/freeze.json
     krita-plugin/host_tests/matrix.json
     krita-plugin/pykrita/gapfill_krita/host_contract.py
     krita-plugin/pykrita/gapfill_krita/controller.py
@@ -382,8 +410,12 @@ DO NOT DO IN THE FIRST TASK
 - Do not change GapFill production or semantics.
 - Do not merge, rebase, or cherry-pick feature/overflow-floodfill.
 - Do not switch development permanently to that branch.
-- Do not move/amend/tag/push the frozen release.
+- Do not move, amend, recreate, retag, or force-update GapFill release tags.
 - Do not claim existing web tests or GapFill qualification prove OFFF behavior.
+- Do not assume shared infrastructure means shared semantics or inherited
+  qualification.
+- Do not implement before OFFF v1 semantics and the integration-base strategy
+  are reviewed and frozen.
 - Do not assume the frozen ONNX model supports Guide-composed OFFF tensors.
 - Do not rerun formal GapFill A-V qualification.
 
