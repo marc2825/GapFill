@@ -1662,7 +1662,7 @@ separately as Phase 6.5 and does not reopen that implementation status.
 - **Explicitly out of scope:** New algorithms, model retraining, new host
   platforms, or feature expansion discovered during polish.
 
-## Release decision at this checkpoint
+## Initial audit release decision (historical)
 
 - **Krita:** keep as an audited prototype. Pure checks are healthy, but close the
   High semantic/host/package risks and execute the real-host matrix before a
@@ -1677,3 +1677,20 @@ separately as Phase 6.5 and does not reopen that implementation status.
 
 This report is the stopping point for the audit phase. No production fix has
 been implemented.
+
+## Final GapFill release/freeze preparation
+
+After Phases 2–6.5 closed the semantic and real-Krita host gates, the exact
+production checkpoint `df4e18c0b3f5e4ca8135ca52cba0b415ad3d52c8` was
+audited and packaged without a production change. Two independent canonical
+builds produced the same 895-entry Windows x86_64 artifact at SHA-256
+`7001c1bf92aa7abb5840baf52fe07457ab06cb80074297488e67ded212ab74e2`;
+that is also the exact historical qualified artifact identity, so production
+payload drift is zero.
+
+The concise release record is `docs/addon-release.md`; the authoritative
+machine-readable freeze metadata is `krita-plugin/release/freeze.json`. The
+repository history had no prior overall Krita plug-in version or `krita-v*`
+release tag, so this freeze adopts GapFill `1.0.0` under governance identity
+`GAPFILL_RELEASE_VERSION_V1_GOVERNANCE_ADOPTED` and prepares the prospective
+tag `krita-v1.0.0`. No tag, push, or publication is part of this checkpoint.

@@ -1,6 +1,6 @@
 # GapFill for Krita
 
-GapFill for Krita ports the paper's gap-detection and region-correspondence color-prediction workflow into a Python docker with a narrowly version-pinned native mutation helper. **No real Krita distribution has completed the Phase 6.5 host matrix yet.** The only Apply host currently admitted by the implementation is Windows x64, Krita 5.3.3 git `858d352`, Qt 5.15.7, and CPython 3.13.5; every other host fails closed before loading the helper.
+GapFill 1.0.0 for Krita ports the paper's gap-detection and region-correspondence color-prediction workflow into a Python docker with a narrowly version-pinned native mutation helper. **Phase 6.5 is closed for the recorded host cell:** A–P and R–V passed, while Q is explicitly `ROW_Q_HOST_CONDITION_UNAVAILABLE`, not PASS. The only Apply host admitted by the frozen implementation is Windows 11 Pro x64, Krita 5.3.3 git `858d352`, Qt 5.15.7, embedded CPython 3.13.5, and PyQt5 5.15.11; every other host fails closed before loading the helper. The canonical overall version is recorded in the [release/freeze record](../docs/addon-release.md).
 
 ## Features
 
@@ -13,7 +13,7 @@ GapFill for Krita ports the paper's gap-detection and region-correspondence colo
   regions, and returns their deterministic modal RGB.
 - Shows temporary suggested fills, circular highlights, and a fixed 5× hover magnifier.
 - Supports in-circle drag-to-correct, out-circle sweep-to-apply, list-based correction, Apply Selected, and Apply All.
-- Converts every selected correction through `CanvasColorBridge`, sends the complete exact BGRA/U8 patch in one native transaction, and validates the full Coloring layer byte-for-byte. Formal production Row I passed exact one-step Undo/Redo in the admitted Windows/Krita host cell; the remaining Phase 6.5 matrix is still incomplete.
+- Converts every selected correction through `CanvasColorBridge`, sends the complete exact BGRA/U8 patch in one native transaction, and validates the full Coloring layer byte-for-byte. Formal production Row I passed exact one-step Undo/Redo in the admitted Windows/Krita host cell; all other available Phase 6.5 rows also closed successfully, subject to the explicit Q/T/V limits.
 - Performs detection and inference off the UI thread and supports cancellation.
 
 ## Install a Release Bundle
@@ -111,8 +111,9 @@ one Krita transaction. Native failure reverts and verifies the touched bytes;
 success must pass a full-layer exact raw-byte readback. There is no fallback to
 `fill_selection_foreground_color` or direct Python writeback. A successful apply
 invalidates every remaining suggestion and requires a rescan. Formal one-step
-Undo/Redo passed in the admitted Windows/Krita host cell; remaining Phase 6.5
-rows still gate overall release qualification.
+Undo/Redo and all other available Phase 6.5 rows passed in the admitted
+Windows/Krita host cell. Q's unavailable HiDPI condition and the documented
+T/V scope limits remain explicit rather than being treated as broader support.
 
 ## Build and Test
 
@@ -165,7 +166,9 @@ advertised real Krita distribution.
   state remain exact, and record every visible Undo and redo step. Row I is
   qualified only for the admitted host cell and must be repeated for any future
   supported host matrix.
-- Run every A–V row in `host_tests/matrix.json`; leave unavailable rows UNTESTED.
+- Run every A–V row in `host_tests/matrix.json` for each newly advertised host
+  cell. Record unavailable host conditions explicitly and never relabel them as
+  PASS.
 
 ## Architecture
 

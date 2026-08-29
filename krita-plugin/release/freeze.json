@@ -1,0 +1,172 @@
+{
+  "artifact": {
+    "entry_count": 895,
+    "filename": "gapfill-krita-windows-x86_64.zip",
+    "sha256": "7001c1bf92aa7abb5840baf52fe07457ab06cb80074297488e67ded212ab74e2",
+    "size": 48197787,
+    "uncompressed_size": 103302091
+  },
+  "artifact_entry_manifest": {
+    "path": "krita-plugin/release/artifact-entries.json",
+    "sha256": "613e9c0ddc25f86452be8c6a76c6850f8182bbebad274006055270ab4a509038"
+  },
+  "branch_at_preparation": "qualify/csp-host-adapter",
+  "build": {
+    "build_a": {
+      "command": "/tmp/gapfill-krita-venv/bin/python krita-plugin/scripts/build_plugin.py --vendor /mnt/c/Users/marck/AppData/Roaming/krita/pykrita/gapfill_krita/_vendor --native-helper /mnt/c/Users/marck/AppData/Roaming/krita/pykrita/gapfill_krita/_native/gapfill_krita_native_5_3_3.cp313-win_amd64.pyd --output /tmp/gapfill-release-freeze-df4e18c/build-a/gapfill-krita-windows-x86_64.zip",
+      "sha256": "7001c1bf92aa7abb5840baf52fe07457ab06cb80074297488e67ded212ab74e2",
+      "size": 48197787
+    },
+    "build_b": {
+      "command": "/tmp/gapfill-krita-venv/bin/python krita-plugin/scripts/build_plugin.py --vendor /mnt/c/Users/marck/AppData/Roaming/krita/pykrita/gapfill_krita/_vendor --native-helper /mnt/c/Users/marck/AppData/Roaming/krita/pykrita/gapfill_krita/_native/gapfill_krita_native_5_3_3.cp313-win_amd64.pyd --output /tmp/gapfill-release-freeze-df4e18c/build-b/gapfill-krita-windows-x86_64.zip",
+      "sha256": "7001c1bf92aa7abb5840baf52fe07457ab06cb80074297488e67ded212ab74e2",
+      "size": 48197787
+    },
+    "environment": {
+      "LANG": "C.UTF-8",
+      "PYTHONHASHSEED": null,
+      "SOURCE_DATE_EPOCH": null,
+      "TZ": null
+    },
+    "toolchain": {
+      "implementation": "CPython standard-library zipfile",
+      "os": "Linux 6.6.87.2-microsoft-standard-WSL2 x86_64 with glibc 2.39",
+      "python": "CPython 3.12.3 GCC 13.3.0",
+      "python_executable": "/tmp/gapfill-krita-venv/bin/python",
+      "zlib_build": "1.3",
+      "zlib_runtime": "1.3"
+    }
+  },
+  "csp": {
+    "canonical_gapfill": "INSUFFICIENT_FOR_GAPFILL_PARITY",
+    "evaluated_sdk_adapter_release_eligible": false
+  },
+  "freeze_status": "GAPFILL RELEASE/FREEZE READY",
+  "historical_qualified_artifact": {
+    "comparison": "A_ARTIFACT_BYTES_IDENTICAL",
+    "entry_manifest_sha256": "14ab81ed4d6688a0e8a9800a032db53158e91c6094b8f7b5f88ed7e50cad2f61",
+    "production_payload_drift": false,
+    "sha256": "7001c1bf92aa7abb5840baf52fe07457ab06cb80074297488e67ded212ab74e2"
+  },
+  "host_matrix": {
+    "A": "PASS",
+    "B": "PASS",
+    "C": "PASS",
+    "D": "PASS",
+    "E": "PASS",
+    "F": "PASS",
+    "G": "PASS",
+    "H": "PASS",
+    "I": "PASS",
+    "J": "PASS",
+    "K": "PASS",
+    "L": "PASS",
+    "M": "PASS",
+    "N": "PASS",
+    "O": "PASS",
+    "P": "PASS",
+    "Q": "ROW_Q_HOST_CONDITION_UNAVAILABLE",
+    "R": "PASS",
+    "S": "PASS",
+    "T": "PASS",
+    "U": "PASS",
+    "V": "PASS"
+  },
+  "identities": {
+    "display_oracle_v2_sha256": "a0d6a02bcc678ed316a18e26da17a693293e0ac22d4579d992de6eeb21844f35",
+    "fixture_manifest_sha256": "6243be8f2a26b383ef0293bd585318c0072011ccabf959cb25f42127aba5908c",
+    "lifecycle_sha256": "94b42368efc0df7c37333fe864f57593254557c2b181676106efd0a45e535e5f",
+    "model_sidecar_sha256": "2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5",
+    "native_helper_sha256": "ad2fa7463d59dca74a92dc867734b38eb7aa49821b163547da442147348f8746",
+    "onnx_sha256": "8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78",
+    "overlay_sha256": "e9aeb11334be91f81025ea2e1b19e2cd28bbe2b3da01f80c5ec66e3c07e5a609",
+    "production_semantic_sha256": "b3812c8a00aa359097d9395b13d27e55433b311584a00e6906de0f426f5acc38"
+  },
+  "installability": {
+    "artifact_used": "new build A",
+    "historical_exact_verifier": "PASS",
+    "installed_file_count": 895,
+    "method": "fresh disposable Krita resource-tree mapping followed by exact per-file verification",
+    "status": "PASS",
+    "unexpected_files": 0,
+    "user_install_modified": false
+  },
+  "kind": "gapfill-krita-release-freeze",
+  "known_limitations": [
+    "Row Q real HiDPI host condition was unavailable and is not PASS.",
+    "Full Krita application close with an active worker was not formally qualified; Row V covers docker.close() through closeEvent() to controller.shutdown().",
+    "Row T qualifies the tested alternate RGBA/U8 ACEScg profile cell only.",
+    "Mixed-profile behavior is not qualified.",
+    "Arbitrary other ICC profiles are not implied qualified by Row T.",
+    "HDR and non-U8 documents are not qualified.",
+    "Opening-like regions such as sleeves remain outside GapFill's intended enclosed-gap capability.",
+    "Only Windows 11 Pro x64, Krita 5.3.3 git 858d352, Qt 5.15.7, CPython 3.13.5, and PyQt5 5.15.11 are admitted by this release artifact."
+  ],
+  "operator_crash_observations": {
+    "T-v11": "NO",
+    "U-v1": "NO",
+    "V-v2": "NO",
+    "provenance": "external operator observations, separate from formal result JSON"
+  },
+  "overall_plugin_version": "1.0.0",
+  "phase65": {
+    "matrix_authority": "krita-plugin/host_tests/matrix.json",
+    "status": "CLOSED"
+  },
+  "release_conventions": {
+    "artifact_filename": "gapfill-krita-windows-x86_64.zip",
+    "artifact_format": "deterministic Krita Python Plugin Importer ZIP",
+    "existing_release_tag": null,
+    "plugin_version_source": "krita-plugin/release/freeze.json#overall_plugin_version",
+    "release_version_status": "GAPFILL_RELEASE_VERSION_V1_GOVERNANCE_ADOPTED",
+    "tag_pattern": "krita-v*"
+  },
+  "release_tag": "krita-v1.0.0",
+  "reproducibility": {
+    "build_a_equals_build_b": true,
+    "byte_comparison": "PASS",
+    "result": "PASS"
+  },
+  "rows": {
+    "T": {
+      "classification": "ROW_T_FORMAL_PASS_ALTERNATE_PROFILE_PREVIEW_SAMPLE_COMMIT_CONSISTENT",
+      "final_attempt": "T-v11",
+      "governance": "ROW_T_DISPLAY_ORACLE_V2_GOVERNANCE_ADOPTED"
+    },
+    "U": {
+      "classification": "ROW_U_FORMAL_PASS_TWO_VIEWS_ONE_WINDOW_AMBIGUOUS_CANVAS_FAIL_CLOSED",
+      "final_attempt": "U-v1"
+    },
+    "V": {
+      "classification": "ROW_V_FORMAL_PASS_WORKER_ACTIVE_DOCKER_CLOSE_STALE_PUBLISH_SUPPRESSED",
+      "final_attempt": "V-v2",
+      "governance": "ROW_V_WORKER_ACTIVE_SHUTDOWN_CONTRACT_V1_GOVERNANCE_ADOPTED"
+    }
+  },
+  "schema": 1,
+  "smoke": {
+    "controller_shutdown": "bound to closed Phase 6.5 evidence by exact whole-artifact identity; not rerun",
+    "docker_extension_registration": "bound to Row A by exact whole-artifact identity; not rerun",
+    "model_resolution": "PASS",
+    "native_helper_resolution_and_hash": "PASS",
+    "package_import_from_disposable_tree": "PASS",
+    "packaged_python_sources_compiled": 582,
+    "repository_source_on_import_path": false,
+    "status": "PASS"
+  },
+  "source_checkpoint": "df4e18c0b3f5e4ca8135ca52cba0b415ad3d52c8",
+  "source_freeze": {
+    "inventory_count": 901,
+    "path": "krita-plugin/release/source-freeze.json",
+    "sha256": "3b792c273d7ede2ab6d67cb158ba028c9595160b55d34760fff3c321ff82d6fb"
+  },
+  "tests": {
+    "closure_tests": "4 passed",
+    "full_krita_python_suite": "90 passed",
+    "git_diff_check": "PASS",
+    "matrix_json": "PASS",
+    "pycompile": "PASS",
+    "ruff": "PASS"
+  },
+  "version_governance": "GAPFILL_RELEASE_VERSION_V1_GOVERNANCE_ADOPTED"
+}
