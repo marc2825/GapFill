@@ -96,8 +96,16 @@ jobs:
           cache: pip
           cache-dependency-path: krita-plugin/requirements-dev.txt
 
+      - name: Install Qt system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1
+
       - name: Install dependencies
         run: python -m pip install -r krita-plugin/requirements-dev.txt
+
+      - name: PyQt6 QtGui preflight
+        run: python -c "from PyQt6.QtGui import QColor, QImage; print('PyQt6.QtGui OK')"
 
       - name: Run tests
         working-directory: krita-plugin
