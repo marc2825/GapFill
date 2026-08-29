@@ -1,0 +1,224 @@
+#!/usr/bin/env python3
+"""Fail-closed verification for the committed GapFill frozen release artifact."""
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import zipfile
+from pathlib import Path, PurePosixPath, PureWindowsPath
+from typing import Any
+
+SCRIPT_DIR = Path(__file__).resolve().parent
+PLUGIN_ROOT = SCRIPT_DIR.parent
+REPOSITORY_ROOT = PLUGIN_ROOT.parent
+DEFAULT_ARTIFACT = (
+    PLUGIN_ROOT / "release" / "artifacts" / "gapfill-krita-windows-x86_64.zip"
+)
+DEFAULT_FREEZE = PLUGIN_ROOT / "release" / "freeze.json"
+DEFAULT_ENTRIES = PLUGIN_ROOT / "release" / "artifact-entries.json"
+PUBLICATION_GOVERNANCE = (
+    "GAPFILL_1_0_0_FROZEN_ARTIFACT_PUBLICATION_V1_GOVERNANCE_ADOPTED"
+)
+PUBLICATION_MODE = "FROZEN_ARTIFACT_VERIFY_AND_PUBLISH"
+QUALIFIED_PLATFORM = "windows-x86_64"
+PASS_TOKEN = "FROZEN_RELEASE_ARTIFACT_VERIFICATION_PASS"
+
+
+class VerificationError(RuntimeError):
+    """The frozen release identity or archive structure did not match."""
+
+
+def require(condition: bool, message: str) -> None:
+    if not condition:
+        raise VerificationError(message)
+
+
+def load_json(path: Path) -> dict[str, Any]:
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        raise VerificationError(f"Cannot read JSON {path}: {error}") from error
+    require(isinstance(value, dict), f"Expected a JSON object: {path}")
+    return value
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    try:
+        with path.open("rb") as handle:
+            for block in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(block)
+    except OSError as error:
+        raise VerificationError(f"Cannot hash {path}: {error}") from error
+    return digest.hexdigest()
+
+
+def normalized_member_path(name: str) -> str:
+    require(bool(name), "ZIP member path is empty.")
+    require("\\" not in name, f"ZIP member path uses a backslash: {name!r}")
+    path = PurePosixPath(name)
+    require(not path.is_absolute(), f"ZIP member path is absolute: {name!r}")
+    require(not PureWindowsPath(name).drive, f"ZIP member path has a drive: {name!r}")
+    require(".." not in path.parts, f"ZIP member path traverses upward: {name!r}")
+    normalized = path.as_posix()
+    require(normalized == name, f"ZIP member path is not normalized: {name!r}")
+    return normalized
+
+
+def compression_name(method: int) -> str:
+    names = {
+        zipfile.ZIP_STORED: "stored",
+        zipfile.ZIP_DEFLATED: "deflate",
+        zipfile.ZIP_BZIP2: "bzip2",
+        zipfile.ZIP_LZMA: "lzma",
+    }
+    return names.get(method, f"unknown:{method}")
+
+
+def repository_relative(path: Path, repository_root: Path) -> str:
+    try:
+        return path.resolve().relative_to(repository_root.resolve()).as_posix()
+    except ValueError as error:
+        raise VerificationError(
+            f"Frozen artifact is outside the repository: {path.resolve()}"
+        ) from error
+
+
+def verify_frozen_release(
+    artifact: Path,
+    freeze_path: Path,
+    entries_path: Path,
+    expected_tag: str,
+    *,
+    repository_root: Path = REPOSITORY_ROOT,
+) -> dict[str, Any]:
+    freeze = load_json(freeze_path)
+    manifest = load_json(entries_path)
+
+    version = freeze.get("overall_plugin_version")
+    release_tag = freeze.get("release_tag")
+    require(isinstance(version, str) and bool(version), "Overall plug-in version is missing.")
+    require(release_tag == f"krita-v{version}", "Release tag does not match the version.")
+    require(release_tag == expected_tag, "Invoked tag does not match frozen release metadata.")
+    require(
+        freeze.get("publication_governance") == PUBLICATION_GOVERNANCE,
+        "Frozen-artifact publication governance does not match.",
+    )
+    require(
+        freeze.get("publication_mode") == PUBLICATION_MODE,
+        "Frozen-artifact publication mode does not match.",
+    )
+    require(
+        freeze.get("qualified_release_platform") == QUALIFIED_PLATFORM,
+        "Qualified release platform does not match.",
+    )
+
+    artifact_metadata = freeze.get("artifact")
+    require(isinstance(artifact_metadata, dict), "Frozen artifact metadata is missing.")
+    expected_name = freeze.get("frozen_artifact_filename")
+    expected_sha = freeze.get("frozen_artifact_sha256")
+    expected_size = freeze.get("frozen_artifact_size")
+    expected_count = artifact_metadata.get("entry_count")
+    expected_repository_path = freeze.get("frozen_artifact_repository_path")
+
+    require(artifact.name == expected_name, "Frozen artifact filename does not match.")
+    require(
+        repository_relative(artifact, repository_root) == expected_repository_path,
+        "Frozen artifact repository path does not match.",
+    )
+    require(artifact_metadata.get("filename") == expected_name, "Artifact filename drifted.")
+    require(artifact_metadata.get("sha256") == expected_sha, "Artifact SHA metadata drifted.")
+    require(artifact_metadata.get("size") == expected_size, "Artifact size metadata drifted.")
+    require(manifest.get("artifact_filename") == expected_name, "Manifest filename drifted.")
+    require(manifest.get("artifact_sha256") == expected_sha, "Manifest SHA drifted.")
+    require(manifest.get("artifact_size") == expected_size, "Manifest size drifted.")
+    require(manifest.get("entry_count") == expected_count, "Manifest entry count drifted.")
+
+    try:
+        actual_size = artifact.stat().st_size
+    except OSError as error:
+        raise VerificationError(f"Cannot stat frozen artifact {artifact}: {error}") from error
+    require(actual_size == expected_size, "Frozen artifact byte size does not match.")
+    actual_sha = sha256_file(artifact)
+    require(actual_sha == expected_sha, "Frozen artifact SHA-256 does not match.")
+
+    expected_entries = manifest.get("entries")
+    require(isinstance(expected_entries, list), "Artifact entry manifest is missing.")
+    expected_paths = [entry.get("path") for entry in expected_entries]
+    require(all(isinstance(path, str) for path in expected_paths), "Manifest path is invalid.")
+    require(expected_paths == sorted(expected_paths), "Manifest paths are not sorted.")
+    require(len(expected_paths) == len(set(expected_paths)), "Manifest has duplicate paths.")
+    require(len(expected_paths) == expected_count, "Manifest entry list count does not match.")
+    for path in expected_paths:
+        normalized_member_path(path)
+
+    try:
+        with zipfile.ZipFile(artifact) as archive:
+            members = archive.infolist()
+            require(not any(member.is_dir() for member in members), "ZIP contains a directory entry.")
+            actual_paths = [normalized_member_path(member.filename) for member in members]
+            require(len(actual_paths) == len(set(actual_paths)), "ZIP has duplicate member paths.")
+            require(len(actual_paths) == expected_count, "ZIP entry count does not match.")
+            require(set(actual_paths) == set(expected_paths), "ZIP path set does not match.")
+            by_path = {member.filename: member for member in members}
+
+            for expected in expected_entries:
+                path = expected["path"]
+                member = by_path[path]
+                require(member.file_size == expected.get("size"), f"Entry size differs: {path}")
+                require(
+                    member.compress_size == expected.get("compressed_size"),
+                    f"Compressed entry size differs: {path}",
+                )
+                require(
+                    compression_name(member.compress_type) == expected.get("compression"),
+                    f"Compression method differs: {path}",
+                )
+                digest = hashlib.sha256()
+                with archive.open(member) as handle:
+                    for block in iter(lambda: handle.read(1024 * 1024), b""):
+                        digest.update(block)
+                require(digest.hexdigest() == expected.get("sha256"), f"Entry SHA differs: {path}")
+    except (OSError, zipfile.BadZipFile, RuntimeError) as error:
+        if isinstance(error, VerificationError):
+            raise
+        raise VerificationError(f"Frozen artifact ZIP validation failed: {error}") from error
+
+    return {
+        "artifact": repository_relative(artifact, repository_root),
+        "entry_count": expected_count,
+        "sha256": actual_sha,
+        "size": actual_size,
+        "tag": expected_tag,
+        "version": version,
+    }
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--artifact", type=Path, default=DEFAULT_ARTIFACT)
+    parser.add_argument("--freeze", type=Path, default=DEFAULT_FREEZE)
+    parser.add_argument("--entries", type=Path, default=DEFAULT_ENTRIES)
+    parser.add_argument("--expected-tag", required=True)
+    return parser.parse_args()
+
+
+def main() -> None:
+    arguments = parse_args()
+    try:
+        result = verify_frozen_release(
+            arguments.artifact,
+            arguments.freeze,
+            arguments.entries,
+            arguments.expected_tag,
+        )
+    except VerificationError as error:
+        raise SystemExit(f"FROZEN_RELEASE_ARTIFACT_VERIFICATION_FAIL: {error}") from error
+    print(PASS_TOKEN)
+    print(json.dumps(result, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()

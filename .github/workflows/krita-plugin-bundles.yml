@@ -10,8 +10,40 @@ permissions:
   contents: read
 
 jobs:
-  bundle:
-    name: ${{ matrix.platform }} bundle
+  frozen-release:
+    name: Verify frozen GapFill Windows release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/krita-v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out tagged repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Set up verifier Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Verify exact frozen release artifact
+        run: >-
+          python krita-plugin/scripts/verify_frozen_release.py
+          --artifact krita-plugin/release/artifacts/gapfill-krita-windows-x86_64.zip
+          --freeze krita-plugin/release/freeze.json
+          --entries krita-plugin/release/artifact-entries.json
+          --expected-tag "${{ github.ref_name }}"
+
+      - name: Upload verified frozen Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gapfill-krita-windows-x86_64
+          path: krita-plugin/release/artifacts/gapfill-krita-windows-x86_64.zip
+          if-no-files-found: error
+          compression-level: 0
+
+  development-bundles:
+    name: Development / unqualified ${{ matrix.platform }} bundle
+    if: github.event_name == 'workflow_dispatch'
     strategy:
       fail-fast: false
       matrix:
@@ -46,6 +78,6 @@ jobs:
       - name: Upload bundle
         uses: actions/upload-artifact@v4
         with:
-          name: gapfill-krita-${{ matrix.platform }}
+          name: development-gapfill-krita-${{ matrix.platform }}
           path: krita-plugin/dist/gapfill-krita-${{ matrix.platform }}.zip
           if-no-files-found: error

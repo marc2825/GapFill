@@ -122,6 +122,13 @@
     "tag_pattern": "krita-v*"
   },
   "release_tag": "krita-v1.0.0",
+  "publication_governance": "GAPFILL_1_0_0_FROZEN_ARTIFACT_PUBLICATION_V1_GOVERNANCE_ADOPTED",
+  "publication_mode": "FROZEN_ARTIFACT_VERIFY_AND_PUBLISH",
+  "qualified_release_platform": "windows-x86_64",
+  "frozen_artifact_repository_path": "krita-plugin/release/artifacts/gapfill-krita-windows-x86_64.zip",
+  "frozen_artifact_filename": "gapfill-krita-windows-x86_64.zip",
+  "frozen_artifact_sha256": "7001c1bf92aa7abb5840baf52fe07457ab06cb80074297488e67ded212ab74e2",
+  "frozen_artifact_size": 48197787,
   "reproducibility": {
     "build_a_equals_build_b": true,
     "byte_comparison": "PASS",

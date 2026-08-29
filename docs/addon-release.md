@@ -9,6 +9,12 @@ The first canonical overall GapFill plug-in version is **1.0.0**, governed by
 is `krita-v1.0.0`; that tag is prepared but is not created by this checkpoint.
 The canonical version source is `krita-plugin/release/freeze.json`.
 
+Publication is governed separately by
+`GAPFILL_1_0_0_FROZEN_ARTIFACT_PUBLICATION_V1_GOVERNANCE_ADOPTED`: GapFill
+1.0.0 publishes the exact qualified frozen Windows artifact committed at
+`krita-plugin/release/artifacts/gapfill-krita-windows-x86_64.zip`. Tag CI is a
+**verify-and-publish** path; it does not rebuild qualified production bytes.
+
 ## Frozen candidate
 
 The production and qualification source checkpoint is
@@ -28,8 +34,10 @@ archive inventories are `krita-plugin/release/source-freeze.json` and
 - `krita-plugin/scripts/build_plugin.py` is the canonical deterministic ZIP
   builder. It uses sorted entries, fixed 1980 timestamps, fixed regular-file
   modes, and DEFLATE level 9.
-- `.github/workflows/krita-plugin-bundles.yml` establishes the artifact shape
-  `gapfill-krita-<platform>.zip` and the tag trigger pattern `krita-v*`.
+- `.github/workflows/krita-plugin-bundles.yml` publishes the committed frozen
+  Windows artifact for a `krita-v*` tag only after exact verification. Its
+  separate manual-dispatch matrix retains development/unqualified bundle
+  generation and is not the GapFill 1.0.0 publication path.
 - Before this freeze, the repository had no overall GapFill Krita plug-in
   version field and no existing `krita-v*` tag. The model's `1.0` and native
   helper's `1.0.0-krita-5.3.3-858d352` identify those components, not the
@@ -70,6 +78,14 @@ The package-local sidecar is explicitly recorded as shadowed because the
 canonical builder replaces it with `web/public/models/model_info.json`; the
 released sidecar is the frozen Line-only version.
 
+The release audit independently proved that the source builder reproduced the
+qualified ZIP. The historical native helper's complete external 85-archive
+build closure is no longer available to tag CI, so reconstructing a partial
+provenance chain would weaken that evidence. Committing and verifying the exact
+already-qualified ZIP preserves the stronger byte identity. Release metadata,
+the verifier, and this document are outside the packaged production-input and
+entry-manifest boundaries; adding them does not change the ZIP payload.
+
 ## Install and smoke audit
 
 Build A was extracted and mapped into a fresh disposable Krita resource tree.
@@ -90,6 +106,8 @@ controller behavior, and shutdown path are already covered by the closed Phase
 The release candidate is admitted only for Windows 11 Pro x64, Krita 5.3.3 git
 `858d352`, Qt 5.15.7, embedded CPython 3.13.5, and PyQt5 5.15.11. Available
 real-host rows A–P and R–V passed. Q remains explicitly unavailable.
+Linux and macOS bundles are not part of the frozen 1.0.0 qualified artifact
+scope and are not published by its tag path.
 
 Canonical GapFill remains Line-only in model channel 0; Guides affect detection
 topology only. Native canonical CSP remains closed as
@@ -115,9 +133,9 @@ topology only. Native canonical CSP remains closed as
    `docs(krita): freeze GapFill 1.0.0 release`.
 2. Use the adopted annotated tag `krita-v1.0.0`, targeting the release-freeze
    commit, only after separate explicit authorization.
-3. Use the existing artifact filename
-   `gapfill-krita-windows-x86_64.zip`; verify any tag-triggered rebuild matches
-   the frozen SHA-256 before accepting it.
+3. Publish only the repository-controlled
+   `gapfill-krita-windows-x86_64.zip` after the tag workflow verifies its
+   frozen SHA-256, size, ZIP integrity, and complete entry manifest.
 4. After explicit authorization, tag, push the branch/tag, create the release,
    and publish only the frozen artifact and its recorded checksum. None of
    these actions is performed by this preparation.
