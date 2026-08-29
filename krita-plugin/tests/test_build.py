@@ -2,7 +2,7 @@ import hashlib
 import tempfile
 import unittest
 import zipfile
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from unittest import mock
 
 
@@ -20,9 +20,11 @@ class BuildTests(unittest.TestCase):
             output = Path(temporary) / "gapfill-krita.zip"
             build(output)
             with zipfile.ZipFile(output) as archive:
+                members = archive.infolist()
                 names = set(archive.namelist())
             self.assertIn("gapfill_krita.desktop", names)
             self.assertIn("actions/gapfill_krita.action", names)
+            self.assertIn("gapfill_krita/", names)
             self.assertIn("gapfill_krita/__init__.py", names)
             self.assertIn("gapfill_krita/resources/models/unet32.onnx", names)
             self.assertNotIn(
@@ -31,6 +33,18 @@ class BuildTests(unittest.TestCase):
                 names,
             )
             self.assertFalse(any("__pycache__" in name for name in names))
+            self.assertEqual([member.filename for member in members], sorted(names))
+            self.assertEqual(len(members), len(names))
+            for member in members:
+                path = PurePosixPath(member.filename)
+                self.assertFalse(path.is_absolute())
+                self.assertFalse(PureWindowsPath(member.filename).drive)
+                self.assertNotIn("..", path.parts)
+                self.assertNotIn("\\", member.filename)
+                if member.is_dir():
+                    self.assertEqual(member.date_time, (1980, 1, 1, 0, 0, 0))
+                    self.assertEqual(member.compress_type, zipfile.ZIP_STORED)
+                    self.assertEqual(member.external_attr, 0o40755 << 16 | 0x10)
 
     def test_distribution_validates_and_stages_exact_native_helper(self):
         import sys

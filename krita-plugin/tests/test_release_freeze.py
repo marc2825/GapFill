@@ -39,7 +39,7 @@ def test_release_freeze_closes_exact_matrix_and_governance() -> None:
     assert freeze["rows"]["V"]["final_attempt"] == "V-v2"
 
 
-def test_source_freeze_is_sorted_unique_and_current() -> None:
+def test_source_freeze_is_sorted_unique_and_preserves_historical_builder() -> None:
     source = load(SOURCE)
     entries = source["entries"]
     assert source["inventory_count"] == len(entries) == 901
@@ -48,6 +48,19 @@ def test_source_freeze_is_sorted_unique_and_current() -> None:
     assert len(keys) == len(set(keys))
     for item in entries:
         if item["source_root"] != "repository":
+            continue
+        if item["category"] == "package_builder":
+            assert item == {
+                "archive_path": None,
+                "category": "package_builder",
+                "included_in_artifact": False,
+                "path": "krita-plugin/scripts/build_plugin.py",
+                "sha256": (
+                    "7627318aab414c66fb0b396af09ae6e68c265e5af5054e7d539688f37f815455"
+                ),
+                "size": 5162,
+                "source_root": "repository",
+            }
             continue
         path = ROOT / item["path"]
         assert path.stat().st_size == item["size"]

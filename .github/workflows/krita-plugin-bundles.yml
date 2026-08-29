@@ -25,19 +25,40 @@ jobs:
         with:
           python-version: "3.13"
 
+      - name: Resolve versioned frozen release records
+        id: frozen
+        shell: bash
+        run: |
+          case "${GITHUB_REF_NAME}" in
+            krita-v1.0.0)
+              echo "artifact=krita-plugin/release/artifacts/gapfill-krita-windows-x86_64.zip" >> "${GITHUB_OUTPUT}"
+              echo "freeze=krita-plugin/release/freeze.json" >> "${GITHUB_OUTPUT}"
+              echo "entries=krita-plugin/release/artifact-entries.json" >> "${GITHUB_OUTPUT}"
+              ;;
+            krita-v1.0.1)
+              echo "artifact=krita-plugin/release/artifacts/1.0.1/gapfill-krita-windows-x86_64.zip" >> "${GITHUB_OUTPUT}"
+              echo "freeze=krita-plugin/release/1.0.1/freeze.json" >> "${GITHUB_OUTPUT}"
+              echo "entries=krita-plugin/release/1.0.1/artifact-entries.json" >> "${GITHUB_OUTPUT}"
+              ;;
+            *)
+              echo "No frozen release record for ${GITHUB_REF_NAME}" >&2
+              exit 1
+              ;;
+          esac
+
       - name: Verify exact frozen release artifact
         run: >-
           python krita-plugin/scripts/verify_frozen_release.py
-          --artifact krita-plugin/release/artifacts/gapfill-krita-windows-x86_64.zip
-          --freeze krita-plugin/release/freeze.json
-          --entries krita-plugin/release/artifact-entries.json
+          --artifact "${{ steps.frozen.outputs.artifact }}"
+          --freeze "${{ steps.frozen.outputs.freeze }}"
+          --entries "${{ steps.frozen.outputs.entries }}"
           --expected-tag "${{ github.ref_name }}"
 
       - name: Upload verified frozen Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: gapfill-krita-windows-x86_64
-          path: krita-plugin/release/artifacts/gapfill-krita-windows-x86_64.zip
+          path: ${{ steps.frozen.outputs.artifact }}
           if-no-files-found: error
           compression-level: 0
 

@@ -1,5 +1,12 @@
 # GapFill 1.0.0 Krita release/freeze preparation
 
+> **Published 1.0.0 packaging issue:** the qualified file payload was published,
+> but its ZIP omitted explicit directory members required by Krita's Python
+> Plugin Importer. Normal **Tools → Scripts → Import Python Plugin** discovery
+> reports “No plugins found in archive.” Manual resource-folder extraction is
+> still possible. The packaging-only 1.0.1 hotfix is recorded in
+> `docs/addon-release-1.0.1.md`; runtime and model behavior are unchanged.
+
 Status: **GAPFILL RELEASE/FREEZE READY**. This record prepares the frozen
 GapFill implementation for review; it does not create a release commit, tag,
 push, or published release.

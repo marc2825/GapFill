@@ -18,6 +18,9 @@ MODEL_FILE = REPOSITORY_ROOT / "web" / "public" / "models" / "unet32.onnx"
 MODEL_INFO = REPOSITORY_ROOT / "web" / "public" / "models" / "model_info.json"
 NATIVE_HELPER_FILENAME = "gapfill_krita_native_5_3_3.cp313-win_amd64.pyd"
 NATIVE_HELPER_SHA256 = "ad2fa7463d59dca74a92dc867734b38eb7aa49821b163547da442147348f8746"
+ARCHIVE_TIMESTAMP = (1980, 1, 1, 0, 0, 0)
+FILE_EXTERNAL_ATTR = 0o100644 << 16
+DIRECTORY_EXTERNAL_ATTR = (0o40755 << 16) | 0x10
 
 
 def ignored(_directory: str, entries: list[str]) -> set[str]:
@@ -87,14 +90,31 @@ def build(
         with zipfile.ZipFile(
             output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9
         ) as archive:
-            for path in sorted(staging.rglob("*")):
+            members = sorted(
+                staging.rglob("*"),
+                key=lambda path: (
+                    path.relative_to(staging).as_posix() + ("/" if path.is_dir() else "")
+                ),
+            )
+            for path in members:
+                relative = path.relative_to(staging).as_posix()
+                if path.is_dir():
+                    info = zipfile.ZipInfo(
+                        f"{relative}/",
+                        date_time=ARCHIVE_TIMESTAMP,
+                    )
+                    info.create_system = 3
+                    info.compress_type = zipfile.ZIP_STORED
+                    info.external_attr = DIRECTORY_EXTERNAL_ATTR
+                    archive.writestr(info, b"")
                 if path.is_file():
                     info = zipfile.ZipInfo(
-                        path.relative_to(staging).as_posix(),
-                        date_time=(1980, 1, 1, 0, 0, 0),
+                        relative,
+                        date_time=ARCHIVE_TIMESTAMP,
                     )
+                    info.create_system = 3
                     info.compress_type = zipfile.ZIP_DEFLATED
-                    info.external_attr = 0o100644 << 16
+                    info.external_attr = FILE_EXTERNAL_ATTR
                     archive.writestr(info, path.read_bytes(), compresslevel=9)
     return output
 

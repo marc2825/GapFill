@@ -230,11 +230,19 @@ def test_frozen_tag_workflow_verifies_before_windows_only_upload() -> None:
     assert "refs/tags/krita-v" in frozen
     assert "verify_frozen_release.py" in frozen
     assert "gapfill-krita-windows-x86_64.zip" in frozen
+    assert "krita-v1.0.0" in frozen
+    assert "krita-v1.0.1" in frozen
+    assert "release/1.0.1/freeze.json" in frozen
+    assert "release/1.0.1/artifact-entries.json" in frozen
+    assert "steps.frozen.outputs.artifact" in frozen
     assert "pip install" not in frozen
     assert "requirements-runtime.txt" not in frozen
     assert "build_plugin.py" not in frozen
     assert "--native-helper" not in frozen
     assert "matrix.platform" not in frozen
+    assert frozen.index("Resolve versioned frozen release records") < frozen.index(
+        "Verify exact frozen release artifact"
+    )
     assert frozen.index("Verify exact frozen release artifact") < frozen.index(
         "Upload verified frozen Windows artifact"
     )
