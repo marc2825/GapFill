@@ -1,16 +1,14 @@
-# GapFill for Krita 1.0.2 release preparation
+# GapFill for Krita 1.0.2 release
 
-Status: **GAPFILL 1.0.2 RELEASE CANDIDATE PREPARED — LOCAL VERIFICATION AND
-NORMAL CI PASS**. No `krita-v1.0.2` tag or public GitHub Release exists at this
-checkpoint.
+Status: **GAPFILL FOR KRITA 1.0.2 PUBLISHED AND VERIFIED — RELEASE COMPLETE**.
 
 GapFill for Krita 1.0.2 is an interaction/lifecycle patch over the immutable
 1.0.1 release. The user-facing product name is **GapFill for Krita**; the
 technical module, package directory, imports, and `X-KDE-Library` identity
-remain `gapfill_krita`. The prospective tag remains `krita-v1.0.2`, and the
+remain `gapfill_krita`. The annotated release tag is `krita-v1.0.2`, and the
 production Windows asset is named `gapfill-for-krita-windows-x86_64.zip`.
 
-## Prospective release notes
+## Release notes
 
 ### GapFill for Krita 1.0.2
 
@@ -123,12 +121,27 @@ passed for freeze commit `232db61`: Krita plugin job `99289662672`, reference
 fixtures job `99289662758`, CSP core job `99289662764`, and Web job
 `99289662783` all completed successfully. The Web job reported only the
 GitHub-hosted Node.js action-runtime deprecation warning; no project gate
-failed. Tag-only publication verification remains an explicit publication step
-and was not triggered during release-candidate preparation.
+failed. The later tag-only publication workflow is recorded below.
 
-## Publication boundary
+## Publication record
 
-Preparation stops before creating or pushing `krita-v1.0.2`, creating a GitHub
-Release, or uploading the public production asset. Those operations require a
-separate explicit authorization after the committed release candidate and its
-normal CI matrix are green.
+| Item | Published identity |
+| --- | --- |
+| Annotated tag | `krita-v1.0.2` |
+| Tag object | `9154d41be741058b703fd1198f0fd1ac1ab89396` |
+| Tag target | `232db61f79e4d100a19978e82013868430950c59` |
+| Tag workflow | [run 33336002457](https://github.com/marc2825/GapFill/actions/runs/33336002457), job `99322889209`, PASS |
+| Frozen verifier | `FROZEN_RELEASE_ARTIFACT_VERIFICATION_PASS` |
+| GitHub Release | [GapFill for Krita 1.0.2](https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.2), ID `379404740` |
+| Published timestamp | `2026-08-30T21:18:21Z` |
+| Production asset | `gapfill-for-krita-windows-x86_64.zip`, asset ID `537074041` |
+| Asset size | 48,223,574 bytes |
+| Public SHA-256 | `34121098dc8f9e50707f686f5585176d0d7067858f21d241e190a2f4f25fa54b` |
+
+The public Release is non-draft and non-prerelease and has exactly one uploaded
+production asset. A fresh download from the public Release was byte-identical
+to the committed frozen artifact. ZIP integrity, the 1,012-entry structure,
+explicit `gapfill_krita/` directory, exactly-one-plugin importer result, and
+model/sidecar/native identities all passed again. The immutable tag remains on
+the freeze commit; this final publication record is a documentation-only
+descendant and does not move the tag.

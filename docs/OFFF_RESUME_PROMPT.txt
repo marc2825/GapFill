@@ -8,22 +8,24 @@ analysis. Do not begin coding, branch integration, or formal host qualification
 in the first task.
 
 ======================================================================
-GAPFILL 1.0.2 PRE-RELEASE HOLD — DO NOT START OFFF YET
+PUBLISHED GAPFILL FOR KRITA 1.0.2 BASELINE
 ======================================================================
 
-The latest intended OFFF integration baseline is GapFill for Krita 1.0.2, but
-1.0.2 is still being prepared on:
+The current OFFF integration baseline is the published GapFill for Krita 1.0.2:
 
-    branch fix/gapfill-interaction-session
-    release-source commit d0e1fbfb825d983d5a208f9b3990418a821f1160
-    host-tested interaction repair checkpoint d48366d
-    frozen release-candidate commit 232db61f79e4d100a19978e82013868430950c59
+    tag krita-v1.0.2
+    annotated tag object 9154d41be741058b703fd1198f0fd1ac1ab89396
+    release/tag commit 232db61f79e4d100a19978e82013868430950c59
+    release ID 379404740
+    https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.2
+    asset gapfill-for-krita-windows-x86_64.zip
+    asset ID 537074041
+    SHA-256 34121098dc8f9e50707f686f5585176d0d7067858f21d241e190a2f4f25fa54b
 
-The annotated tag krita-v1.0.2 and public release identity do not exist yet.
-Stop: do not start OFFF until 1.0.2 is
-published and this prompt is finalized to that exact tag/commit. The 1.0.1
-identities below are immutable historical evidence, not the next integration
-baseline.
+Begin with the required read-only OFFF spec/code analysis. Do not begin coding,
+branch integration, or formal host qualification in the first task. GapFill
+1.0.0 and 1.0.1 remain immutable historical releases, not the current OFFF
+integration baseline.
 
 ======================================================================
 HISTORICAL PUBLISHED 1.0.1 RELEASE AND MAINTENANCE HEAD — KEEP DISTINCT
@@ -48,9 +50,10 @@ MAINTENANCE HEAD:
 
 The maintenance commit changes only .github/workflows/ci.yml. It installs
 Ubuntu libegl1 and adds a PyQt6 QtGui preflight. It is a non-semantic CI-only
-descendant and is NOT the release payload commit. Begin read-only and explicitly
-decide whether a new OFFF integration branch should start at the release baseline
-or this maintenance head. Do not silently conflate them.
+descendant and is NOT the 1.0.1 release payload commit. It is also not the
+current product baseline: after the required read-only analysis, start new OFFF
+integration from the published 1.0.2 baseline. Do not silently conflate these
+identities.
 
 The commit containing this finalized prompt is a later documentation-only
 descendant. Inspect the checked-out branch HEAD before choosing a base;
@@ -155,15 +158,14 @@ Historical branch HEAD:
     0caa23c658e6c589b8ff1ea0ed4a1ae9fa2a5043
     prototype for overflow floodfill
 
-Merge base with the final release baseline:
+Merge base with the current 1.0.2 release baseline:
 
     2044d8f163367b25ed6cb81f2c0c86949d9fdf0f
 
 Divergence:
 
-    OFFF branch:    1 unique commit
-    release baseline:  25 unique commits
-    maintenance head:  26 unique commits
+    OFFF branch:      1 unique commit
+    1.0.2 baseline:  31 unique commits
 
 The OFFF commit changes 27 files with 2,296 insertions and 173 deletions. It is a
 mixed commit containing spec, web UI, pure OFFF code, tests, and edits to shared
@@ -314,9 +316,9 @@ gapDetection.ts or onnxInference.ts.
 Recommended sequence after the semantic freeze:
 
 1. Preserve feature/overflow-floodfill unchanged as historical evidence.
-2. After read-only inspection, explicitly choose a new OFFF branch base:
-   krita-v1.0.1 / 3a551736 (the release baseline), or hotfix/krita-v1.0.1 /
-   9a87fa1 (the non-semantic maintenance head). Do not conflate those identities.
+2. After read-only inspection, create a new OFFF branch from the published
+   krita-v1.0.2 / 232db61f79e4d100a19978e82013868430950c59 baseline.
+   Do not use the historical 1.0.1 hotfix branch as the current product base.
 3. Recreate the reviewed OFFF spec first.
 4. Selectively reconstruct pure OFFF modules and tests, one file/boundary at a
    time, comparing to historical code.
@@ -335,10 +337,9 @@ YOUR FIRST TASK — READ ONLY
 
 Perform an OFFF SPEC FREEZE / GAP ANALYSIS. Do not code.
 
-1. Verify repository status, release baseline/tag, maintenance HEAD, and
-   historical OFFF branch HEAD.
-   Also inspect the documentation-only commits after 9a87fa1 before proposing a
-   branch base.
+1. Verify repository status, the 1.0.2 release baseline/tag, and the historical
+   OFFF branch HEAD. Inspect later documentation-only descendants without
+   treating them as released production or moving the tag.
 2. Read docs/OFFF_HANDOFF.md and the frozen GapFill sources listed there.
 3. Inspect feature/overflow-floodfill read-only without checkout or mutation.
 4. Read the OFFF spec and every web/src/overflow module plus its UI integration.
@@ -366,8 +367,10 @@ Current final line:
     docs/OFFF_HANDOFF.md
     docs/addon-spec.md
     docs/addon-release.md
+    docs/addon-release-1.0.2.md
     docs/addon-phase6.5.md
-    krita-plugin/release/1.0.1/freeze.json
+    krita-plugin/release/1.0.2/freeze.json
+    krita-plugin/release/1.0.1/freeze.json (historical)
     krita-plugin/host_tests/matrix.json
     krita-plugin/pykrita/gapfill_krita/host_contract.py
     krita-plugin/pykrita/gapfill_krita/controller.py
@@ -375,8 +378,8 @@ Current final line:
     krita-plugin/pykrita/gapfill_krita/native_backend.py
 
 Note: docs/addon-release.md is the earlier release/freeze preparation record, so
-its tag/publication wording is prospective. The release and remote identities at
-the top of this prompt are the later published state.
+its tag/publication wording is prospective. docs/addon-release-1.0.2.md and the
+remote identities at the top of this prompt record the later published state.
 
 Historical branch, use git show feature/overflow-floodfill:<path>:
 
