@@ -8,7 +8,23 @@ analysis. Do not begin coding, branch integration, or formal host qualification
 in the first task.
 
 ======================================================================
-FINAL GAPFILL RELEASE AND MAINTENANCE HEAD — KEEP DISTINCT
+GAPFILL 1.0.2 PRE-RELEASE HOLD — DO NOT START OFFF YET
+======================================================================
+
+The latest intended OFFF integration baseline is GapFill for Krita 1.0.2, but
+1.0.2 is still being prepared on:
+
+    branch fix/gapfill-interaction-session
+    host-tested interaction repair checkpoint d48366d
+
+The final release-source/freeze commits, annotated tag krita-v1.0.2, and public
+release identity do not exist yet. Stop: do not start OFFF until 1.0.2 is
+published and this prompt is finalized to that exact tag/commit. The 1.0.1
+identities below are immutable historical evidence, not the next integration
+baseline.
+
+======================================================================
+HISTORICAL PUBLISHED 1.0.1 RELEASE AND MAINTENANCE HEAD — KEEP DISTINCT
 ======================================================================
 
 RELEASE BASELINE:
@@ -67,7 +83,7 @@ record, so Krita 5.3.3 could report `No plugins found in archive`. Version 1.0.1
 adds deterministic directory entries. All 895 ordinary file payloads are
 byte-identical to 1.0.0; runtime, model, and prediction semantics are unchanged.
 
-GapFill 1.0.1 is final and frozen. OFFF work must not opportunistically modify
+GapFill 1.0.1 is frozen. OFFF work must not opportunistically modify
 GapFill production or semantics. A future GapFill production change requires an
 explicit reason, separate regression analysis, Phase 6.5/release impact review,
 and coexistence testing. Do not amend, move, recreate, or retag the release.

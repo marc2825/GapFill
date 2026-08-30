@@ -23,9 +23,13 @@ PUBLICATION_GOVERNANCE = (
     "GAPFILL_1_0_0_FROZEN_ARTIFACT_PUBLICATION_V1_GOVERNANCE_ADOPTED"
 )
 HOTFIX_GOVERNANCE = "GAPFILL_1_0_1_IMPORTER_PACKAGING_HOTFIX_V1_GOVERNANCE_ADOPTED"
+INTERACTION_PATCH_GOVERNANCE = (
+    "GAPFILL_1_0_2_INTERACTION_LIFECYCLE_PATCH_V1_GOVERNANCE_ADOPTED"
+)
 PUBLICATION_GOVERNANCE_BY_VERSION = {
     "1.0.0": PUBLICATION_GOVERNANCE,
     "1.0.1": HOTFIX_GOVERNANCE,
+    "1.0.2": INTERACTION_PATCH_GOVERNANCE,
 }
 PUBLICATION_MODE = "FROZEN_ARTIFACT_VERIFY_AND_PUBLISH"
 QUALIFIED_PLATFORM = "windows-x86_64"
@@ -279,7 +283,7 @@ def verify_frozen_release(
                     )
 
             importer_compatibility = freeze.get("importer_compatibility")
-            if version == "1.0.1":
+            if version in {"1.0.1", "1.0.2"}:
                 require(
                     isinstance(importer_compatibility, dict),
                     "Importer compatibility metadata is missing.",
@@ -297,6 +301,9 @@ def verify_frozen_release(
                     "Required module __init__.py is absent.",
                 )
                 plugins = discover_plugins(archive)
+                expected_ui_name = (
+                    "GapFill" if version == "1.0.1" else "GapFill for Krita"
+                )
                 require(
                     plugins
                     == [
@@ -305,7 +312,7 @@ def verify_frozen_release(
                             "desktop": "gapfill_krita.desktop",
                             "module": "gapfill_krita/",
                             "name": "gapfill_krita",
-                            "ui_name": "GapFill",
+                            "ui_name": expected_ui_name,
                         }
                     ],
                     "Krita importer discovery result differs.",

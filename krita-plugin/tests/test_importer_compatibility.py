@@ -61,6 +61,6 @@ def test_builder_output_is_discovered_as_exactly_one_gapfill_plugin(tmp_path: Pa
                 "desktop": "gapfill_krita.desktop",
                 "module": "gapfill_krita/",
                 "name": "gapfill_krita",
-                "ui_name": "GapFill",
+                "ui_name": "GapFill for Krita",
             }
         ]

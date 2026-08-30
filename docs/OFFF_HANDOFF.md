@@ -1,14 +1,23 @@
 # OFFF Development Handoff
 
+> **1.0.2 PRE-RELEASE HOLD (authoritative for the next OFFF start):** OFFF
+> remains paused while GapFill for Krita 1.0.2 is prepared on
+> `fix/gapfill-interaction-session`. The host-tested interaction repair
+> checkpoint is `d48366d`; the final release-source/freeze commits and
+> `krita-v1.0.2` publication identity do not exist yet. Do not resume OFFF until
+> 1.0.2 is published and this handoff is finalized to that tag. The 1.0.1
+> identities below remain immutable historical release evidence, not the next
+> integration baseline.
+
 > **NEW THREAD START**
 >
 > Repository: `/home/marc2825/GapFill`
-> Final user-facing GapFill release: `GapFill 1.0.1`
+> Historical published GapFill release: `GapFill 1.0.1`
 > **RELEASE BASELINE:** `krita-v1.0.1` / `3a551736654db94325e37e6bbeb457d1e4dd12b0`
 > **MAINTENANCE HEAD:** `hotfix/krita-v1.0.1` / `9a87fa1a11644c1e90124532ce2fddc284e86cfb`
 > Published release: `https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.1`
 > The maintenance commit is CI-only and is not the release payload commit.
-> GapFill 1.0.1 is final; its runtime semantics are unchanged from 1.0.0.
+> GapFill 1.0.1 is frozen; its runtime semantics are unchanged from 1.0.0.
 > Do not opportunistically change frozen GapFill behavior for OFFF.
 > OFFF history is on `feature/overflow-floodfill` at `0caa23c658e6c589b8ff1ea0ed4a1ae9fa2a5043`.
 > Inspect that branch read-only; do not merge, rebase, or cherry-pick it yet.
@@ -40,7 +49,7 @@ The provisional version was introduced by
 believed to be final. That commit remains historical evidence; this document
 updates its release provenance rather than rewriting it.
 
-## 2. Final GapFill 1.0.1 baseline and maintenance head
+## 2. Historical GapFill 1.0.1 baseline and maintenance head
 
 | Item | Frozen identity |
 | --- | --- |

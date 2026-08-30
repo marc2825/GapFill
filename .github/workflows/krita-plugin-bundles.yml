@@ -40,6 +40,11 @@ jobs:
               echo "freeze=krita-plugin/release/1.0.1/freeze.json" >> "${GITHUB_OUTPUT}"
               echo "entries=krita-plugin/release/1.0.1/artifact-entries.json" >> "${GITHUB_OUTPUT}"
               ;;
+            krita-v1.0.2)
+              echo "artifact=krita-plugin/release/artifacts/1.0.2/gapfill-for-krita-windows-x86_64.zip" >> "${GITHUB_OUTPUT}"
+              echo "freeze=krita-plugin/release/1.0.2/freeze.json" >> "${GITHUB_OUTPUT}"
+              echo "entries=krita-plugin/release/1.0.2/artifact-entries.json" >> "${GITHUB_OUTPUT}"
+              ;;
             *)
               echo "No frozen release record for ${GITHUB_REF_NAME}" >&2
               exit 1

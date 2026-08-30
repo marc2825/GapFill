@@ -4,11 +4,12 @@
 <body>
   <h1>GapFill for Krita</h1>
   <p>Choose the transparent Coloring layer, transparent-background Line Art layer, and optional Guides layer, then select <strong>Scan / Activate</strong>.</p>
-  <p>Hover a circle for a fixed 5× magnifier. Drag from inside a circle to sample a corrected color. Drag from outside the circles to sweep over suggestions, or use Apply All.</p>
+  <p>Hover a circle for a fixed 5× magnifier. Drag from inside a circle to sample a corrected color. Drag from outside the circles to sweep over suggestions, or use Apply All. A temporary pale yellow-green trail shows the active sweep path.</p>
   <p>The white Background layer is intentionally not selected: only the Coloring layer's transparency defines unpainted pixels. Line Art and Guides also need transparent backgrounds because their alpha channels define boundaries.</p>
   <p>Safe Coloring targets are currently origin-aligned, unlocked, RGBA/U8 Paint Layers without masks, effects, animation, styles, opacity, non-Normal blending, inherit alpha, or non-neutral parents. Mixed-profile and larger-than-4096²-equivalent documents are rejected.</p>
-  <p>Rescan after any layer, document, selection, or active-node change. A successful Apply also clears every remaining suggestion and requires a rescan.</p>
-  <p>The interactive overlay is disabled for rotation, mirroring, unqualified HiDPI, or an ambiguous split-view canvas. Apply restores the exact selection presence, foreground, active node, and relevant view/tool state and verifies target pixels. Public LibKis cannot group its internal selection actions into one Undo step, so atomic one-step Undo is not promised.</p>
-  <p>Real Krita host qualification is still incomplete; the offscreen Qt and fake-adapter tests are not host certification.</p>
+  <p>The frozen scan remains active as candidates are applied. Remaining candidates keep their original prediction without an automatic rescan or inference run. Known adjacent GapFill Undo/Redo steps restore their exact frozen candidate checkpoints; Undo of a corrected Apply restores the candidate's original prediction instead of a stale correction preview.</p>
+  <p>External document, layer, selection, or active-node changes that do not match a known GapFill checkpoint invalidate the frozen session and fail closed. Scan again after such a change.</p>
+  <p>The interactive overlay is disabled for rotation, mirroring, unqualified HiDPI, or an ambiguous split-view canvas. Apply restores the exact selection presence, foreground, active node, and relevant view/tool state, verifies target pixels, and commits one native Undo step on the qualified host.</p>
+  <p>Real-host qualification applies only to the recorded Windows/Krita host cell and documented test boundaries; offscreen Qt and fake-adapter tests are not broader host certification.</p>
 </body>
 </html>

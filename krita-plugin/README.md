@@ -1,6 +1,16 @@
 # GapFill for Krita
 
-GapFill 1.0.0 for Krita ports the paper's gap-detection and region-correspondence color-prediction workflow into a Python docker with a narrowly version-pinned native mutation helper. **Phase 6.5 is closed for the recorded host cell:** A–P and R–V passed, while Q is explicitly `ROW_Q_HOST_CONDITION_UNAVAILABLE`, not PASS. The only Apply host admitted by the frozen implementation is Windows 11 Pro x64, Krita 5.3.3 git `858d352`, Qt 5.15.7, embedded CPython 3.13.5, and PyQt5 5.15.11; every other host fails closed before loading the helper. The canonical overall version is recorded in the [release/freeze record](../docs/addon-release.md).
+GapFill for Krita is a Python plugin/add-on that brings the GapFill project's
+gap-detection and region-correspondence color-prediction workflow into Krita.
+Version 1.0.2 is an interaction and lifecycle patch over the immutable 1.0.1
+release; it does not change detector, model, prediction, or native transaction
+semantics. **Phase 6.5 is closed for the recorded host cell:** A–P and R–V
+passed, while Q is explicitly `ROW_Q_HOST_CONDITION_UNAVAILABLE`, not PASS. The
+only Apply host admitted by the frozen implementation is Windows 11 Pro x64,
+Krita 5.3.3 git `858d352`, Qt 5.15.7, embedded CPython 3.13.5, and PyQt5
+5.15.11; every other host fails closed before loading the helper. Historical
+1.0.0 and 1.0.1 release evidence remains in the release records; the 1.0.2
+candidate is recorded in [the 1.0.2 release preparation](../docs/addon-release-1.0.2.md).
 
 ## Features
 
@@ -20,9 +30,9 @@ GapFill 1.0.0 for Krita ports the paper's gap-detection and region-correspondenc
 
 Use only a qualification bundle built for the exact supported host cell. It contains NumPy, ONNX Runtime, `unet32.onnx`, and the hash-pinned native helper. A plain source ZIP does not contain binary Python dependencies or the helper and therefore cannot perform Apply.
 
-1. In Krita, choose **Tools → Scripts → Import Python Plugin From File…** and select `gapfill-krita-<platform>.zip`.
+1. In Krita, choose **Tools → Scripts → Import Python Plugin From File…** and select `gapfill-for-krita-windows-x86_64.zip`.
 2. Restart Krita.
-3. Open **Settings → Configure Krita… → Python Plugin Manager**, enable **GapFill**, and restart Krita again.
+3. Open **Settings → Configure Krita… → Python Plugin Manager**, enable **GapFill for Krita**, and restart Krita again.
 4. Show the docker with **Settings → Dockers → GapFill**. If hidden, use **Tools → Scripts → Show GapFill Docker**.
 
 Python plugins are disabled by default in Krita, so the enable-and-restart step is required.

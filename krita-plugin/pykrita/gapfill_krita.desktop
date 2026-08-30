@@ -4,5 +4,5 @@ ServiceTypes=Krita/PythonPlugin
 X-KDE-Library=gapfill_krita
 X-Python-2-Compatible=false
 X-Krita-Manual=Manual.html
-Name=GapFill
+Name=GapFill for Krita
 Comment=Detect and resolve small unpainted gaps with model-assisted color suggestions
