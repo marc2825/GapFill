@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import replace
 from typing import Optional
 
 import numpy as np
@@ -11,7 +12,7 @@ from .canvas_boundary import (
     resolve_canvas_widget,
 )
 from .engine.types import GapRegion
-from .host_contract import GenerationGate, HostSnapshot
+from .host_contract import GenerationGate, HostSnapshot, StaleScanError
 from .krita_adapter import (
     apply_gap_colors,
     canvas_color_bridge,
@@ -19,6 +20,7 @@ from .krita_adapter import (
     validate_scan_context,
 )
 from .model import find_model_path
+from .native_backend import NativeHostError
 from .overlay import GapFillOverlay
 from .qt_compat import QImage, QThread, QWidget, qimage_from_rgba
 from .worker import GapFillWorker
@@ -35,6 +37,9 @@ class GapFillController:
         self._gate = GenerationGate()
         self._runs: dict[int, tuple[QThread, GapFillWorker]] = {}
         self._shutting_down = False
+        self._published_generation: Optional[int] = None
+        self.resolved_ids: set[str] = set()
+        self.invalidated_ids: set[str] = set()
 
     @property
     def busy(self) -> bool:
@@ -47,6 +52,9 @@ class GapFillController:
             return
         self._retire_workers()
         generation = self._gate.start()
+        self._published_generation = None
+        self.resolved_ids.clear()
+        self.invalidated_ids.clear()
         app = Krita.instance()
         document = app.activeDocument()
         window = app.activeWindow()
@@ -111,6 +119,9 @@ class GapFillController:
         self._remove_overlay()
         self.snapshot = None
         self.gaps = []
+        self._published_generation = None
+        self.resolved_ids.clear()
+        self.invalidated_ids.clear()
         self.docker.set_regions([])
         self.docker.set_busy(False)
         self.docker.set_status("GapFill is inactive.")
@@ -126,6 +137,9 @@ class GapFillController:
         self._remove_overlay()
         self.snapshot = None
         self.gaps = []
+        self._published_generation = None
+        self.resolved_ids.clear()
+        self.invalidated_ids.clear()
 
     def _thread_finished(self, generation: int) -> None:
         run = self._runs.pop(generation, None)
@@ -136,11 +150,15 @@ class GapFillController:
             self.docker.set_busy(False)
 
     def _scan_progress(self, generation: int, stage: str, done: int, total: int) -> None:
-        if self._gate.accepts(generation) and self._context_is_current(generation):
+        if (
+            self._gate.accepts(generation)
+            and self._published_generation != generation
+            and self._context_is_current(generation)
+        ):
             self.docker.update_progress(stage, done, total)
 
     def _scan_failed(self, generation: int, message: str) -> None:
-        if not self._gate.accepts(generation):
+        if not self._gate.accepts(generation) or self._published_generation == generation:
             return
         self.gaps = []
         self.docker.show_error(
@@ -148,11 +166,11 @@ class GapFillController:
         )
 
     def _scan_cancelled(self, generation: int) -> None:
-        if self._gate.accepts(generation):
+        if self._gate.accepts(generation) and self._published_generation != generation:
             self.docker.set_status("Cancelled.")
 
     def _scan_completed(self, generation: int, gaps: list[GapRegion]) -> None:
-        if not self._gate.accepts(generation):
+        if not self._gate.accepts(generation) or self._published_generation == generation:
             return
         if not self._context_is_current(generation):
             self._gate.retire(generation)
@@ -170,6 +188,7 @@ class GapFillController:
             self.docker.set_regions([])
             self.docker.show_error(f"The scan became stale before preview: {error}")
             return
+        self._published_generation = generation
         self.gaps = gaps
         self.docker.set_regions(gaps)
         if not gaps:
@@ -191,6 +210,19 @@ class GapFillController:
             self.overlay.close()
             self.overlay.deleteLater()
             self.overlay = None
+
+    def _invalidate_session(self, message: str) -> None:
+        generation = self._gate.active
+        if generation is not None:
+            self._gate.retire(generation)
+        self._remove_overlay()
+        self.snapshot = None
+        self.gaps = []
+        self._published_generation = None
+        self.resolved_ids.clear()
+        self.invalidated_ids.clear()
+        self.docker.set_regions([])
+        self.docker.show_error(message)
 
     def _context_is_current(self, generation: int) -> bool:
         app = Krita.instance()
@@ -281,27 +313,72 @@ class GapFillController:
         if not gap_ids or generation is None or self.snapshot is None:
             return
         if not self._context_is_current(generation):
-            self.docker.show_error("The scanned document/view changed. Rescan before applying.")
+            self._invalidate_session(
+                "The scanned document/view changed. The frozen GapFill session was invalidated."
+            )
             return
         selected_ids = set(gap_ids)
+        already_resolved = selected_ids & self.resolved_ids
+        if already_resolved:
+            self.docker.show_error(
+                "A resolved GapFill candidate cannot be applied twice: "
+                + ", ".join(sorted(already_resolved))
+            )
+            return
         selected = [gap for gap in self.gaps if gap.id in selected_ids]
         if not selected:
             return
+        selected_actual_ids = {gap.id for gap in selected}
+        applied_support = {
+            int(index)
+            for gap in selected
+            for index in np.asarray(gap.target_indices, dtype=np.int64).tolist()
+        }
+        conflicting_ids = {
+            gap.id
+            for gap in self.gaps
+            if gap.id not in selected_actual_ids
+            and any(int(index) in applied_support for index in gap.indices.tolist())
+        }
         try:
             result = apply_gap_colors(
                 self.document, self.view, self.snapshot.context, selected
             )
+        except (StaleScanError, NativeHostError) as error:
+            self._invalidate_session(
+                "The frozen GapFill session could not be preserved and was invalidated: "
+                f"{error}"
+            )
+            return
         except Exception as error:
             self.docker.show_error(f"Failed to apply gap colors: {error}")
             return
-        self._gate.retire(generation)
-        self._remove_overlay()
-        self.snapshot = None
-        self.gaps = []
-        self.docker.set_regions([])
+        self.snapshot = replace(self.snapshot, context=result.context)
+        self.resolved_ids.update(selected_actual_ids)
+        self.invalidated_ids.update(conflicting_ids)
+        removed_ids = selected_actual_ids | conflicting_ids
+        self.gaps = [gap for gap in self.gaps if gap.id not in removed_ids]
+        self.docker.set_regions(self.gaps)
+        if not self.gaps:
+            self._gate.retire(generation)
+            self._remove_overlay()
+            self.snapshot = None
+            self._published_generation = None
+            self.docker.set_status(
+                f"Applied and verified {result.changed_pixels} pixels in one native transaction. "
+                "All candidates in this frozen analysis session are resolved."
+            )
+            return
+
+        self._refresh_overlay_images()
+        conflict_note = (
+            f" {len(conflicting_ids)} overlapping candidate(s) were invalidated without rescanning."
+            if conflicting_ids
+            else ""
+        )
         self.docker.set_status(
             f"Applied and verified {result.changed_pixels} pixels in one native transaction. "
-            "Rescan before another apply. Formal Row-I Undo qualification remains pending."
+            f"{len(self.gaps)} frozen candidate(s) remain active.{conflict_note}"
         )
 
     def apply_all(self) -> None:

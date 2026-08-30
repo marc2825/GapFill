@@ -398,6 +398,10 @@ def test_apply_all_uses_one_native_call_and_preserves_user_state(host) -> None:
     assert result.changed_pixels == 2
     assert result.atomic_undo is True
     assert result.native_contract["top_level_undo_commands"] == 1
+    assert result.context.generation == snapshot.context.generation
+    adapter.validate_scan_context(document, view, result.context)
+    with pytest.raises(RuntimeError, match="Coloring pixels changed"):
+        adapter.validate_scan_context(document, view, snapshot.context)
     assert len(document.native_helper.calls) == 1
     assert document.native_helper.calls[0]["image_root_uuid"] == document.root.identifier
     assert document.native_helper.calls[0]["target_uuid"] == target.identifier

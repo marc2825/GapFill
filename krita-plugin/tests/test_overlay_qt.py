@@ -199,6 +199,7 @@ def test_v6_exact_preview_marker_and_magnifier_alignment(
             self.images = []
             self.ellipses = []
             self.rectangles = []
+            self.lines = []
 
         def setRenderHint(self, *_args):
             pass
@@ -227,8 +228,8 @@ def test_v6_exact_preview_marker_and_magnifier_alignment(
         def drawRect(self, rectangle):
             self.rectangles.append(rectangle)
 
-        def drawLine(self, *_args):
-            pass
+        def drawLine(self, *args):
+            self.lines.append(args)
 
         def end(self):
             pass
@@ -262,6 +263,153 @@ def test_v6_exact_preview_marker_and_magnifier_alignment(
     assert (magnifier_target.left(), magnifier_target.top()) == pytest.approx(
         (expected_left, expected_top), abs=1e-9
     )
+
+    overlay.close()
+    canvas.close()
+
+
+def test_correction_samples_magnifier_source_instead_of_obscured_canvas() -> None:
+    _app()
+    canvas, overlay = _overlay(1.0, (0.0, 0.0), size=(420, 380))
+    gap = _gap("gap-magnifier", (200, 350), 350 * 500 + 200)
+    composite = np.zeros((500, 500, 4), dtype=np.uint8)
+    overlay.set_content([gap], qimage_from_rgba(np.zeros_like(composite)), composite)
+    overlay.correction_id = gap.id
+
+    geometry = overlay._magnifier_geometry(gap)
+    assert (geometry.target.left(), geometry.target.top()) == pytest.approx((100.0, 60.0))
+    assert (geometry.source_left, geometry.source_top) == (168, 318)
+
+    represented = (178, 328)
+    obscured = (152, 112)
+    composite[represented[1], represented[0]] = (255, 0, 0, 255)
+    composite[obscured[1], obscured[0]] = (0, 0, 255, 255)
+    point = QPointF(geometry.target.left() + 10 * 5 + 2.5, geometry.target.top() + 10 * 5 + 2.5)
+    assert overlay._sample_color(point) == (0, 0, 255)
+    assert overlay._sample_correction_color(point) == (255, 0, 0)
+    assert overlay._sample_correction_color(point) != (0, 0, 255)
+
+    class _MoveEvent:
+        def __init__(self, position):
+            self._position = position
+            self.accepted = False
+
+        def position(self):
+            return self._position
+
+        def accept(self):
+            self.accepted = True
+
+    changes = []
+    overlay.previewColorChanged.connect(lambda gap_id, color: changes.append((gap_id, color)))
+    event = _MoveEvent(point)
+    overlay.mouseMoveEvent(event)
+    assert event.accepted
+    assert gap.preview_rgb == (255, 0, 0)
+    assert changes[-1] == (gap.id, (255, 0, 0))
+
+    composite[318, 168] = (1, 2, 3, 255)
+    first = QPointF(geometry.target.left() + 0.1, geometry.target.top() + 0.1)
+    assert overlay._sample_correction_color(first) == (1, 2, 3)
+
+    composite[381, 231] = (4, 5, 6, 255)
+    last = QPointF(geometry.target.right() - 0.1, geometry.target.bottom() - 0.1)
+    assert overlay._sample_correction_color(last) == (4, 5, 6)
+
+    outside = QPointF(geometry.target.left() - 1.0, geometry.target.top() + 52.5)
+    composite[112, 99] = (7, 8, 9, 255)
+    assert overlay._sample_correction_color(outside) == (7, 8, 9)
+
+    overlay.correction_id = None
+    assert overlay._sample_correction_color(point) == (0, 0, 255)
+
+    overlay.close()
+    canvas.close()
+
+
+def test_connector_uses_cursor_and_final_clamped_magnifier_center(monkeypatch) -> None:
+    from gapfill_krita import overlay as overlay_module
+
+    class _RenderHint:
+        Antialiasing = object()
+
+    class _RecordingPainter:
+        RenderHint = _RenderHint
+        Antialiasing = _RenderHint.Antialiasing
+        last = None
+
+        def __init__(self, _device):
+            type(self).last = self
+            self.lines = []
+
+        def setRenderHint(self, *_args):
+            pass
+
+        def save(self):
+            pass
+
+        def setTransform(self, _transform):
+            pass
+
+        def drawImage(self, *_args):
+            pass
+
+        def restore(self):
+            pass
+
+        def setPen(self, _pen):
+            pass
+
+        def setBrush(self, _brush):
+            pass
+
+        def drawEllipse(self, *_args):
+            pass
+
+        def drawRect(self, _rectangle):
+            pass
+
+        def drawLine(self, *args):
+            self.lines.append(args)
+
+        def end(self):
+            pass
+
+    _app()
+    canvas, overlay = _overlay(1.0, (0.0, 0.0), size=(420, 380))
+    gap = _gap("gap-connector", (200, 350), 350 * 500 + 200)
+    composite = np.zeros((500, 500, 4), dtype=np.uint8)
+    overlay.set_content([gap], qimage_from_rgba(np.zeros_like(composite)), composite)
+    overlay.correction_id = gap.id
+    overlay.drag_position = QPointF(17.0, 29.0)
+    monkeypatch.setattr(overlay_module, "QPainter", _RecordingPainter)
+
+    requested_left = overlay._screen_center(gap).x() + overlay.marker_radius + 8
+    requested_top = overlay._screen_center(gap).y() - 160
+    final_geometry = overlay._magnifier_geometry(gap)
+    assert (requested_left, requested_top) != (
+        final_geometry.target.left(),
+        final_geometry.target.top(),
+    )
+
+    overlay.paintEvent(None)
+    painter = _RecordingPainter.last
+    connector_start, connector_end = painter.lines[-1]
+    assert _coordinates(connector_start) == (17.0, 29.0)
+    assert _coordinates(connector_end) == _coordinates(final_geometry.target.center())
+    assert _coordinates(connector_end) != _coordinates(overlay._screen_center(gap))
+    assert _coordinates(connector_end) != (
+        requested_left + 160,
+        requested_top + 160,
+    )
+    assert overlay._magnifier_gap_id == gap.id
+    assert overlay._magnifier_rect == final_geometry.target
+
+    overlay._cancel_correction()
+    assert overlay.correction_id is None
+    assert overlay.drag_position is None
+    assert overlay._magnifier_rect.isNull()
+    assert overlay._magnifier_gap_id is None
 
     overlay.close()
     canvas.close()

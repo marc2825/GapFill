@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from dataclasses import dataclass
 from typing import Optional
 
 import numpy as np
@@ -27,6 +28,14 @@ from .qt_compat import (
     pyqtSignal,
     qimage_from_rgba,
 )
+
+
+@dataclass(frozen=True)
+class _MagnifierGeometry:
+    target: QRectF
+    source_left: int
+    source_top: int
+    source_size: int
 
 
 class GapFillOverlay(QWidget):
@@ -61,6 +70,8 @@ class GapFillOverlay(QWidget):
         self.drag_position: Optional[QPointF] = None
         self._last_sweep_position: Optional[QPointF] = None
         self._cancel_rect = QRectF()
+        self._magnifier_rect = QRectF()
+        self._magnifier_gap_id: Optional[str] = None
         self._last_transform = QTransform()
         self._mapping_valid = True
 
@@ -76,6 +87,7 @@ class GapFillOverlay(QWidget):
 
     def closeEvent(self, event) -> None:
         self._geometry_timer.stop()
+        self._clear_magnifier_geometry()
         super().closeEvent(event)
 
     def _sync_geometry(self) -> None:
@@ -110,6 +122,11 @@ class GapFillOverlay(QWidget):
         self.preview_image = preview_image
         self.composite_rgba = composite_rgba
         self.hovered_id = None
+        if self.correction_id and self._gap_by_id(self.correction_id) is None:
+            self.correction_id = None
+            self._correction_original_color = None
+            self.drag_position = None
+        self._clear_magnifier_geometry()
         self.update()
 
     def set_style(self, color: str, marker_radius: float, sweep_radius: float) -> None:
@@ -165,11 +182,9 @@ class GapFillOverlay(QWidget):
             if self._distance_to_segment(self._screen_center(gap), start, end) <= self.sweep_radius:
                 self.swept_ids.add(gap.id)
 
-    def _sample_color(self, canvas_point: QPointF) -> Optional[Rgb]:
+    def _sample_source_pixel(self, x: int, y: int) -> Optional[Rgb]:
         if self.composite_rgba is None:
             return None
-        image_point = self._canvas_to_image().map(canvas_point)
-        x, y = int(math.floor(image_point.x())), int(math.floor(image_point.y()))
         height, width = self.composite_rgba.shape[:2]
         if not (0 <= x < width and 0 <= y < height):
             return None
@@ -179,6 +194,70 @@ class GapFillOverlay(QWidget):
         if pixel[3] != 255:
             return None
         return (int(pixel[0]), int(pixel[1]), int(pixel[2]))
+
+    def _sample_color(self, canvas_point: QPointF) -> Optional[Rgb]:
+        image_point = self._canvas_to_image().map(canvas_point)
+        return self._sample_source_pixel(
+            int(math.floor(image_point.x())), int(math.floor(image_point.y()))
+        )
+
+    @staticmethod
+    def _inside_image_rect(point: QPointF, rectangle: QRectF) -> bool:
+        return (
+            rectangle.left() <= point.x() < rectangle.right()
+            and rectangle.top() <= point.y() < rectangle.bottom()
+        )
+
+    def _magnifier_geometry(self, gap: GapRegion) -> _MagnifierGeometry:
+        source_size = self.MAGNIFIER_SOURCE_SIZE
+        display_size = source_size * self.MAGNIFIER_SCALE
+        source_left = int(gap.center[0] - source_size // 2)
+        source_top = int(gap.center[1] - source_size // 2)
+        center = self._screen_center(gap)
+        left = min(
+            max(0.0, center.x() + self.marker_radius + 8),
+            max(0.0, self.width() - display_size),
+        )
+        top = min(
+            max(0.0, center.y() - display_size / 2),
+            max(0.0, self.height() - display_size),
+        )
+        return _MagnifierGeometry(
+            QRectF(left, top, display_size, display_size),
+            source_left,
+            source_top,
+            source_size,
+        )
+
+    def _sample_magnifier(
+        self, point: QPointF, gap: GapRegion
+    ) -> tuple[bool, Optional[Rgb]]:
+        geometry = self._magnifier_geometry(gap)
+        target = geometry.target
+        if not self._inside_image_rect(point, target):
+            return False, None
+        local_x = int(
+            math.floor((point.x() - target.left()) * geometry.source_size / target.width())
+        )
+        local_y = int(
+            math.floor((point.y() - target.top()) * geometry.source_size / target.height())
+        )
+        image_x = geometry.source_left + min(geometry.source_size - 1, local_x)
+        image_y = geometry.source_top + min(geometry.source_size - 1, local_y)
+        return True, self._sample_source_pixel(image_x, image_y)
+
+    def _sample_correction_color(self, point: QPointF) -> Optional[Rgb]:
+        gap = self._gap_by_id(self.correction_id)
+        if gap is not None:
+            hit, color = self._sample_magnifier(point, gap)
+            if hit:
+                return color
+        return self._sample_color(point)
+
+    def _clear_magnifier_geometry(self) -> None:
+        self._magnifier_rect = QRectF()
+        self._magnifier_gap_id = None
+        self._cancel_rect = QRectF()
 
     def _paint_gap_color(self, gap: GapRegion, color: Optional[Rgb]) -> None:
         """Update only one small gap instead of rebuilding full-document images."""
@@ -200,6 +279,7 @@ class GapFillOverlay(QWidget):
             self.correction_id = None
             self._correction_original_color = None
             self.drag_position = None
+            self._clear_magnifier_geometry()
             self.interactionCancelled.emit(gap_id)
             self.update()
 
@@ -213,7 +293,7 @@ class GapFillOverlay(QWidget):
             self.correction_id = gap.id
             self._correction_original_color = gap.preview_rgb
             self.drag_position = point
-            color = self._sample_color(point)
+            color = self._sample_correction_color(point)
             if color is not None:
                 gap.preview_rgb = color
                 self._paint_gap_color(gap, color)
@@ -235,7 +315,7 @@ class GapFillOverlay(QWidget):
                 event.accept()
                 return
             self.drag_position = point
-            color = self._sample_color(point)
+            color = self._sample_correction_color(point)
             gap = self._gap_by_id(self.correction_id)
             if color is not None and gap is not None:
                 gap.preview_rgb = color
@@ -259,6 +339,7 @@ class GapFillOverlay(QWidget):
             self.correction_id = None
             self._correction_original_color = None
             self.drag_position = None
+            self._clear_magnifier_geometry()
             self.applyRequested.emit([gap_id])
         elif self.sweeping:
             selected = list(self.swept_ids)
@@ -313,20 +394,30 @@ class GapFillOverlay(QWidget):
             painter.drawEllipse(center, self.marker_radius, self.marker_radius)
 
         active_gap = self._gap_by_id(self.correction_id or self.hovered_id)
+        magnifier_geometry = None
         if active_gap is not None:
-            self._paint_magnifier(painter, active_gap)
-        if self.correction_id and self.drag_position is not None:
+            magnifier_geometry = self._paint_magnifier(painter, active_gap)
+        else:
+            self._clear_magnifier_geometry()
+        if (
+            self.correction_id
+            and self.drag_position is not None
+            and magnifier_geometry is not None
+        ):
             painter.setPen(QPen(self.highlight, 2.0, DASH_LINE))
-            painter.drawLine(self.drag_position, self._screen_center(active_gap))
+            painter.drawLine(self.drag_position, magnifier_geometry.target.center())
         painter.end()
 
-    def _paint_magnifier(self, painter: QPainter, gap: GapRegion) -> None:
+    def _paint_magnifier(
+        self, painter: QPainter, gap: GapRegion
+    ) -> Optional[_MagnifierGeometry]:
         if self.composite_rgba is None:
-            return
-        source_size = self.MAGNIFIER_SOURCE_SIZE
-        display_size = source_size * self.MAGNIFIER_SCALE
-        source_left = int(gap.center[0] - source_size // 2)
-        source_top = int(gap.center[1] - source_size // 2)
+            self._clear_magnifier_geometry()
+            return None
+        geometry = self._magnifier_geometry(gap)
+        source_size = geometry.source_size
+        source_left = geometry.source_left
+        source_top = geometry.source_top
         magnifier = qimage_from_rgba(
             np.zeros((source_size, source_size, 4), dtype=np.uint8)
         )
@@ -355,16 +446,9 @@ class GapFillOverlay(QWidget):
                 local_x, local_y = image_x - source_left, image_y - source_top
                 if 0 <= local_x < source_size and 0 <= local_y < source_size:
                     magnifier.setPixelColor(local_x, local_y, qcolor)
-        center = self._screen_center(gap)
-        left = min(
-            max(0.0, center.x() + self.marker_radius + 8),
-            max(0.0, self.width() - display_size),
-        )
-        top = min(
-            max(0.0, center.y() - display_size / 2),
-            max(0.0, self.height() - display_size),
-        )
-        target = QRectF(left, top, display_size, display_size)
+        target = geometry.target
+        self._magnifier_rect = QRectF(target)
+        self._magnifier_gap_id = gap.id
         painter.setPen(QPen(QColor("#202020"), 2.0))
         painter.setBrush(QColor("#FFFFFF"))
         painter.drawRect(target.adjusted(-2, -2, 2, 2))
@@ -386,3 +470,4 @@ class GapFillOverlay(QWidget):
             self._cancel_rect.bottomLeft() + QPointF(5, -5),
             self._cancel_rect.topRight() + QPointF(-5, 5),
         )
+        return geometry

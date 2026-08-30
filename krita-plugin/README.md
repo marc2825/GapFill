@@ -109,11 +109,41 @@ resolves the scanned document by image-root UUID and the Coloring layer by node
 UUID, validates expected-before bytes, and writes sorted horizontal runs inside
 one Krita transaction. Native failure reverts and verifies the touched bytes;
 success must pass a full-layer exact raw-byte readback. There is no fallback to
-`fill_selection_foreground_color` or direct Python writeback. A successful apply
-invalidates every remaining suggestion and requires a rescan. Formal one-step
-Undo/Redo and all other available Phase 6.5 rows passed in the admitted
-Windows/Krita host cell. Q's unavailable HiDPI condition and the documented
-T/V scope limits remain explicit rather than being treated as broader support.
+`fill_selection_foreground_color` or direct Python writeback. Each successful
+GapFill-owned apply resolves only the applied candidates and advances the
+expected Coloring checkpoint. Unresolved candidates remain in the same frozen
+analysis session with their original geometry and predictions; GapFill does not
+rerun detection or ONNX inference. Each apply remains its own atomic Undo step.
+An external document, layer, selection, or pixel mutation still invalidates the
+session conservatively. Formal one-step Undo/Redo and all other available Phase
+6.5 rows passed in the admitted Windows/Krita host cell. Q's unavailable HiDPI
+condition and the documented T/V scope limits remain explicit rather than being
+treated as broader support.
+
+## Future: prediction performance profiling and hardware acceleration
+
+This is a development TODO, not implemented behavior. Current learned
+prediction creates ONNX Runtime sessions with `CPUExecutionProvider` and runs
+the canonical `1 x 2 x 32 x 32` input once per gap. Profile before choosing an
+optimization: measure detection, region labeling, patch extraction, tensor
+construction, `session.run`, postprocessing, region scoring/selection, Python
+per-gap overhead, and worker/UI overhead separately.
+
+Future investigation should compare runtime-selectable accelerated providers
+(including CUDA on supported NVIDIA systems and a currently supported Windows
+acceleration path) with a `CPUExecutionProvider` fallback. It must account for
+runtime/DLL size, CUDA/cuDNN or driver compatibility, Krita's embedded CPython,
+Windows deployment, importer packaging, fallback behavior, and the added
+release-qualification matrix. CPU/provider parity must cover output shape and
+dtype, finite probabilities, selected region, predicted RGB, learned
+confidence, repeated-run stability, and predefined floating-point tolerances.
+
+Because this model is small, host-to-device transfer, kernel launch, and Python
+call overhead may outweigh GPU gains. Also benchmark batching, caching immutable
+scan-time data, avoiding repeated `build_line_region_labels(images.line_art)`,
+preprocessing reuse/vectorization, and fewer per-gap Python calls. Any batching
+change to the frozen model-input contract is a separate semantic and
+qualification task.
 
 ## Build and Test
 

@@ -20,6 +20,7 @@ from .host_contract import (
     NodeState,
     ScanContext,
     StaleScanError,
+    advance_context_after_owned_mutation,
     build_application_plan,
     image_sha256,
     require_fresh,
@@ -38,6 +39,7 @@ class ApplyResult:
     changed_pixels: int
     atomic_undo: bool
     native_contract: dict[str, object]
+    context: ScanContext
 
 
 def iter_nodes(root) -> Iterable:
@@ -585,7 +587,7 @@ def apply_gap_colors(
 ) -> ApplyResult:
     """Apply one complete exact patch through the pinned native transaction helper."""
     if not gaps:
-        return ApplyResult(0, True, {})
+        return ApplyResult(0, True, {}, context)
     target, before = validate_scan_context(document, view, context)
     plan = build_application_plan(gaps, before)
     width, height = int(document.width()), int(document.height())
@@ -638,4 +640,27 @@ def apply_gap_colors(
             "Native Apply returned success but the complete Coloring layer failed exact "
             "raw-byte validation. Do not continue editing; invoke Undo once."
         )
-    return ApplyResult(int(plan.indices.size), True, contract)
+    expected_coloring = bgra_bytes_to_rgba(bytes(expected_after), width, height)
+    try:
+        observation, observed_target, observed_coloring = observe_context(
+            document, view, context
+        )
+        if observed_target is None or not np.array_equal(
+            observed_coloring, expected_coloring
+        ):
+            raise StaleScanError(
+                "Coloring pixels changed while advancing the verified GapFill session."
+            )
+        advanced_context = advance_context_after_owned_mutation(
+            context,
+            observation,
+            expected_coloring_sha256=image_sha256(expected_coloring),
+        )
+    except StaleScanError:
+        raise
+    except Exception as error:
+        raise NativeHostError(
+            "Native Apply succeeded, but the continued-session checkpoint could not be read: "
+            f"{error}"
+        ) from error
+    return ApplyResult(int(plan.indices.size), True, contract, advanced_context)

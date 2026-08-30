@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import hashlib
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Optional
 
 import numpy as np
@@ -223,6 +223,38 @@ def require_fresh(context: ScanContext, current: HostObservation) -> None:
         raise StaleScanError("Guide pixels changed after scanning.")
     if current.composite_sha256 != expected.composite_sha256:
         raise StaleScanError("The document projection changed after scanning.")
+
+
+def advance_context_after_owned_mutation(
+    context: ScanContext,
+    current: HostObservation,
+    *,
+    expected_coloring_sha256: str,
+) -> ScanContext:
+    """Advance only the host checkpoint after one verified GapFill transaction.
+
+    The frozen analysis arrays and candidate results are intentionally not inputs
+    here. Applying transparent pixels may change the target bounds, Coloring
+    bytes, and composite projection; every other observed host property must
+    still match the scan checkpoint exactly.
+    """
+    expected = context.observation
+    if expected.target is None or current.target is None:
+        raise StaleScanError("The target deleted while advancing the GapFill session.")
+    if current.coloring_sha256 != expected_coloring_sha256:
+        raise StaleScanError(
+            "Coloring pixels changed after the verified GapFill transaction."
+        )
+
+    allowed_target = replace(expected.target, bounds=current.target.bounds)
+    allowed_observation = replace(
+        expected,
+        target=allowed_target,
+        coloring_sha256=expected_coloring_sha256,
+        composite_sha256=current.composite_sha256,
+    )
+    require_fresh(ScanContext(context.generation, allowed_observation), current)
+    return ScanContext(context.generation, current)
 
 
 def build_application_plan(gaps: list[GapRegion], coloring: np.ndarray) -> ApplicationPlan:

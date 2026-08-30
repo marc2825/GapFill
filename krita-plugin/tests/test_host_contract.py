@@ -11,6 +11,7 @@ from gapfill_krita.host_contract import (
     NodeState,
     ScanContext,
     StaleScanError,
+    advance_context_after_owned_mutation,
     build_application_plan,
     image_sha256,
     require_fresh,
@@ -92,6 +93,35 @@ def test_stale_context_rejects_every_relevant_mutation() -> None:
             require_fresh(context, current)
 
     require_fresh(context, original)
+
+
+def test_owned_mutation_advances_only_target_pixels_bounds_and_composite() -> None:
+    original = _observation()
+    context = ScanContext(7, original)
+    current = replace(
+        original,
+        target=replace(original.target, bounds=(0, 0, 6, 5)),
+        coloring_sha256="verified-h1",
+        composite_sha256="projection-h1",
+    )
+    advanced = advance_context_after_owned_mutation(
+        context, current, expected_coloring_sha256="verified-h1"
+    )
+    assert advanced.generation == context.generation
+    assert advanced.observation == current
+    require_fresh(advanced, current)
+
+    external = replace(current, line_sha256="external-line-edit")
+    with pytest.raises(StaleScanError, match="Line Art pixels"):
+        advance_context_after_owned_mutation(
+            context, external, expected_coloring_sha256="verified-h1"
+        )
+
+    wrong_coloring = replace(current, coloring_sha256="external-coloring-edit")
+    with pytest.raises(StaleScanError, match="Coloring pixels changed"):
+        advance_context_after_owned_mutation(
+            context, wrong_coloring, expected_coloring_sha256="verified-h1"
+        )
 
 
 def test_host_snapshot_freezes_arrays_and_preserves_soft_selection() -> None:

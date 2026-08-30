@@ -3,12 +3,14 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
+from zipfile import ZipFile
 
 ROOT = Path(__file__).resolve().parents[2]
 RELEASE = ROOT / "krita-plugin" / "release"
 FREEZE = RELEASE / "freeze.json"
 SOURCE = RELEASE / "source-freeze.json"
 ARTIFACT = RELEASE / "artifact-entries.json"
+FROZEN_ZIP = RELEASE / "artifacts" / "gapfill-krita-windows-x86_64.zip"
 
 
 def load(path: Path):
@@ -46,25 +48,31 @@ def test_source_freeze_is_sorted_unique_and_preserves_historical_builder() -> No
     keys = [(item["path"], item["source_root"]) for item in entries]
     assert keys == sorted(keys)
     assert len(keys) == len(set(keys))
-    for item in entries:
-        if item["source_root"] != "repository":
-            continue
-        if item["category"] == "package_builder":
-            assert item == {
-                "archive_path": None,
-                "category": "package_builder",
-                "included_in_artifact": False,
-                "path": "krita-plugin/scripts/build_plugin.py",
-                "sha256": (
-                    "7627318aab414c66fb0b396af09ae6e68c265e5af5054e7d539688f37f815455"
-                ),
-                "size": 5162,
-                "source_root": "repository",
-            }
-            continue
-        path = ROOT / item["path"]
-        assert path.stat().st_size == item["size"]
-        assert sha256(path) == item["sha256"]
+    with ZipFile(FROZEN_ZIP) as frozen:
+        for item in entries:
+            if item["source_root"] != "repository":
+                continue
+            if item["included_in_artifact"]:
+                data = frozen.read(item["archive_path"])
+                assert len(data) == item["size"]
+                assert hashlib.sha256(data).hexdigest() == item["sha256"]
+                continue
+            if item["category"] == "package_builder":
+                assert item == {
+                    "archive_path": None,
+                    "category": "package_builder",
+                    "included_in_artifact": False,
+                    "path": "krita-plugin/scripts/build_plugin.py",
+                    "sha256": (
+                        "7627318aab414c66fb0b396af09ae6e68c265e5af5054e7d539688f37f815455"
+                    ),
+                    "size": 5162,
+                    "source_root": "repository",
+                }
+                continue
+            path = ROOT / item["path"]
+            assert path.stat().st_size == item["size"]
+            assert sha256(path) == item["sha256"]
     shadowed = [item for item in entries if item["category"] == "shadowed_package_source"]
     assert len(shadowed) == 1
     assert shadowed[0]["included_in_artifact"] is False
