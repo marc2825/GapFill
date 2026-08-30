@@ -2,8 +2,9 @@
 
 > **1.0.2 PRE-RELEASE HOLD (authoritative for the next OFFF start):** OFFF
 > remains paused while GapFill for Krita 1.0.2 is prepared on
-> `fix/gapfill-interaction-session`. The host-tested interaction repair
-> checkpoint is `d48366d`; the final release-source/freeze commits and
+> `fix/gapfill-interaction-session`. The exact release-source commit is
+> `d0e1fbfb825d983d5a208f9b3990418a821f1160`; the host-tested interaction
+> repair checkpoint is `d48366d`. The final freeze commit and
 > `krita-v1.0.2` publication identity do not exist yet. Do not resume OFFF until
 > 1.0.2 is published and this handoff is finalized to that tag. The 1.0.1
 > identities below remain immutable historical release evidence, not the next
