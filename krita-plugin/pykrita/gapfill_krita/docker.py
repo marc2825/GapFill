@@ -114,7 +114,7 @@ class GapFillDocker(DockWidget):
         self._update_action_state()
 
     def canvasChanged(self, _canvas) -> None:
-        self.controller.deactivate()
+        self.controller.canvas_changed()
         self.refresh_layers()
 
     def closeEvent(self, event) -> None:

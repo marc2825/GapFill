@@ -10,11 +10,18 @@ from .canvas_boundary import require_supported_canvas_state, require_supported_w
 from .engine.types import GapRegion, Rgb
 from .qt_compat import (
     DASH_LINE,
+    ENTER,
+    LEAVE,
     LEFT_BUTTON,
+    MOUSE_BUTTON_PRESS,
+    MOUSE_BUTTON_RELEASE,
+    MOUSE_MOVE,
     ROUND_CAP,
     SOLID_LINE,
     WA_NO_BACKGROUND,
     WA_TRANSLUCENT,
+    WA_TRANSPARENT_MOUSE,
+    QApplication,
     QColor,
     QImage,
     QPainter,
@@ -25,6 +32,7 @@ from .qt_compat import (
     QTransform,
     QWidget,
     event_position,
+    global_position,
     pyqtSignal,
     qimage_from_rgba,
 )
@@ -50,6 +58,10 @@ class GapFillOverlay(QWidget):
     MAGNIFIER_SOURCE_SIZE = 64
     MAGNIFIER_SCALE = 5
     MAGNIFIER_MARGIN = 12
+    SWEEP_TRAIL_COLOR = (226, 242, 170, 112)
+    SWEEP_TRAIL_WIDTH = 7.0
+    SWEEP_TRAIL_MIN_DISTANCE = 2.0
+    MAX_SWEEP_TRAIL_POINTS = 2048
 
     def __init__(self, canvas_widget, view, color_bridge, parent=None):
         super().__init__(parent or canvas_widget)
@@ -69,15 +81,28 @@ class GapFillOverlay(QWidget):
         self.swept_ids: set[str] = set()
         self.drag_position: Optional[QPointF] = None
         self._last_sweep_position: Optional[QPointF] = None
+        self._sweep_trail: list[QPointF] = []
         self._cancel_rect = QRectF()
         self._magnifier_rect = QRectF()
         self._magnifier_gap_id: Optional[str] = None
         self._last_transform = QTransform()
         self._mapping_valid = True
+        self._canvas_mouse_tracking = canvas_widget.hasMouseTracking()
+        self._event_filter_installed = False
 
         self.setAttribute(WA_NO_BACKGROUND, True)
         self.setAttribute(WA_TRANSLUCENT, True)
-        self.setMouseTracking(True)
+        # This full-canvas widget paints the preview but must not become the
+        # canvas's pointer target. Observe the real canvas passively and only
+        # consume an explicit GapFill press/drag/release interaction.
+        self.setAttribute(WA_TRANSPARENT_MOUSE, True)
+        canvas_widget.setMouseTracking(True)
+        application = QApplication.instance()
+        if application is None:
+            raise RuntimeError("GapFill requires an active Qt application.")
+        self._event_filter_target = application
+        application.installEventFilter(self)
+        self._event_filter_installed = True
         self.setGeometry(canvas_widget.rect())
         self.raise_()
         self.show()
@@ -87,8 +112,63 @@ class GapFillOverlay(QWidget):
 
     def closeEvent(self, event) -> None:
         self._geometry_timer.stop()
-        self._clear_magnifier_geometry()
+        if self._event_filter_installed:
+            self._event_filter_target.removeEventFilter(self)
+            self._event_filter_installed = False
+        if not self._canvas_mouse_tracking:
+            self.canvas_widget.setMouseTracking(False)
+        self._clear_pointer_state()
         super().closeEvent(event)
+
+    def eventFilter(self, watched, event) -> bool:
+        if not self._mapping_valid:
+            return super().eventFilter(watched, event)
+        event_type = event.type()
+        canvas_target = self._is_canvas_event_target(watched)
+        active_gesture = bool(self.correction_id or self.sweeping)
+        if not canvas_target and not (
+            active_gesture and event_type in (MOUSE_MOVE, MOUSE_BUTTON_RELEASE)
+        ):
+            return super().eventFilter(watched, event)
+        if event_type == MOUSE_BUTTON_PRESS:
+            point = self._map_event_point(watched, event)
+            handled = self._handle_pointer_press(point, event.button())
+            if handled:
+                event.accept()
+            return handled
+        if event_type == MOUSE_MOVE:
+            point = self._map_event_point(watched, event)
+            self._handle_pointer_move(point, event.buttons())
+            # The initiating press was claimed, so Krita's tool has no active
+            # stroke. Let moves through so its visible canvas cursor continues
+            # to track the physical pointer during GapFill drags.
+            return False
+        if event_type == MOUSE_BUTTON_RELEASE:
+            point = self._map_event_point(watched, event)
+            handled = self._handle_pointer_release(point, event.button())
+            if handled:
+                event.accept()
+            return handled
+        if event_type == LEAVE and watched is self.canvas_widget:
+            self._handle_pointer_leave()
+            return False
+        if event_type == ENTER:
+            return False
+        return super().eventFilter(watched, event)
+
+    def _is_canvas_event_target(self, watched) -> bool:
+        return isinstance(watched, QWidget) and (
+            watched is self.canvas_widget or self.canvas_widget.isAncestorOf(watched)
+        )
+
+    def _map_event_point(self, watched, event) -> QPointF:
+        if not isinstance(watched, QWidget):
+            return QPointF(self.mapFromGlobal(global_position(event)))
+        if not self._is_canvas_event_target(watched):
+            return QPointF(self.mapFromGlobal(global_position(event)))
+        watched_point = event_position(event).toPoint()
+        canvas_point = self.canvas_widget.mapFrom(watched, watched_point)
+        return QPointF(self.mapFrom(self.canvas_widget, canvas_point))
 
     def _sync_geometry(self) -> None:
         try:
@@ -181,6 +261,19 @@ class GapFillOverlay(QWidget):
         for gap in self.gaps:
             if self._distance_to_segment(self._screen_center(gap), start, end) <= self.sweep_radius:
                 self.swept_ids.add(gap.id)
+
+    def _append_sweep_trail(self, point: QPointF) -> None:
+        sample = QPointF(point)
+        if self._sweep_trail:
+            previous = self._sweep_trail[-1]
+            if (
+                math.hypot(sample.x() - previous.x(), sample.y() - previous.y())
+                < self.SWEEP_TRAIL_MIN_DISTANCE
+            ):
+                return
+        if len(self._sweep_trail) >= self.MAX_SWEEP_TRAIL_POINTS:
+            self._sweep_trail = self._sweep_trail[::2]
+        self._sweep_trail.append(sample)
 
     def _sample_source_pixel(self, x: int, y: int) -> Optional[Rgb]:
         if self.composite_rgba is None:
@@ -283,11 +376,9 @@ class GapFillOverlay(QWidget):
             self.interactionCancelled.emit(gap_id)
             self.update()
 
-    def mousePressEvent(self, event) -> None:
-        if event.button() != LEFT_BUTTON:
-            event.ignore()
-            return
-        point = event_position(event)
+    def _handle_pointer_press(self, point: QPointF, button) -> bool:
+        if button != LEFT_BUTTON:
+            return False
         gap = self._hit_gap(point)
         if gap is not None:
             self.correction_id = gap.id
@@ -302,17 +393,22 @@ class GapFillOverlay(QWidget):
             self.sweeping = True
             self.swept_ids.clear()
             self._last_sweep_position = point
+            self._sweep_trail = [QPointF(point)]
             self._collect_swept(point, point)
-        event.accept()
         self.update()
+        return True
 
-    def mouseMoveEvent(self, event) -> None:
-        point = event_position(event)
+    def mousePressEvent(self, event) -> None:
+        if self._handle_pointer_press(event_position(event), event.button()):
+            event.accept()
+        else:
+            event.ignore()
+
+    def _handle_pointer_move(self, point: QPointF, _buttons) -> None:
         if self.correction_id:
             # Hovering the magnifier's X is an explicit cancellation gesture.
             if self._cancel_rect.contains(point):
                 self._cancel_correction()
-                event.accept()
                 return
             self.drag_position = point
             color = self._sample_correction_color(point)
@@ -324,16 +420,22 @@ class GapFillOverlay(QWidget):
         elif self.sweeping and self._last_sweep_position is not None:
             self._collect_swept(self._last_sweep_position, point)
             self._last_sweep_position = point
+            self._append_sweep_trail(point)
         else:
             gap = self._hit_gap(point)
             self.hovered_id = gap.id if gap else None
-        event.accept()
+            if gap is None:
+                self._clear_magnifier_geometry()
         self.update()
 
-    def mouseReleaseEvent(self, event) -> None:
-        if event.button() != LEFT_BUTTON:
-            event.ignore()
-            return
+    def mouseMoveEvent(self, event) -> None:
+        self._handle_pointer_move(event_position(event), event.buttons())
+        event.ignore()
+
+    def _handle_pointer_release(self, _point: QPointF, button) -> bool:
+        if button != LEFT_BUTTON:
+            return False
+        handled = bool(self.correction_id or self.sweeping)
         if self.correction_id:
             gap_id = self.correction_id
             self.correction_id = None
@@ -346,10 +448,35 @@ class GapFillOverlay(QWidget):
             self.sweeping = False
             self.swept_ids.clear()
             self._last_sweep_position = None
+            self._sweep_trail.clear()
             if selected:
                 self.applyRequested.emit(selected)
-        event.accept()
         self.update()
+        return handled
+
+    def mouseReleaseEvent(self, event) -> None:
+        if self._handle_pointer_release(event_position(event), event.button()):
+            event.accept()
+        else:
+            event.ignore()
+
+    def _handle_pointer_leave(self) -> None:
+        if self.correction_id or self.sweeping:
+            return
+        self.hovered_id = None
+        self._clear_magnifier_geometry()
+        self.update()
+
+    def _clear_pointer_state(self) -> None:
+        self.hovered_id = None
+        self.correction_id = None
+        self._correction_original_color = None
+        self.sweeping = False
+        self.swept_ids.clear()
+        self.drag_position = None
+        self._last_sweep_position = None
+        self._sweep_trail.clear()
+        self._clear_magnifier_geometry()
 
     def paintEvent(self, _event) -> None:
         try:
@@ -388,6 +515,17 @@ class GapFillOverlay(QWidget):
         marker_pen = QPen(self.highlight, 2.0, SOLID_LINE, ROUND_CAP)
         selected_pen = QPen(QColor("#FFD600"), 4.0, SOLID_LINE, ROUND_CAP)
         painter.setBrush(QColor(0, 0, 0, 0))
+        if len(self._sweep_trail) >= 2:
+            painter.setPen(
+                QPen(
+                    QColor(*self.SWEEP_TRAIL_COLOR),
+                    self.SWEEP_TRAIL_WIDTH,
+                    SOLID_LINE,
+                    ROUND_CAP,
+                )
+            )
+            for start, end in zip(self._sweep_trail, self._sweep_trail[1:]):
+                painter.drawLine(start, end)
         for gap in self.gaps:
             center = self._screen_center(gap)
             painter.setPen(selected_pen if gap.id in self.swept_ids else marker_pen)

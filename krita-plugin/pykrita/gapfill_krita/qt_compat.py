@@ -3,6 +3,7 @@
 try:
     from PyQt6.QtCore import (
         QByteArray,
+        QEvent,
         QObject,
         QPointF,
         QRect,
@@ -19,6 +20,7 @@ try:
     from PyQt6.QtGui import QColor, QImage, QPainter, QPen, QPolygonF, QTransform
     from PyQt6.QtWidgets import (
         QAbstractItemView,
+        QApplication,
         QCheckBox,
         QColorDialog,
         QComboBox,
@@ -53,9 +55,15 @@ try:
     IMAGE_GRAYSCALE8 = QImage.Format.Format_Grayscale8
     USER_ROLE = Qt.ItemDataRole.UserRole
     DOCK_RIGHT = Qt.DockWidgetArea.RightDockWidgetArea
+    MOUSE_BUTTON_PRESS = QEvent.Type.MouseButtonPress
+    MOUSE_MOVE = QEvent.Type.MouseMove
+    MOUSE_BUTTON_RELEASE = QEvent.Type.MouseButtonRelease
+    ENTER = QEvent.Type.Enter
+    LEAVE = QEvent.Type.Leave
 except ImportError:
     from PyQt5.QtCore import (
         QByteArray,
+        QEvent,
         QObject,
         QPointF,
         QRect,
@@ -72,6 +80,7 @@ except ImportError:
     from PyQt5.QtGui import QColor, QImage, QPainter, QPen, QPolygonF, QTransform
     from PyQt5.QtWidgets import (
         QAbstractItemView,
+        QApplication,
         QCheckBox,
         QColorDialog,
         QComboBox,
@@ -106,6 +115,11 @@ except ImportError:
     IMAGE_GRAYSCALE8 = QImage.Format_Grayscale8
     USER_ROLE = Qt.UserRole
     DOCK_RIGHT = Qt.RightDockWidgetArea
+    MOUSE_BUTTON_PRESS = QEvent.MouseButtonPress
+    MOUSE_MOVE = QEvent.MouseMove
+    MOUSE_BUTTON_RELEASE = QEvent.MouseButtonRelease
+    ENTER = QEvent.Enter
+    LEAVE = QEvent.Leave
 
 
 def event_position(event):
