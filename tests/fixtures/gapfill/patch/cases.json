@@ -1,0 +1,1291 @@
+{
+  "cases": [
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "decision_ids": [
+            "PATCH-GEOMETRY",
+            "MODEL-CHANNELS"
+          ],
+          "evidence_ids": [
+            "PAPER-4.2",
+            "ML-PATCH"
+          ],
+          "guide_policy": "line_only",
+          "result": {
+            "bounds": {
+              "destination_x": 12,
+              "destination_y": 12,
+              "source_height": 10,
+              "source_width": 10,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -12,
+              "virtual_y": -12
+            },
+            "centroid": [
+              4,
+              4
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                527,
+                530
+              ],
+              "channel_1_active_indices": [
+                528,
+                529
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "training_line_only"
+        }
+      ],
+      "family": "patch",
+      "id": "P001_even_region_centroid",
+      "source": {
+        "gap_indices": [
+          44,
+          45
+        ],
+        "guide_active_indices": [],
+        "height": 10,
+        "line_active_indices": [
+          43,
+          46
+        ],
+        "width": 10
+      },
+      "title": "Two-pixel region whose mean x coordinate is 4.5"
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "decision_ids": [
+            "PATCH-GEOMETRY",
+            "MODEL-CHANNELS"
+          ],
+          "evidence_ids": [
+            "PAPER-4.2",
+            "ML-PATCH"
+          ],
+          "guide_policy": "line_only",
+          "result": {
+            "bounds": {
+              "destination_x": 12,
+              "destination_y": 12,
+              "source_height": 10,
+              "source_width": 10,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -12,
+              "virtual_y": -12
+            },
+            "centroid": [
+              4,
+              4
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                527,
+                562
+              ],
+              "channel_1_active_indices": [
+                528,
+                529,
+                561
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "training_line_only"
+        }
+      ],
+      "family": "patch",
+      "id": "P002_asymmetric_region_centroid",
+      "source": {
+        "gap_indices": [
+          44,
+          45,
+          55
+        ],
+        "guide_active_indices": [],
+        "height": 10,
+        "line_active_indices": [
+          43,
+          56
+        ],
+        "width": 10
+      },
+      "title": "Three-pixel asymmetric region with fractional x/y means"
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "decision_ids": [
+            "PATCH-GEOMETRY",
+            "MODEL-CHANNELS"
+          ],
+          "evidence_ids": [
+            "PAPER-4.2",
+            "ML-PATCH"
+          ],
+          "guide_policy": "line_only",
+          "result": {
+            "bounds": {
+              "destination_x": 16,
+              "destination_y": 16,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -16,
+              "virtual_y": -16
+            },
+            "centroid": [
+              0,
+              0
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                529,
+                530,
+                531,
+                532,
+                560,
+                561,
+                562,
+                563,
+                564,
+                592,
+                593,
+                594,
+                595,
+                596,
+                624,
+                625,
+                626,
+                627,
+                628
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "training_line_only"
+        }
+      ],
+      "family": "patch",
+      "id": "P003_top_left",
+      "source": {
+        "gap_indices": [
+          0
+        ],
+        "guide_active_indices": [],
+        "height": 4,
+        "line_active_indices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "width": 5
+      },
+      "title": "32x32 zero-padded patch at the top left"
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "decision_ids": [
+            "PATCH-GEOMETRY",
+            "MODEL-CHANNELS"
+          ],
+          "evidence_ids": [
+            "PAPER-4.2",
+            "ML-PATCH"
+          ],
+          "guide_policy": "line_only",
+          "result": {
+            "bounds": {
+              "destination_x": 14,
+              "destination_y": 16,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -14,
+              "virtual_y": -16
+            },
+            "centroid": [
+              2,
+              0
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                526,
+                527,
+                529,
+                530,
+                558,
+                559,
+                560,
+                561,
+                562,
+                590,
+                591,
+                592,
+                593,
+                594,
+                622,
+                623,
+                624,
+                625,
+                626
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "training_line_only"
+        }
+      ],
+      "family": "patch",
+      "id": "P003_top",
+      "source": {
+        "gap_indices": [
+          2
+        ],
+        "guide_active_indices": [],
+        "height": 4,
+        "line_active_indices": [
+          0,
+          1,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "width": 5
+      },
+      "title": "32x32 zero-padded patch at the top"
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "decision_ids": [
+            "PATCH-GEOMETRY",
+            "MODEL-CHANNELS"
+          ],
+          "evidence_ids": [
+            "PAPER-4.2",
+            "ML-PATCH"
+          ],
+          "guide_policy": "line_only",
+          "result": {
+            "bounds": {
+              "destination_x": 12,
+              "destination_y": 16,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -12,
+              "virtual_y": -16
+            },
+            "centroid": [
+              4,
+              0
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                524,
+                525,
+                526,
+                527,
+                556,
+                557,
+                558,
+                559,
+                560,
+                588,
+                589,
+                590,
+                591,
+                592,
+                620,
+                621,
+                622,
+                623,
+                624
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "training_line_only"
+        }
+      ],
+      "family": "patch",
+      "id": "P003_top_right",
+      "source": {
+        "gap_indices": [
+          4
+        ],
+        "guide_active_indices": [],
+        "height": 4,
+        "line_active_indices": [
+          0,
+          1,
+          2,
+          3,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "width": 5
+      },
+      "title": "32x32 zero-padded patch at the top right"
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "decision_ids": [
+            "PATCH-GEOMETRY",
+            "MODEL-CHANNELS"
+          ],
+          "evidence_ids": [
+            "PAPER-4.2",
+            "ML-PATCH"
+          ],
+          "guide_policy": "line_only",
+          "result": {
+            "bounds": {
+              "destination_x": 16,
+              "destination_y": 14,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -16,
+              "virtual_y": -14
+            },
+            "centroid": [
+              0,
+              2
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                464,
+                465,
+                466,
+                467,
+                468,
+                496,
+                497,
+                498,
+                499,
+                500,
+                529,
+                530,
+                531,
+                532,
+                560,
+                561,
+                562,
+                563,
+                564
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "training_line_only"
+        }
+      ],
+      "family": "patch",
+      "id": "P003_left",
+      "source": {
+        "gap_indices": [
+          10
+        ],
+        "guide_active_indices": [],
+        "height": 4,
+        "line_active_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "width": 5
+      },
+      "title": "32x32 zero-padded patch at the left"
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "decision_ids": [
+            "PATCH-GEOMETRY",
+            "MODEL-CHANNELS"
+          ],
+          "evidence_ids": [
+            "PAPER-4.2",
+            "ML-PATCH"
+          ],
+          "guide_policy": "line_only",
+          "result": {
+            "bounds": {
+              "destination_x": 12,
+              "destination_y": 14,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -12,
+              "virtual_y": -14
+            },
+            "centroid": [
+              4,
+              2
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                460,
+                461,
+                462,
+                463,
+                464,
+                492,
+                493,
+                494,
+                495,
+                496,
+                524,
+                525,
+                526,
+                527,
+                556,
+                557,
+                558,
+                559,
+                560
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "training_line_only"
+        }
+      ],
+      "family": "patch",
+      "id": "P003_right",
+      "source": {
+        "gap_indices": [
+          14
+        ],
+        "guide_active_indices": [],
+        "height": 4,
+        "line_active_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "width": 5
+      },
+      "title": "32x32 zero-padded patch at the right"
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "decision_ids": [
+            "PATCH-GEOMETRY",
+            "MODEL-CHANNELS"
+          ],
+          "evidence_ids": [
+            "PAPER-4.2",
+            "ML-PATCH"
+          ],
+          "guide_policy": "line_only",
+          "result": {
+            "bounds": {
+              "destination_x": 16,
+              "destination_y": 13,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -16,
+              "virtual_y": -13
+            },
+            "centroid": [
+              0,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                432,
+                433,
+                434,
+                435,
+                436,
+                464,
+                465,
+                466,
+                467,
+                468,
+                496,
+                497,
+                498,
+                499,
+                500,
+                529,
+                530,
+                531,
+                532
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "training_line_only"
+        }
+      ],
+      "family": "patch",
+      "id": "P003_bottom_left",
+      "source": {
+        "gap_indices": [
+          15
+        ],
+        "guide_active_indices": [],
+        "height": 4,
+        "line_active_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          16,
+          17,
+          18,
+          19
+        ],
+        "width": 5
+      },
+      "title": "32x32 zero-padded patch at the bottom left"
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "decision_ids": [
+            "PATCH-GEOMETRY",
+            "MODEL-CHANNELS"
+          ],
+          "evidence_ids": [
+            "PAPER-4.2",
+            "ML-PATCH"
+          ],
+          "guide_policy": "line_only",
+          "result": {
+            "bounds": {
+              "destination_x": 14,
+              "destination_y": 13,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -14,
+              "virtual_y": -13
+            },
+            "centroid": [
+              2,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                430,
+                431,
+                432,
+                433,
+                434,
+                462,
+                463,
+                464,
+                465,
+                466,
+                494,
+                495,
+                496,
+                497,
+                498,
+                526,
+                527,
+                529,
+                530
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "training_line_only"
+        }
+      ],
+      "family": "patch",
+      "id": "P003_bottom",
+      "source": {
+        "gap_indices": [
+          17
+        ],
+        "guide_active_indices": [],
+        "height": 4,
+        "line_active_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          18,
+          19
+        ],
+        "width": 5
+      },
+      "title": "32x32 zero-padded patch at the bottom"
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "decision_ids": [
+            "PATCH-GEOMETRY",
+            "MODEL-CHANNELS"
+          ],
+          "evidence_ids": [
+            "PAPER-4.2",
+            "ML-PATCH"
+          ],
+          "guide_policy": "line_only",
+          "result": {
+            "bounds": {
+              "destination_x": 12,
+              "destination_y": 13,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -12,
+              "virtual_y": -13
+            },
+            "centroid": [
+              4,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                428,
+                429,
+                430,
+                431,
+                432,
+                460,
+                461,
+                462,
+                463,
+                464,
+                492,
+                493,
+                494,
+                495,
+                496,
+                524,
+                525,
+                526,
+                527
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "training_line_only"
+        }
+      ],
+      "family": "patch",
+      "id": "P003_bottom_right",
+      "source": {
+        "gap_indices": [
+          19
+        ],
+        "guide_active_indices": [],
+        "height": 4,
+        "line_active_indices": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18
+        ],
+        "width": 5
+      },
+      "title": "32x32 zero-padded patch at the bottom right"
+    },
+    {
+      "expectations": [
+        {
+          "canonical": true,
+          "classification": "STABLE",
+          "decision_ids": [
+            "PATCH-GEOMETRY",
+            "MODEL-CHANNELS"
+          ],
+          "evidence_ids": [
+            "PAPER-4.2",
+            "ML-PATCH"
+          ],
+          "guide_policy": "line_only",
+          "result": {
+            "bounds": {
+              "destination_x": 12,
+              "destination_y": 13,
+              "source_height": 7,
+              "source_width": 9,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -12,
+              "virtual_y": -13
+            },
+            "centroid": [
+              4,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                526,
+                562
+              ],
+              "channel_1_active_indices": [
+                527,
+                528,
+                560,
+                561
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "training_line_only"
+        }
+      ],
+      "family": "patch",
+      "id": "P004_target_gap_mask",
+      "source": {
+        "gap_indices": [
+          30,
+          31,
+          40,
+          41
+        ],
+        "guide_active_indices": [],
+        "height": 7,
+        "line_active_indices": [
+          29,
+          42
+        ],
+        "width": 9
+      },
+      "title": "Multi-pixel target mask projects exact source indices"
+    },
+    {
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "GUIDE-MODEL-COMPOSITION"
+          ],
+          "evidence_ids": [
+            "ML-PATCH"
+          ],
+          "guide_policy": "line_only",
+          "result": {
+            "bounds": {
+              "destination_x": 13,
+              "destination_y": 13,
+              "source_height": 7,
+              "source_width": 7,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -13,
+              "virtual_y": -13
+            },
+            "centroid": [
+              3,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                527
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "training_line_only"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "GUIDE-MODEL-COMPOSITION"
+          ],
+          "evidence_ids": [
+            "MODEL-METADATA",
+            "WEB-PATCH",
+            "KRITA-PATCH"
+          ],
+          "guide_policy": "line_plus_guide",
+          "result": {
+            "bounds": {
+              "destination_x": 13,
+              "destination_y": 13,
+              "source_height": 7,
+              "source_width": 7,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -13,
+              "virtual_y": -13
+            },
+            "centroid": [
+              3,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                527,
+                529
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "line_plus_guide"
+        }
+      ],
+      "family": "patch",
+      "id": "P005_guide_delta",
+      "source": {
+        "gap_indices": [
+          24
+        ],
+        "guide_active_indices": [
+          25
+        ],
+        "height": 7,
+        "line_active_indices": [
+          23
+        ],
+        "width": 7
+      },
+      "title": "One Guide-only delta in model channel 0"
+    },
+    {
+      "expectations": [
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "GUIDE-TARGET-SUPPRESSION"
+          ],
+          "evidence_ids": [
+            "ML-PATCH"
+          ],
+          "guide_policy": "line_only",
+          "result": {
+            "bounds": {
+              "destination_x": 13,
+              "destination_y": 13,
+              "source_height": 7,
+              "source_width": 7,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -13,
+              "virtual_y": -13
+            },
+            "centroid": [
+              3,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                527
+              ],
+              "channel_1_active_indices": [
+                528,
+                560
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "training_line_only"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "GUIDE-TARGET-SUPPRESSION"
+          ],
+          "evidence_ids": [
+            "MODEL-METADATA"
+          ],
+          "guide_policy": "line_plus_guide",
+          "result": {
+            "bounds": {
+              "destination_x": 13,
+              "destination_y": 13,
+              "source_height": 7,
+              "source_width": 7,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -13,
+              "virtual_y": -13
+            },
+            "centroid": [
+              3,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                527,
+                528,
+                529,
+                560
+              ],
+              "channel_1_active_indices": [
+                528,
+                560
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "line_plus_guide"
+        },
+        {
+          "canonical": false,
+          "classification": "EMPIRICAL_DECISION_REQUIRED",
+          "decision_ids": [
+            "GUIDE-TARGET-SUPPRESSION"
+          ],
+          "evidence_ids": [
+            "WEB-PATCH",
+            "KRITA-PATCH"
+          ],
+          "guide_policy": "line_plus_guide_suppress_target",
+          "result": {
+            "bounds": {
+              "destination_x": 13,
+              "destination_y": 13,
+              "source_height": 7,
+              "source_width": 7,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -13,
+              "virtual_y": -13
+            },
+            "centroid": [
+              3,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                527,
+                529
+              ],
+              "channel_1_active_indices": [
+                528,
+                560
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "variant": "suppress_target_guide"
+        }
+      ],
+      "family": "patch",
+      "id": "P006_target_guide_suppression",
+      "source": {
+        "gap_indices": [
+          24,
+          31
+        ],
+        "guide_active_indices": [
+          24,
+          25,
+          31
+        ],
+        "height": 7,
+        "line_active_indices": [
+          23
+        ],
+        "width": 7
+      },
+      "title": "Target gap overlaps Guide pixels"
+    }
+  ],
+  "schema": "gapfill-patch-cases-v1",
+  "sparse_binary_encoding": "indices identify 1.0 values in a 32x32 row-major channel; all unlisted values are 0.0",
+  "tensor_layout": "NCHW"
+}

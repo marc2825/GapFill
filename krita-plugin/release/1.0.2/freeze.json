@@ -1,0 +1,87 @@
+{
+  "artifact": {
+    "directory_entry_count": 117,
+    "entry_count": 1012,
+    "file_entry_count": 895,
+    "filename": "gapfill-for-krita-windows-x86_64.zip",
+    "sha256": "34121098dc8f9e50707f686f5585176d0d7067858f21d241e190a2f4f25fa54b",
+    "size": 48223574
+  },
+  "artifact_entry_manifest": {
+    "path": "krita-plugin/release/1.0.2/artifact-entries.json",
+    "sha256": "a8d96070370d3ce84d9ac4a291e3bf264ae7e0fe39a4129a8999bafc2408b132"
+  },
+  "build": {
+    "builder_path": "krita-plugin/scripts/build_plugin.py",
+    "builder_sha256": "fbe75293fbc65ab5e85ead51c0df0935b5df455d2babda1315271039c167e2a8",
+    "candidate_a_sha256": "34121098dc8f9e50707f686f5585176d0d7067858f21d241e190a2f4f25fa54b",
+    "candidate_b_sha256": "34121098dc8f9e50707f686f5585176d0d7067858f21d241e190a2f4f25fa54b",
+    "reproducibility": "BYTE_FOR_BYTE_PASS"
+  },
+  "freeze_status": "GAPFILL 1.0.2 RELEASE CANDIDATE PREPARED",
+  "frozen_artifact_filename": "gapfill-for-krita-windows-x86_64.zip",
+  "frozen_artifact_repository_path": "krita-plugin/release/artifacts/1.0.2/gapfill-for-krita-windows-x86_64.zip",
+  "frozen_artifact_sha256": "34121098dc8f9e50707f686f5585176d0d7067858f21d241e190a2f4f25fa54b",
+  "frozen_artifact_size": 48223574,
+  "host_evidence": {
+    "bounded_interaction_smoke": "GAPFILL INTERACTION PATCH BOUNDED REAL-HOST SMOKE PASS",
+    "manual_external_mutation": "MANUAL_EXTERNAL_MUTATION_FAIL_CLOSED_SMOKE_SKIPPED_BY_SCOPE",
+    "manual_external_mutation_automated_regression": "PASS",
+    "record": "docs/addon-interaction-1.0.2.md"
+  },
+  "identities": {
+    "fixture_manifest_sha256": "6243be8f2a26b383ef0293bd585318c0072011ccabf959cb25f42127aba5908c",
+    "model_sidecar_sha256": "2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5",
+    "native_helper_sha256": "ad2fa7463d59dca74a92dc867734b38eb7aa49821b163547da442147348f8746",
+    "onnx_sha256": "8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78"
+  },
+  "importer_compatibility": {
+    "desktop_library": "gapfill_krita",
+    "diagnosis": "PLUGIN_DISCOVERABLE",
+    "discovered_plugin_count": 1,
+    "installed_file_count": 895,
+    "installed_payload_equality": "PASS",
+    "required_module_directory_entry": "gapfill_krita/",
+    "technical_module": "gapfill_krita",
+    "ui_name": "GapFill for Krita"
+  },
+  "kind": "gapfill-for-krita-interaction-lifecycle-patch-freeze",
+  "overall_plugin_version": "1.0.2",
+  "payload_delta_from_1_0_1": {
+    "added_files": [],
+    "changed_files": [
+      "gapfill_krita.desktop",
+      "gapfill_krita/Manual.html",
+      "gapfill_krita/controller.py",
+      "gapfill_krita/docker.py",
+      "gapfill_krita/host_contract.py",
+      "gapfill_krita/krita_adapter.py",
+      "gapfill_krita/overlay.py",
+      "gapfill_krita/qt_compat.py"
+    ],
+    "removed_files": []
+  },
+  "predecessor": {
+    "artifact_filename": "gapfill-krita-windows-x86_64.zip",
+    "artifact_sha256": "e001ad4db0a049db23f2839d780ff0ede810fc3f21c2d3fc574ef8bc12c93b19",
+    "artifact_size": 48218711,
+    "release_tag": "krita-v1.0.1"
+  },
+  "product": {
+    "docker_name": "GapFill",
+    "plugin_manager_name": "GapFill for Krita",
+    "release_title": "GapFill for Krita 1.0.2",
+    "technical_identity": "gapfill_krita",
+    "user_facing_name": "GapFill for Krita"
+  },
+  "publication_governance": "GAPFILL_1_0_2_INTERACTION_LIFECYCLE_PATCH_V1_GOVERNANCE_ADOPTED",
+  "publication_mode": "FROZEN_ARTIFACT_VERIFY_AND_PUBLISH",
+  "qualified_release_platform": "windows-x86_64",
+  "release_tag": "krita-v1.0.2",
+  "schema": 1,
+  "source": {
+    "branch": "fix/gapfill-interaction-session",
+    "commit": "d0e1fbfb825d983d5a208f9b3990418a821f1160",
+    "subject": "chore(krita): prepare GapFill for Krita 1.0.2 source"
+  }
+}

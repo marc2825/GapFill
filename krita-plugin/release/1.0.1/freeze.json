@@ -1,0 +1,72 @@
+{
+  "artifact": {
+    "directory_entry_count": 117,
+    "entry_count": 1012,
+    "file_entry_count": 895,
+    "filename": "gapfill-krita-windows-x86_64.zip",
+    "sha256": "e001ad4db0a049db23f2839d780ff0ede810fc3f21c2d3fc574ef8bc12c93b19",
+    "size": 48218711
+  },
+  "artifact_entry_manifest": {
+    "path": "krita-plugin/release/1.0.1/artifact-entries.json",
+    "sha256": "81f44517ff26799c7a9f111b75a6913e72c964e3327517792c051f1cb2ad762e"
+  },
+  "build": {
+    "builder_path": "krita-plugin/scripts/build_plugin.py",
+    "builder_sha256": "fbe75293fbc65ab5e85ead51c0df0935b5df455d2babda1315271039c167e2a8",
+    "candidate_a_sha256": "e001ad4db0a049db23f2839d780ff0ede810fc3f21c2d3fc574ef8bc12c93b19",
+    "candidate_b_sha256": "e001ad4db0a049db23f2839d780ff0ede810fc3f21c2d3fc574ef8bc12c93b19",
+    "reproducibility": "BYTE_FOR_BYTE_PASS"
+  },
+  "defect": {
+    "classification": "GAPFILL_1_0_0_KRITA_IMPORTER_DIRECTORY_ENTRY_PACKAGING_DEFECT",
+    "kind": "PACKAGING / DISTRIBUTION COMPATIBILITY",
+    "reason": "Krita Plugin Importer requires an explicit module directory ZIP entry"
+  },
+  "freeze_status": "GAPFILL 1.0.1 IMPORTER-COMPATIBILITY HOTFIX READY",
+  "frozen_artifact_filename": "gapfill-krita-windows-x86_64.zip",
+  "frozen_artifact_repository_path": "krita-plugin/release/artifacts/1.0.1/gapfill-krita-windows-x86_64.zip",
+  "frozen_artifact_sha256": "e001ad4db0a049db23f2839d780ff0ede810fc3f21c2d3fc574ef8bc12c93b19",
+  "frozen_artifact_size": 48218711,
+  "identities": {
+    "display_oracle_v2_sha256": "a0d6a02bcc678ed316a18e26da17a693293e0ac22d4579d992de6eeb21844f35",
+    "lifecycle_sha256": "94b42368efc0df7c37333fe864f57593254557c2b181676106efd0a45e535e5f",
+    "model_sidecar_sha256": "2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5",
+    "native_helper_sha256": "ad2fa7463d59dca74a92dc867734b38eb7aa49821b163547da442147348f8746",
+    "onnx_sha256": "8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78",
+    "production_semantic_sha256": "b3812c8a00aa359097d9395b13d27e55433b311584a00e6906de0f426f5acc38"
+  },
+  "importer_compatibility": {
+    "actual_import_result": "PASS",
+    "actual_imported_file_count": 895,
+    "actual_imported_payload_equality": "PASS",
+    "desktop_library": "gapfill_krita",
+    "discovered_plugin_count": 1,
+    "importer_source": "C:\\Program Files\\Krita (x64)\\share\\krita\\pykrita\\plugin_importer\\plugin_importer.py",
+    "importer_source_sha256": "99e0c5edd82e073f106173106d02f91addef23caa5ab793ee91d7df3a00c8614",
+    "krita_version": "5.3.3 (git 858d352)",
+    "required_module_directory_entry": "gapfill_krita/",
+    "ui_name": "GapFill"
+  },
+  "kind": "gapfill-krita-importer-packaging-hotfix-freeze",
+  "overall_plugin_version": "1.0.1",
+  "predecessor": {
+    "artifact_entry_count": 895,
+    "artifact_filename": "gapfill-krita-windows-x86_64.zip",
+    "artifact_sha256": "7001c1bf92aa7abb5840baf52fe07457ab06cb80074297488e67ded212ab74e2",
+    "artifact_size": 48197787,
+    "release_tag": "krita-v1.0.0"
+  },
+  "predecessor_records": {
+    "artifact_entry_manifest": "krita-plugin/release/artifact-entries.json",
+    "freeze": "krita-plugin/release/freeze.json",
+    "source_freeze": "krita-plugin/release/source-freeze.json",
+    "source_freeze_sha256": "3b792c273d7ede2ab6d67cb158ba028c9595160b55d34760fff3c321ff82d6fb"
+  },
+  "publication_governance": "GAPFILL_1_0_1_IMPORTER_PACKAGING_HOTFIX_V1_GOVERNANCE_ADOPTED",
+  "publication_mode": "FROZEN_ARTIFACT_VERIFY_AND_PUBLISH",
+  "qualified_release_platform": "windows-x86_64",
+  "release_tag": "krita-v1.0.1",
+  "schema": 1,
+  "semantic_payload_relation": "FILE_ENTRIES_BYTE_IDENTICAL_TO_1_0_0"
+}

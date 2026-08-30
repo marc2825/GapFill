@@ -1,0 +1,15 @@
+{
+  "name": "GapFill Nearest-Region U-Net",
+  "version": "1.0",
+  "model_file": "unet32.onnx",
+  "input_name": "input_mask",
+  "input_type": "float32",
+  "input_shape": [1, 2, 32, 32],
+  "output_name": "nearest_region_mask",
+  "output_type": "float32",
+  "output_shape": [1, 1, 32, 32],
+  "channels": {
+    "0": "Line Art and Guides mask (1=boundary, 0=transparent)",
+    "1": "Target gap mask (1=gap region, 0=other)"
+  }
+}

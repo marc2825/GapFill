@@ -1,0 +1,109 @@
+name: Build Krita plugin bundles
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "krita-v*"
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-release:
+    name: Verify frozen GapFill Windows release
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/krita-v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out tagged repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Set up verifier Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Resolve versioned frozen release records
+        id: frozen
+        shell: bash
+        run: |
+          case "${GITHUB_REF_NAME}" in
+            krita-v1.0.0)
+              echo "artifact=krita-plugin/release/artifacts/gapfill-krita-windows-x86_64.zip" >> "${GITHUB_OUTPUT}"
+              echo "freeze=krita-plugin/release/freeze.json" >> "${GITHUB_OUTPUT}"
+              echo "entries=krita-plugin/release/artifact-entries.json" >> "${GITHUB_OUTPUT}"
+              ;;
+            krita-v1.0.1)
+              echo "artifact=krita-plugin/release/artifacts/1.0.1/gapfill-krita-windows-x86_64.zip" >> "${GITHUB_OUTPUT}"
+              echo "freeze=krita-plugin/release/1.0.1/freeze.json" >> "${GITHUB_OUTPUT}"
+              echo "entries=krita-plugin/release/1.0.1/artifact-entries.json" >> "${GITHUB_OUTPUT}"
+              ;;
+            krita-v1.0.2)
+              echo "artifact=krita-plugin/release/artifacts/1.0.2/gapfill-for-krita-windows-x86_64.zip" >> "${GITHUB_OUTPUT}"
+              echo "freeze=krita-plugin/release/1.0.2/freeze.json" >> "${GITHUB_OUTPUT}"
+              echo "entries=krita-plugin/release/1.0.2/artifact-entries.json" >> "${GITHUB_OUTPUT}"
+              ;;
+            *)
+              echo "No frozen release record for ${GITHUB_REF_NAME}" >&2
+              exit 1
+              ;;
+          esac
+
+      - name: Verify exact frozen release artifact
+        run: >-
+          python krita-plugin/scripts/verify_frozen_release.py
+          --artifact "${{ steps.frozen.outputs.artifact }}"
+          --freeze "${{ steps.frozen.outputs.freeze }}"
+          --entries "${{ steps.frozen.outputs.entries }}"
+          --expected-tag "${{ github.ref_name }}"
+
+      - name: Upload verified frozen Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gapfill-krita-windows-x86_64
+          path: ${{ steps.frozen.outputs.artifact }}
+          if-no-files-found: error
+          compression-level: 0
+
+  development-bundles:
+    name: Development / unqualified ${{ matrix.platform }} bundle
+    if: github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux-x86_64
+          - os: windows-latest
+            platform: windows-x86_64
+          - os: macos-15
+            platform: macos-arm64
+          - os: macos-15-intel
+            platform: macos-x86_64
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python matching Krita 5.3/6
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: krita-plugin/requirements-runtime.txt
+
+      - name: Vendor runtime dependencies
+        run: python -m pip install -r krita-plugin/requirements-runtime.txt --target krita-plugin/vendor
+
+      - name: Build self-contained plugin
+        run: python krita-plugin/scripts/build_plugin.py --vendor krita-plugin/vendor --output krita-plugin/dist/gapfill-krita-${{ matrix.platform }}.zip
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: development-gapfill-krita-${{ matrix.platform }}
+          path: krita-plugin/dist/gapfill-krita-${{ matrix.platform }}.zip
+          if-no-files-found: error

@@ -4,6 +4,7 @@ interface PixelImage {
   data: Uint8ClampedArray;
   width: number;
   height: number;
+  validPixels?: Uint8Array;
 }
 
 interface RegionSegmentation {
@@ -17,7 +18,211 @@ interface RgbColor {
   b: number;
 }
 
+export interface CanonicalRegionSelection {
+  label: number;
+  meanProbability: number;
+  rgb: [number, number, number];
+  pixelIndices: number[];
+}
+
 const DEFAULT_COLOR_TOLERANCE = 30;
+
+const MODEL_PATCH_PIXELS = 32 * 32;
+
+function pixelIsValid(image: PixelImage, pixelIndex: number): boolean {
+  return !image.validPixels || image.validPixels[pixelIndex] !== 0;
+}
+
+// OpenCV-compatible fixed-point grayscale, followed by straight-alpha
+// compositing over byte white.  The inclusive <=128 split is the exact ML
+// training boundary rule; display/profile conversion remains a host concern.
+export function canonicalBoundaryMask(image: PixelImage): Uint8Array {
+  const pixelCount = image.width * image.height;
+  if (image.data.length !== pixelCount * 4) {
+    throw new Error('Canonical Line pixels do not match their dimensions.');
+  }
+  if (image.validPixels && image.validPixels.length !== pixelCount) {
+    throw new Error('Canonical Line validity mask has the wrong length.');
+  }
+
+  const result = new Uint8Array(pixelCount);
+  for (let pixelIndex = 0; pixelIndex < pixelCount; pixelIndex++) {
+    if (!pixelIsValid(image, pixelIndex)) continue;
+    const rgbaIndex = pixelIndex * 4;
+    const red = image.data[rgbaIndex];
+    const green = image.data[rgbaIndex + 1];
+    const blue = image.data[rgbaIndex + 2];
+    const alpha = image.data[rgbaIndex + 3];
+    const luma =
+      (red * 4899 + green * 9617 + blue * 1868 + 8192) >> 14;
+    const composited = Math.floor(
+      (luma * alpha + 255 * (255 - alpha) + 127) / 255,
+    );
+    result[pixelIndex] = composited <= 128 ? 1 : 0;
+  }
+  return result;
+}
+
+export function buildCanonicalModelInput(
+  lineBoundary: Uint8Array,
+  gapMask: Float32Array,
+): Float32Array {
+  if (
+    lineBoundary.length !== MODEL_PATCH_PIXELS ||
+    gapMask.length !== MODEL_PATCH_PIXELS
+  ) {
+    throw new Error('GapFill model input channels must each contain 32x32 values.');
+  }
+  const tensor = new Float32Array(MODEL_PATCH_PIXELS * 2);
+  for (let index = 0; index < MODEL_PATCH_PIXELS; index++) {
+    const boundary = lineBoundary[index];
+    const target = gapMask[index];
+    if ((boundary !== 0 && boundary !== 1) || (target !== 0 && target !== 1)) {
+      throw new Error('GapFill model input channels must be binary.');
+    }
+    tensor[index] = boundary;
+    tensor[MODEL_PATCH_PIXELS + index] = target;
+  }
+  return tensor;
+}
+
+export function segmentLineRegions(lineImage: PixelImage): RegionSegmentation {
+  const { width, height } = lineImage;
+  const pixelCount = width * height;
+  const boundary = canonicalBoundaryMask(lineImage);
+  const labels = new Int32Array(pixelCount);
+  const queue = new Uint32Array(pixelCount);
+  let regionCount = 0;
+
+  for (let startIndex = 0; startIndex < pixelCount; startIndex++) {
+    if (
+      labels[startIndex] !== 0 ||
+      boundary[startIndex] !== 0 ||
+      !pixelIsValid(lineImage, startIndex)
+    ) {
+      continue;
+    }
+    const label = ++regionCount;
+    let head = 0;
+    let tail = 0;
+    labels[startIndex] = label;
+    queue[tail++] = startIndex;
+    while (head < tail) {
+      const pixelIndex = queue[head++];
+      const x = pixelIndex % width;
+      const y = Math.floor(pixelIndex / width);
+      const visit = (neighbor: number) => {
+        if (
+          labels[neighbor] !== 0 ||
+          boundary[neighbor] !== 0 ||
+          !pixelIsValid(lineImage, neighbor)
+        ) {
+          return;
+        }
+        labels[neighbor] = label;
+        queue[tail++] = neighbor;
+      };
+      if (x > 0) visit(pixelIndex - 1);
+      if (x + 1 < width) visit(pixelIndex + 1);
+      if (y > 0) visit(pixelIndex - width);
+      if (y + 1 < height) visit(pixelIndex + width);
+    }
+  }
+  return { labels, regionCount };
+}
+
+export function selectCanonicalRegion(
+  coloredImage: PixelImage,
+  labels: Int32Array,
+  probabilityMap: Float32Array,
+): CanonicalRegionSelection {
+  const pixelCount = coloredImage.width * coloredImage.height;
+  if (
+    coloredImage.data.length !== pixelCount * 4 ||
+    labels.length !== pixelCount ||
+    probabilityMap.length !== pixelCount ||
+    (coloredImage.validPixels && coloredImage.validPixels.length !== pixelCount)
+  ) {
+    throw new Error('Canonical postprocessing arrays must have matching dimensions.');
+  }
+
+  const labelOrder: number[] = [];
+  const seen = new Set<number>();
+  for (let pixelIndex = 0; pixelIndex < pixelCount; pixelIndex++) {
+    const probability = probabilityMap[pixelIndex];
+    if (!Number.isFinite(probability)) {
+      throw new Error('Every model probability must be finite.');
+    }
+    if (probability < 0 || probability > 1) {
+      throw new Error('Every model probability must be within [0, 1].');
+    }
+    const label = labels[pixelIndex];
+    if (label < 0) throw new Error('Semantic labels must be nonnegative.');
+    if (label > 0 && !seen.has(label)) {
+      seen.add(label);
+      labelOrder.push(label);
+    }
+  }
+
+  let bestLabel = 0;
+  let bestMean = -Infinity;
+  for (const label of labelOrder) {
+    let sum = 0;
+    let area = 0;
+    let painted = 0;
+    for (let pixelIndex = 0; pixelIndex < pixelCount; pixelIndex++) {
+      if (labels[pixelIndex] !== label || !pixelIsValid(coloredImage, pixelIndex)) {
+        continue;
+      }
+      sum += probabilityMap[pixelIndex];
+      area++;
+      if (coloredImage.data[pixelIndex * 4 + 3] > 0) painted++;
+    }
+    if (area === 0 || painted === 0) continue;
+    const mean = sum / area;
+    if (mean > bestMean) {
+      bestMean = mean;
+      bestLabel = label;
+    }
+  }
+  if (bestLabel === 0) {
+    throw new Error('No painted semantic region is available for prediction.');
+  }
+
+  const counts = new Map<number, number>();
+  const pixelIndices: number[] = [];
+  for (let pixelIndex = 0; pixelIndex < pixelCount; pixelIndex++) {
+    if (labels[pixelIndex] !== bestLabel || !pixelIsValid(coloredImage, pixelIndex)) {
+      continue;
+    }
+    pixelIndices.push(pixelIndex);
+    const rgbaIndex = pixelIndex * 4;
+    if (coloredImage.data[rgbaIndex + 3] === 0) continue;
+    const packed =
+      (coloredImage.data[rgbaIndex] << 16) |
+      (coloredImage.data[rgbaIndex + 1] << 8) |
+      coloredImage.data[rgbaIndex + 2];
+    counts.set(packed, (counts.get(packed) || 0) + 1);
+  }
+
+  let selectedColor = -1;
+  let selectedCount = 0;
+  for (const [packed, count] of counts) {
+    if (count > selectedCount) {
+      selectedColor = packed;
+      selectedCount = count;
+    }
+  }
+  if (selectedColor < 0) {
+    throw new Error('The selected semantic region has no painted color.');
+  }
+  return {
+    label: bestLabel,
+    meanProbability: bestMean,
+    rgb: unpackRgb(selectedColor),
+    pixelIndices,
+  };
+}
 
 function assertMatchingDimensions(
   coloredImage: PixelImage,

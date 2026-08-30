@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ActionCollection version="2" name="Scripts">
+  <Actions category="Scripts">
+    <text>GapFill</text>
+    <Action name="gapfill_krita_toggle_docker">
+      <icon></icon>
+      <text>Show GapFill Docker</text>
+      <whatsThis>Show the GapFill controls.</whatsThis>
+      <toolTip>Show GapFill Docker</toolTip>
+      <iconText>GapFill</iconText>
+      <activationFlags>10000</activationFlags>
+      <activationConditions>0</activationConditions>
+      <shortcut></shortcut>
+      <isCheckable>false</isCheckable>
+      <statusTip>Show the GapFill controls.</statusTip>
+    </Action>
+  </Actions>
+</ActionCollection>

@@ -1,0 +1,15 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["pykrita"]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+exclude = ["pykrita/gapfill_krita/_vendor"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"pykrita/gapfill_krita/qt_compat.py" = ["F401"]

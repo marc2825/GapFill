@@ -1,0 +1,293 @@
+{
+  "fallback_application": [
+    {
+      "canonical": true,
+      "classification": "STABLE",
+      "contract_role": "canonical",
+      "decision_ids": [
+        "D-07"
+      ],
+      "evidence_ids": [
+        "PAPER-HUMAN-CONTROL",
+        "AUDIT-K11",
+        "AUDIT-C03",
+        "MAINTAINER-FREEZE-2026-08-13"
+      ],
+      "expected": {
+        "apply_high_eligible": true,
+        "effective_confidence_band": "high",
+        "manual_apply_eligible": true,
+        "prediction_provenance": "learned",
+        "requires_explicit_confirmation": false
+      },
+      "id": "F001_learned_high",
+      "input": {
+        "explicit_user_confirmation": false,
+        "learned_inference_succeeded": true,
+        "prediction_source": "learned",
+        "reported_confidence_band": "high"
+      },
+      "title": "A successful learned High prediction may enter Apply-High"
+    },
+    {
+      "canonical": true,
+      "classification": "STABLE",
+      "contract_role": "canonical",
+      "decision_ids": [
+        "D-07"
+      ],
+      "evidence_ids": [
+        "PAPER-HUMAN-CONTROL",
+        "AUDIT-K11",
+        "AUDIT-C02",
+        "AUDIT-C03",
+        "MAINTAINER-FREEZE-2026-08-13"
+      ],
+      "expected": {
+        "apply_high_eligible": false,
+        "effective_confidence_band": null,
+        "manual_apply_eligible": false,
+        "prediction_provenance": "fallback",
+        "requires_explicit_confirmation": true
+      },
+      "id": "F002_fallback_high_unconfirmed",
+      "input": {
+        "explicit_user_confirmation": false,
+        "learned_inference_succeeded": false,
+        "prediction_source": "fallback",
+        "reported_confidence_band": "high"
+      },
+      "title": "A fallback carrying a High-like score is excluded until confirmed"
+    },
+    {
+      "canonical": true,
+      "classification": "STABLE",
+      "contract_role": "canonical",
+      "decision_ids": [
+        "D-07"
+      ],
+      "evidence_ids": [
+        "PAPER-HUMAN-CONTROL",
+        "AUDIT-K11",
+        "AUDIT-C03",
+        "MAINTAINER-FREEZE-2026-08-13"
+      ],
+      "expected": {
+        "apply_high_eligible": false,
+        "effective_confidence_band": null,
+        "manual_apply_eligible": true,
+        "prediction_provenance": "fallback",
+        "requires_explicit_confirmation": true
+      },
+      "id": "F003_fallback_high_confirmed",
+      "input": {
+        "explicit_user_confirmation": true,
+        "learned_inference_succeeded": false,
+        "prediction_source": "fallback",
+        "reported_confidence_band": "high"
+      },
+      "title": "Explicit confirmation permits manual fallback application, never Apply-High"
+    }
+  ],
+  "modal_color": [
+    {
+      "canonical": true,
+      "classification": "STABLE",
+      "contract_role": "canonical",
+      "decision_ids": [
+        "D-06"
+      ],
+      "evidence_ids": [
+        "PAPER-4.2",
+        "ML-POSTPROCESS",
+        "WEB-POSTPROCESS",
+        "AUDIT-K14",
+        "MAINTAINER-FREEZE-2026-08-13"
+      ],
+      "expected": {
+        "participating_pixel_indices": [
+          1,
+          2,
+          4
+        ],
+        "rgb": [
+          20,
+          20,
+          240
+        ]
+      },
+      "id": "MP001_modal_participation",
+      "input": {
+        "coloring_rgba_row_major": [
+          [
+            240,
+            20,
+            20,
+            0
+          ],
+          [
+            20,
+            20,
+            240,
+            1
+          ],
+          [
+            240,
+            20,
+            20,
+            255
+          ],
+          [
+            10,
+            200,
+            10,
+            255
+          ],
+          [
+            20,
+            20,
+            240,
+            255
+          ],
+          [
+            240,
+            20,
+            20,
+            255
+          ]
+        ],
+        "excluded_pixel_indices": [
+          3
+        ],
+        "height": 1,
+        "semantic_region_pixel_indices": [
+          4,
+          0,
+          3,
+          2,
+          1
+        ],
+        "width": 6
+      },
+      "provenance_note": "Index 0 is alpha-zero, index 3 is explicitly excluded, and index 5 is outside the semantic region. The alpha-1 and opaque pixels each vote once.",
+      "title": "Only painted, included semantic-region pixels vote in row-major order"
+    }
+  ],
+  "schema": "gapfill-policy-cases-v1",
+  "selection_scope": [
+    {
+      "canonical": true,
+      "classification": "STABLE",
+      "contract_role": "canonical",
+      "decision_ids": [
+        "D-04"
+      ],
+      "evidence_ids": [
+        "PAPER-4.1.1",
+        "AUDIT-G03",
+        "AUDIT-C10",
+        "MAINTAINER-FREEZE-2026-08-13"
+      ],
+      "expected": {
+        "application_pixel_indices": [
+          12
+        ],
+        "component_pixel_indices": [
+          11,
+          12,
+          13
+        ],
+        "eligible": true,
+        "geometry_status": "enclosed",
+        "selection_created_enclosure": false
+      },
+      "id": "S001_full_geometry_then_selection",
+      "input": {
+        "component_enclosed_in_full_geometry": true,
+        "component_pixel_indices": [
+          11,
+          12,
+          13
+        ],
+        "full_geometry_accessible": true,
+        "selection_pixel_indices": [
+          12
+        ],
+        "touches_acquisition_boundary": false
+      },
+      "provenance_note": "Component pixels are hand-derived from detection case D013; selection only restricts the application subset.",
+      "title": "Selection clips an enclosed component after full-image geometry is known"
+    },
+    {
+      "canonical": true,
+      "classification": "STABLE",
+      "contract_role": "canonical",
+      "decision_ids": [
+        "D-04"
+      ],
+      "evidence_ids": [
+        "PAPER-4.1.1",
+        "AUDIT-G03",
+        "AUDIT-C10",
+        "MAINTAINER-FREEZE-2026-08-13"
+      ],
+      "expected": {
+        "application_pixel_indices": [],
+        "component_pixel_indices": [
+          12
+        ],
+        "eligible": false,
+        "geometry_status": "indeterminate",
+        "selection_created_enclosure": false
+      },
+      "id": "S002_clipped_domain_boundary_indeterminate",
+      "input": {
+        "component_enclosed_in_full_geometry": null,
+        "component_pixel_indices": [
+          12
+        ],
+        "full_geometry_accessible": false,
+        "selection_pixel_indices": [
+          12
+        ],
+        "touches_acquisition_boundary": true
+      },
+      "provenance_note": "Outside geometry is unavailable, so the selection edge cannot prove enclosure.",
+      "title": "A clipped-only component touching the acquisition boundary is indeterminate"
+    },
+    {
+      "canonical": true,
+      "classification": "STABLE",
+      "contract_role": "canonical",
+      "decision_ids": [
+        "D-04"
+      ],
+      "evidence_ids": [
+        "PAPER-4.1.1",
+        "AUDIT-G03",
+        "MAINTAINER-FREEZE-2026-08-13"
+      ],
+      "expected": {
+        "application_pixel_indices": [],
+        "component_pixel_indices": [
+          12
+        ],
+        "eligible": false,
+        "geometry_status": "enclosed",
+        "selection_created_enclosure": false
+      },
+      "id": "S003_selection_excludes_enclosed_component",
+      "input": {
+        "component_enclosed_in_full_geometry": true,
+        "component_pixel_indices": [
+          12
+        ],
+        "full_geometry_accessible": true,
+        "selection_pixel_indices": [],
+        "touches_acquisition_boundary": false
+      },
+      "provenance_note": "Geometry and application scope are separate decisions.",
+      "title": "An enclosed component outside the selection is not eligible for application"
+    }
+  ]
+}

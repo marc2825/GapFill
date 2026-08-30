@@ -1,0 +1,459 @@
+{
+  "baseline_commit": "30c7f02b698e8a9d61bc1a4e866fa5d8d7e8bfe5",
+  "characterization_status_values": [
+    "AGREES",
+    "DELIBERATE_PLATFORM_DIFFERENCE",
+    "UNRESOLVED_SPECIFICATION",
+    "CONFIRMED_IMPLEMENTATION_DIVERGENCE"
+  ],
+  "classification_values": [
+    "STABLE",
+    "EMPIRICAL_DECISION_REQUIRED",
+    "NONCANONICAL_REFERENCE"
+  ],
+  "date": "2026-08-13",
+  "decisions": {
+    "BOUNDARY-LINE-TRAINING": "STABLE",
+    "BOUNDARY-RASTERIZATION": "EMPIRICAL_DECISION_REQUIRED",
+    "D-01": "STABLE",
+    "D-02": "STABLE",
+    "D-03": "STABLE",
+    "D-04": "STABLE",
+    "D-05": "STABLE",
+    "D-06": "STABLE",
+    "D-07": "STABLE",
+    "DET-ENCLOSED": "STABLE",
+    "GUIDE-DETECTION-COMPOSITION": "EMPIRICAL_DECISION_REQUIRED",
+    "GUIDE-MODEL-COMPOSITION": "EMPIRICAL_DECISION_REQUIRED",
+    "GUIDE-TARGET-SUPPRESSION": "EMPIRICAL_DECISION_REQUIRED",
+    "MODEL-CHANNELS": "STABLE",
+    "MODEL-SEMANTIC-OUTPUT": "EMPIRICAL_DECISION_REQUIRED",
+    "PATCH-GEOMETRY": "STABLE",
+    "REGION-COLOR-TOLERANCE": "EMPIRICAL_DECISION_REQUIRED",
+    "REGION-CORRESPONDENCE": "EMPIRICAL_DECISION_REQUIRED",
+    "REGION-LABEL-ZERO": "EMPIRICAL_DECISION_REQUIRED",
+    "REGION-MEAN": "STABLE",
+    "REGION-MODAL-COLOR": "STABLE"
+  },
+  "evidence_hierarchy": [
+    "checked-in paper",
+    "ML source and exact ONNX artifact",
+    "web executable reference",
+    "host API evidence",
+    "add-on behavior and tests"
+  ],
+  "files": [
+    {
+      "bytes": 2291,
+      "path": "README.md",
+      "sha256": "f3e66e4e6b224f42e0f1ce3f6fb3163000e88ba337de4886595e1994ea341846"
+    },
+    {
+      "bytes": 131207,
+      "path": "detection/cases.json",
+      "sha256": "6efbd02736d7ee6363bb03d624ec47a3812060d5d427dd7438a64e2f22df4a7f"
+    },
+    {
+      "bytes": 6332,
+      "path": "end_to_end/annotations.json",
+      "sha256": "ed6a04d73f8855e1452fc052e24eb7104fa40c950eb5186d8953022f2250befd"
+    },
+    {
+      "bytes": 260,
+      "path": "end_to_end/real/E101_ex2_ordinary_crop/coloring.png",
+      "sha256": "398c9cc3209233cb26295470b8612f2af954e76f3b1c5ecaade83d0c4b79cbfe"
+    },
+    {
+      "bytes": 256,
+      "path": "end_to_end/real/E101_ex2_ordinary_crop/coloring_full.png",
+      "sha256": "39a901b7f674e613eba450eaad1b1e2ab9ce1deef5160740d44a57c16d31a0e7"
+    },
+    {
+      "bytes": 83,
+      "path": "end_to_end/real/E101_ex2_ordinary_crop/guide.png",
+      "sha256": "ba04f531df0c7a12124750d521add77c55b16a6432d653c5559c16680dbd9f50"
+    },
+    {
+      "bytes": 224,
+      "path": "end_to_end/real/E101_ex2_ordinary_crop/line.png",
+      "sha256": "4343f219e051e3f07f8e6a6fd691044e622297891febd80325a766853fecd15b"
+    },
+    {
+      "bytes": 352,
+      "path": "end_to_end/real/E102_ex2_guide_crop/coloring.png",
+      "sha256": "511dc6a3aafc8baa5805a1df679220ad942ff9954d71f867e6adc8536c3e3824"
+    },
+    {
+      "bytes": 351,
+      "path": "end_to_end/real/E102_ex2_guide_crop/coloring_full.png",
+      "sha256": "80f088444f7674b0d7833a4bda926238c16a6e1b50b4692a6c7b55584eb9ba76"
+    },
+    {
+      "bytes": 178,
+      "path": "end_to_end/real/E102_ex2_guide_crop/guide.png",
+      "sha256": "39a2a7caff64a03e3a0851c2658c9b9aff417edf0ce27745ea6366c72d4f69df"
+    },
+    {
+      "bytes": 191,
+      "path": "end_to_end/real/E102_ex2_guide_crop/line.png",
+      "sha256": "98736a26c35389eda2587067e48511dd218441da446379348cbde26c22becb6c"
+    },
+    {
+      "bytes": 89,
+      "path": "end_to_end/synthetic/E001_synthetic_unambiguous/coloring.png",
+      "sha256": "fabd77ede00eff01d4862a05f99c7fc336b070af4f28eb450b33264ffceb280d"
+    },
+    {
+      "bytes": 69,
+      "path": "end_to_end/synthetic/E001_synthetic_unambiguous/guide.png",
+      "sha256": "27377d06ec0df17dd1b638ba367ea0a7d3a93fdafedc461940b0794f30cb0f86"
+    },
+    {
+      "bytes": 84,
+      "path": "end_to_end/synthetic/E001_synthetic_unambiguous/line.png",
+      "sha256": "b9ac3f661d4b590d3405e470c4a6674460b54858eab6ff806052961377cf4ea5"
+    },
+    {
+      "bytes": 83,
+      "path": "end_to_end/synthetic/E002_synthetic_guide/coloring.png",
+      "sha256": "a5de7fa3d883d31b4249b94efb1457a0b7b18e2ad982c0d6b92a2db82eddf2d5"
+    },
+    {
+      "bytes": 98,
+      "path": "end_to_end/synthetic/E002_synthetic_guide/guide.png",
+      "sha256": "b3f0ce4744aa50c4c1c6d177974a3b5859ed4b8c22b45affe115b42b9d082564"
+    },
+    {
+      "bytes": 69,
+      "path": "end_to_end/synthetic/E002_synthetic_guide/line.png",
+      "sha256": "9b32a612e6f291e96abf2e2286d3b59076f356a996c2103fbac70f2400cd25b3"
+    },
+    {
+      "bytes": 97,
+      "path": "end_to_end/synthetic/E003_synthetic_ambiguous_color/coloring.png",
+      "sha256": "05ad1e46517fb2bcf0234d33bdf5a161ef9e2fc532fc16368b4f399aadff3f6d"
+    },
+    {
+      "bytes": 69,
+      "path": "end_to_end/synthetic/E003_synthetic_ambiguous_color/guide.png",
+      "sha256": "27377d06ec0df17dd1b638ba367ea0a7d3a93fdafedc461940b0794f30cb0f86"
+    },
+    {
+      "bytes": 69,
+      "path": "end_to_end/synthetic/E003_synthetic_ambiguous_color/line.png",
+      "sha256": "27377d06ec0df17dd1b638ba367ea0a7d3a93fdafedc461940b0794f30cb0f86"
+    },
+    {
+      "bytes": 236110,
+      "path": "model/cases.json",
+      "sha256": "4a6fb76238029f707f3aa4d31e61acfafe44a1312c5551492d6e3989d285115a"
+    },
+    {
+      "bytes": 105858,
+      "path": "parity/characterization.json",
+      "sha256": "353787fb3c94a8d477183629e9df78b6a942b74c8d9c81de343aa552d9b584e9"
+    },
+    {
+      "bytes": 8054,
+      "path": "parity/csp_detection_current.csv",
+      "sha256": "fd15146d8c996b72c7a9e2abf0f1e6c0d843ef6e06cf71b51306f621872af118"
+    },
+    {
+      "bytes": 28933,
+      "path": "patch/cases.json",
+      "sha256": "d15354d117604e2849610283db85983ce2082dd0e46c1b238ed2cca39a6e8a55"
+    },
+    {
+      "bytes": 7664,
+      "path": "policy/cases.json",
+      "sha256": "d0ecb3ade354a3d3a043b78207cd4eab41c839bd5cae40ba4f54a25c33ae672b"
+    },
+    {
+      "bytes": 21354,
+      "path": "postprocess/cases.json",
+      "sha256": "77654d69f8e81a500d1d3a6c6162d1b1031afb1debca60601ebf44b2d53cc98e"
+    }
+  ],
+  "model_contract": {
+    "artifact": "web/public/models/unet32.onnx",
+    "byte_size": 24697438,
+    "embedded_metadata": [],
+    "input": {
+      "name": "input_mask",
+      "shape": [
+        1,
+        2,
+        32,
+        32
+      ],
+      "type": "tensor(float)"
+    },
+    "ir_version": 10,
+    "opsets": [
+      {
+        "domain": "",
+        "version": 18
+      }
+    ],
+    "output": {
+      "name": "nearest_region_mask",
+      "shape": [
+        1,
+        1,
+        32,
+        32
+      ],
+      "type": "tensor(float)"
+    },
+    "producer_name": "pytorch",
+    "producer_version": "2.12.0+cu130",
+    "sha256": "8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78",
+    "sidecar": {
+      "channels": {
+        "0": "Line Art and Guides mask (1=boundary, 0=transparent)",
+        "1": "Target gap mask (1=gap region, 0=other)"
+      },
+      "input_description": "2-channel binary masks: [line_art_mask, gap_mask]",
+      "input_name": "input_mask",
+      "input_shape": [
+        1,
+        2,
+        32,
+        32
+      ],
+      "input_type": "float32",
+      "model_file": "unet32.onnx",
+      "name": "GapFill Nearest-Region U-Net",
+      "opset_version": 18,
+      "output_description": "Probability map (0-1 values)",
+      "output_name": "nearest_region_mask",
+      "output_shape": [
+        1,
+        1,
+        32,
+        32
+      ],
+      "output_type": "float32",
+      "version": "1.0"
+    }
+  },
+  "phase": 2,
+  "provenance": {
+    "AUDIT-C02": {
+      "citation": "docs/addon-audit.md, C-02",
+      "claim": "CSP learned inference is unavailable and ONNX requests fall back to the rule path.",
+      "kind": "audit"
+    },
+    "AUDIT-C03": {
+      "citation": "docs/addon-audit.md, C-03",
+      "claim": "CSP's heuristic score can be High and auto-applied without learned provenance.",
+      "kind": "audit"
+    },
+    "AUDIT-C10": {
+      "citation": "docs/addon-audit.md, C-10",
+      "claim": "CSP selection topology and output coverage need an explicit contract.",
+      "kind": "audit"
+    },
+    "AUDIT-G03": {
+      "citation": "docs/addon-audit.md, G-03",
+      "claim": "Image edge, threshold, and alpha policies remain unresolved.",
+      "kind": "audit"
+    },
+    "AUDIT-K11": {
+      "citation": "docs/addon-audit.md, K-11",
+      "claim": "Krita fallback predictions are not tagged separately from learned predictions.",
+      "kind": "audit"
+    },
+    "AUDIT-K12": {
+      "citation": "docs/addon-audit.md, K-12",
+      "claim": "A lone Guide pixel is misclassified as a gap by typed-candidate behavior.",
+      "kind": "audit"
+    },
+    "AUDIT-K14": {
+      "citation": "docs/addon-audit.md, K-14",
+      "claim": "Krita modal ties use numeric sorting while ML/Web use first encounter.",
+      "kind": "audit"
+    },
+    "AUDIT-STABLE-CORE": {
+      "citation": "docs/addon-audit.md, Section 2",
+      "claim": "Audit reconstruction of the consistently supported core.",
+      "kind": "audit"
+    },
+    "CSP-ALPHA-OPTION": {
+      "citation": "csp-plugin/src/core/settings.hpp and gap_detection.cpp",
+      "claim": "Alpha membership is configurable as alpha <= threshold.",
+      "kind": "current_implementation"
+    },
+    "CSP-CURRENT": {
+      "citation": "csp-plugin/src/core/gap_detection.cpp",
+      "claim": "Only active-image alpha is analyzed; Guide and Line Art are unavailable.",
+      "kind": "current_implementation"
+    },
+    "CSP-FALLBACK": {
+      "citation": "csp-plugin/src/core/quick_fix_pipeline.cpp and predictors/gap_color_predictor.cpp",
+      "claim": "Rule-based output has no learned/fallback source field and High results default to Apply in Quick Fix.",
+      "kind": "current_implementation"
+    },
+    "CSP-OPTION": {
+      "citation": "csp-plugin/src/core/settings.hpp",
+      "claim": "Eight-connectivity is an optional CSP-specific mode.",
+      "kind": "current_implementation"
+    },
+    "CSP-OWNER": {
+      "citation": "csp-plugin/src/core/owner_regions.cpp",
+      "claim": "Owner colors join by neighbor-relative tolerance and can chain transitively.",
+      "kind": "current_implementation"
+    },
+    "CSP-SELECTION": {
+      "citation": "csp-plugin/src/core/gap_detection.cpp",
+      "claim": "A component touching the selection boundary is open and rejected.",
+      "kind": "current_implementation"
+    },
+    "CURRENT-DEFAULTS": {
+      "citation": "ML, web, Krita, and CSP default source",
+      "claim": "Four-neighbor connectivity is the shared default.",
+      "kind": "characterization"
+    },
+    "CURRENT-IMPLEMENTATIONS": {
+      "citation": "web, Krita, and CSP detector source",
+      "claim": "All current implementations use inclusive component thresholds.",
+      "kind": "characterization"
+    },
+    "EXACT-ONNX-ARTIFACT": {
+      "citation": "web/public/models/unet32.onnx",
+      "claim": "Exact checked-in artifact characterized by checksum and fixed input tensors.",
+      "kind": "artifact"
+    },
+    "KRITA-DETECT": {
+      "citation": "krita-plugin/pykrita/gapfill_krita/engine/detection.py",
+      "claim": "Guide is a separate candidate type; components are inclusive and image-edge rejecting.",
+      "kind": "current_implementation"
+    },
+    "KRITA-FALLBACK": {
+      "citation": "krita-plugin/pykrita/gapfill_krita/engine/inference.py:113-143 and engine/types.py",
+      "claim": "Per-gap greedy fallback writes the same predicted_rgb field without prediction provenance.",
+      "kind": "current_implementation"
+    },
+    "KRITA-PATCH": {
+      "citation": "krita-plugin/pykrita/gapfill_krita/engine/patches.py",
+      "claim": "Line/Guide alpha are ORed and target Guide pixels are removed for Guide-kind gaps.",
+      "kind": "current_implementation"
+    },
+    "KRITA-POSTPROCESS": {
+      "citation": "krita-plugin/pykrita/gapfill_krita/engine/postprocessing.py and colors.py",
+      "claim": "Opaque colored components use seed-relative tolerance 30; sorted-lowest modal ties win.",
+      "kind": "current_implementation"
+    },
+    "MAINTAINER-FREEZE-2026-08-13": {
+      "citation": "docs/addon-spec.md, Canonical decisions D-01 through D-07",
+      "claim": "The maintainer reviewed and approved D-01 through D-07 as the frozen canonical contract on 2026-08-13.",
+      "kind": "human_maintainer_decision"
+    },
+    "MANUAL-ANNOTATION": {
+      "citation": "tests/fixtures/gapfill/end_to_end/annotations.json",
+      "claim": "Human-readable Phase 2 annotation; never generated from a tested implementation.",
+      "kind": "review_annotation"
+    },
+    "MANUAL-ARITHMETIC": {
+      "citation": "tests/fixtures/gapfill/postprocess/cases.json, R001",
+      "claim": "Region means are directly hand-checkable from eight listed probabilities.",
+      "kind": "manual_derivation"
+    },
+    "MANUAL-COUNT": {
+      "citation": "tests/fixtures/gapfill/postprocess/cases.json, R007",
+      "claim": "The flat RGB occurs three times while each anti-aliased RGB occurs once.",
+      "kind": "manual_derivation"
+    },
+    "MANUAL-TIE": {
+      "citation": "tests/fixtures/gapfill/postprocess/cases.json, R006",
+      "claim": "The two RGB values each occur twice; the red value is first in row-major scan order.",
+      "kind": "manual_derivation"
+    },
+    "ML-DETECT": {
+      "citation": "ml/src/utils/flood_fill/core.py:10-29",
+      "claim": "OpenCV threshold 128 followed by SciPy four-connected labeling.",
+      "kind": "ml_source"
+    },
+    "ML-PATCH": {
+      "citation": "ml/src/utils/patch_utils.py:37-101",
+      "claim": "Floor/truncate centroid, centered 32x32 crop, zero padding, line-only channel 0, target region channel 1.",
+      "kind": "ml_source"
+    },
+    "ML-POSTPROCESS": {
+      "citation": "ml/src/utils/color_utils.py:12-42",
+      "claim": "All line-derived labels, including label 0, are scored; first encountered modal ties win.",
+      "kind": "ml_source"
+    },
+    "ML-SIZE": {
+      "citation": "ml/src/utils/flood_fill/nearest_same_color.py:70-98",
+      "claim": "Small regions use size <= threshold; large regions use size > threshold.",
+      "kind": "ml_source"
+    },
+    "ML-TRAINING": {
+      "citation": "ml/src/pipelines/preprocess_data_pipeline.py and ml/src/utils/patch_utils.py",
+      "claim": "Training patches contain no Guide input.",
+      "kind": "ml_source"
+    },
+    "MODEL-METADATA": {
+      "citation": "web/public/models/model_info.json",
+      "claim": "Metadata labels channel 0 as Line Art and Guides despite line-only training code.",
+      "kind": "export_metadata"
+    },
+    "PAPER-4.1.1": {
+      "citation": "docs/assets/GapFill_CHI.pdf, Section 4.1.1",
+      "claim": "A gap is an enclosed transparent region below a threshold; boundaries may combine Coloring, Line Art, and Guides.",
+      "kind": "paper"
+    },
+    "PAPER-4.2": {
+      "citation": "docs/assets/GapFill_CHI.pdf, Sections 4.2.1-4.2.2",
+      "claim": "Two binary channels feed a U-Net likelihood map; select the painted region with the highest average likelihood.",
+      "kind": "paper"
+    },
+    "PAPER-APPENDIX-A": {
+      "citation": "docs/assets/GapFill_CHI.pdf, Appendix A.2-A.3",
+      "claim": "The analysis describes small regions as size <= 10 despite earlier 'under 10' prose.",
+      "kind": "paper"
+    },
+    "PAPER-HUMAN-CONTROL": {
+      "citation": "docs/assets/GapFill_CHI.pdf, Sections 3.2 and 4.1.4-4.1.5",
+      "claim": "Suggestions remain user-controllable and are corrected or applied explicitly.",
+      "kind": "paper"
+    },
+    "PRODUCT-POLICY": {
+      "citation": "docs/addon-spec.md",
+      "claim": "A rejected or extension variant retained for historical characterization, not canonical truth.",
+      "kind": "noncanonical_reference"
+    },
+    "WEB-DETECT": {
+      "citation": "web/src/utils/GapFill/gapRegionDetection.ts",
+      "claim": "Exact-alpha transparent candidates, Guide as a separate candidate type, inclusive size, no image-edge rejection.",
+      "kind": "current_implementation"
+    },
+    "WEB-FALLBACK": {
+      "citation": "web/src/utils/GapFill/gapDetection.ts:125-173,248-266 and web/src/types/GapFill/index.ts",
+      "claim": "Learned and greedy fallback colors share one untagged predictedColor field.",
+      "kind": "current_implementation"
+    },
+    "WEB-PATCH": {
+      "citation": "web/src/utils/GapFill/onnxInference.ts and onnxGapMask.ts",
+      "claim": "Line/Guide alpha are ORed and target Guide pixels are removed for Guide-kind gaps.",
+      "kind": "current_implementation"
+    },
+    "WEB-POSTPROCESS": {
+      "citation": "web/src/utils/GapFill/onnxPostprocessing.ts",
+      "claim": "Opaque colored components use seed-relative Manhattan RGB tolerance 30; first encountered modal ties win.",
+      "kind": "current_implementation"
+    }
+  },
+  "reproduction": {
+    "dependencies": [
+      "numpy==2.5.2",
+      "onnx==1.22.0",
+      "onnxruntime==1.28.0",
+      "pillow==12.3.0"
+    ],
+    "generate": "/tmp/gapfill-phase2-venv/bin/python -m scripts.gapfill_reference.generate --write",
+    "validate": "/tmp/gapfill-phase2-venv/bin/python -m scripts.gapfill_reference.validate"
+  },
+  "schema": "gapfill-fixture-manifest-v2"
+}

@@ -1,6 +1,7 @@
 # Large project assets
 /docs/videos_mp4/
-/scripts/
+/scripts/*
+!/scripts/gapfill_reference/
 
 # GapFill ML inputs and generated artifacts
 /ml/data/
@@ -31,6 +32,14 @@ __pycache__/
 .ruff_cache/
 .coverage
 htmlcov/
+/krita-plugin/dist/
+/krita-plugin/vendor/
+/krita-plugin/pykrita/gapfill_krita/_vendor/
+/csp-plugin/build/
+/csp-plugin/dist/
+/csp-plugin/out/
+/csp-plugin/.sdk/
+/FilterPlugIn20210827
 
 # Logs
 logs/

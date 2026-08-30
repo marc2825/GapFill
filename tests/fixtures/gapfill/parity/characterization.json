@@ -1,0 +1,4459 @@
+{
+  "detection": [
+    {
+      "canonical_expectations": {
+        "stable_default": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "case_id": "D001_one_pixel_enclosed",
+      "observations": {
+        "csp_current_selection": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "csp_current_whole": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "krita_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "paper_or_spec_variants": {
+          "stable_default": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                1
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ]
+        },
+        "web_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "AGREES"
+    },
+    {
+      "audit_risk_ids": [
+        "G-03"
+      ],
+      "canonical_expectations": {
+        "inclusive_threshold": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              2
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 2,
+            "pixel_indices": [
+              32,
+              47
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              6,
+              2,
+              2,
+              2
+            ],
+            "centroid": [
+              6,
+              2
+            ],
+            "id": 1,
+            "kind": "transparent",
+            "pixel_count": 3,
+            "pixel_indices": [
+              36,
+              51,
+              52
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "case_id": "D002_threshold_triplet",
+      "decision_ids": [
+        "D-01"
+      ],
+      "implementation_assessments": {
+        "csp_current": "agrees",
+        "krita_current": "agrees",
+        "ml_python_current": "agrees",
+        "web_current": "agrees"
+      },
+      "observations": {
+        "csp_current_selection": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              2
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 2,
+            "pixel_indices": [
+              32,
+              47
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              6,
+              2,
+              2,
+              2
+            ],
+            "centroid": [
+              6,
+              2
+            ],
+            "id": 1,
+            "kind": "transparent",
+            "pixel_count": 3,
+            "pixel_indices": [
+              36,
+              51,
+              52
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "csp_current_whole": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              2
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 2,
+            "pixel_indices": [
+              32,
+              47
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              6,
+              2,
+              2,
+              2
+            ],
+            "centroid": [
+              6,
+              2
+            ],
+            "id": 1,
+            "kind": "transparent",
+            "pixel_count": 3,
+            "pixel_indices": [
+              36,
+              51,
+              52
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "krita_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              2
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 2,
+            "pixel_indices": [
+              32,
+              47
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              6,
+              2,
+              2,
+              2
+            ],
+            "centroid": [
+              6,
+              2
+            ],
+            "id": 1,
+            "kind": "transparent",
+            "pixel_count": 3,
+            "pixel_indices": [
+              36,
+              51,
+              52
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              2
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 2,
+            "pixel_indices": [
+              32,
+              47
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              6,
+              2,
+              2,
+              2
+            ],
+            "centroid": [
+              6,
+              2
+            ],
+            "id": 1,
+            "kind": "transparent",
+            "pixel_count": 3,
+            "pixel_indices": [
+              36,
+              51,
+              52
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "paper_or_spec_variants": {
+          "inclusive_threshold": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                2
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 2,
+              "pixel_indices": [
+                32,
+                47
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            },
+            {
+              "bbox": [
+                6,
+                2,
+                2,
+                2
+              ],
+              "centroid": [
+                6,
+                2
+              ],
+              "id": 1,
+              "kind": "transparent",
+              "pixel_count": 3,
+              "pixel_indices": [
+                36,
+                51,
+                52
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ],
+          "strict_below_threshold": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                2
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 2,
+              "pixel_indices": [
+                32,
+                47
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ]
+        },
+        "web_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              2
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 2,
+            "pixel_indices": [
+              32,
+              47
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              6,
+              2,
+              2,
+              2
+            ],
+            "centroid": [
+              6,
+              2
+            ],
+            "id": 1,
+            "kind": "transparent",
+            "pixel_count": 3,
+            "pixel_indices": [
+              36,
+              51,
+              52
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "AGREES"
+    },
+    {
+      "audit_risk_ids": [
+        "G-03"
+      ],
+      "canonical_expectations": {
+        "reject_open_edge": []
+      },
+      "case_id": "D003_edge_touching_small",
+      "decision_ids": [
+        "D-02"
+      ],
+      "implementation_assessments": {
+        "csp_current": "agrees",
+        "krita_current": "agrees",
+        "ml_python_current": "confirmed_bug_or_divergence",
+        "web_current": "confirmed_bug_or_divergence"
+      },
+      "observations": {
+        "csp_current_selection": [],
+        "csp_current_whole": [],
+        "krita_current": [],
+        "ml_python_current": [
+          {
+            "bbox": [
+              0,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              0,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              10
+            ],
+            "touches_image_edge": true,
+            "touches_selection_edge": false
+          }
+        ],
+        "paper_or_spec_variants": {
+          "allow_small_edge_component": [
+            {
+              "bbox": [
+                0,
+                2,
+                1,
+                1
+              ],
+              "centroid": [
+                0,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                10
+              ],
+              "touches_image_edge": true,
+              "touches_selection_edge": false
+            }
+          ],
+          "reject_open_edge": []
+        },
+        "web_current": [
+          {
+            "bbox": [
+              0,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              0,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              10
+            ],
+            "touches_image_edge": true,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "CONFIRMED_IMPLEMENTATION_DIVERGENCE"
+    },
+    {
+      "canonical_expectations": {
+        "stable_small_interior": [
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              24
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "case_id": "D004_exterior_and_interior",
+      "observations": {
+        "csp_current_selection": [
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              24
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "csp_current_whole": [
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              24
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "krita_current": [
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              24
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              24
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "paper_or_spec_variants": {
+          "stable_small_interior": [
+            {
+              "bbox": [
+                3,
+                3,
+                1,
+                1
+              ],
+              "centroid": [
+                3,
+                3
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                24
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ]
+        },
+        "web_current": [
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              24
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "AGREES"
+    },
+    {
+      "audit_risk_ids": [],
+      "canonical_expectations": {
+        "four_neighbor_default": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 1,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              18
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "case_id": "D005_diagonal_connectivity",
+      "decision_ids": [
+        "D-05"
+      ],
+      "implementation_assessments": {
+        "csp_default": "agrees",
+        "csp_optional_eight": "intentional_noncanonical_extension",
+        "krita_current": "agrees",
+        "ml_python_current": "agrees",
+        "web_current": "agrees"
+      },
+      "observations": {
+        "csp_current_selection": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 1,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              18
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "csp_current_whole": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 1,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              18
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "krita_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 1,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              18
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 1,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              18
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "paper_or_spec_variants": {
+          "eight_neighbor_optional": [
+            {
+              "bbox": [
+                2,
+                2,
+                2,
+                2
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 2,
+              "pixel_indices": [
+                12,
+                18
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ],
+          "four_neighbor_default": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                1
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            },
+            {
+              "bbox": [
+                3,
+                3,
+                1,
+                1
+              ],
+              "centroid": [
+                3,
+                3
+              ],
+              "id": 1,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                18
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ]
+        },
+        "web_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 1,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              18
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "AGREES"
+    },
+    {
+      "canonical_expectations": {
+        "stable_line_enclosure": [
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              24
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "case_id": "D006_line_art_enclosure",
+      "observations": {
+        "csp_current_selection": [],
+        "csp_current_whole": [],
+        "krita_current": [
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              24
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              24
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "paper_or_spec_variants": {
+          "stable_line_enclosure": [
+            {
+              "bbox": [
+                3,
+                3,
+                1,
+                1
+              ],
+              "centroid": [
+                3,
+                3
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                24
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ]
+        },
+        "web_current": [
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              24
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "CONFIRMED_IMPLEMENTATION_DIVERGENCE"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "D007_guide_enclosure",
+      "observations": {
+        "csp_current_selection": [],
+        "csp_current_whole": [],
+        "krita_current": [
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              24
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [],
+        "paper_or_spec_variants": {
+          "guide_as_boundary": [
+            {
+              "bbox": [
+                3,
+                3,
+                1,
+                1
+              ],
+              "centroid": [
+                3,
+                3
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                24
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ],
+          "guide_as_typed_candidate": [
+            {
+              "bbox": [
+                3,
+                3,
+                1,
+                1
+              ],
+              "centroid": [
+                3,
+                3
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                24
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ],
+          "guide_ignored": []
+        },
+        "web_current": [
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              24
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "UNRESOLVED_SPECIFICATION"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "D008_isolated_guide_pixel_open",
+      "observations": {
+        "csp_current_selection": [],
+        "csp_current_whole": [],
+        "krita_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "guide",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [],
+        "paper_or_spec_variants": {
+          "guide_as_boundary": [],
+          "guide_as_typed_candidate": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                1
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "guide",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ]
+        },
+        "web_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "guide",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "CONFIRMED_IMPLEMENTATION_DIVERGENCE"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "D009_guide_stroke_to_exterior",
+      "observations": {
+        "csp_current_selection": [],
+        "csp_current_whole": [],
+        "krita_current": [],
+        "ml_python_current": [],
+        "paper_or_spec_variants": {
+          "guide_as_boundary": [],
+          "typed_candidate_allow_edge": [
+            {
+              "bbox": [
+                2,
+                0,
+                1,
+                3
+              ],
+              "centroid": [
+                2,
+                1
+              ],
+              "id": 0,
+              "kind": "guide",
+              "pixel_count": 3,
+              "pixel_indices": [
+                2,
+                7,
+                12
+              ],
+              "touches_image_edge": true,
+              "touches_selection_edge": false
+            }
+          ],
+          "typed_candidate_reject_edge": []
+        },
+        "web_current": [
+          {
+            "bbox": [
+              2,
+              0,
+              1,
+              3
+            ],
+            "centroid": [
+              2,
+              1
+            ],
+            "id": 0,
+            "kind": "guide",
+            "pixel_count": 3,
+            "pixel_indices": [
+              2,
+              7,
+              12
+            ],
+            "touches_image_edge": true,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "UNRESOLVED_SPECIFICATION"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "D010_mixed_line_guide_enclosure",
+      "observations": {
+        "csp_current_selection": [],
+        "csp_current_whole": [],
+        "krita_current": [
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              24
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [],
+        "paper_or_spec_variants": {
+          "combined_boundaries": [
+            {
+              "bbox": [
+                3,
+                3,
+                1,
+                1
+              ],
+              "centroid": [
+                3,
+                3
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                24
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ],
+          "line_only": []
+        },
+        "web_current": [
+          {
+            "bbox": [
+              3,
+              3,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              3
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              24
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "UNRESOLVED_SPECIFICATION"
+    },
+    {
+      "audit_risk_ids": [
+        "G-03"
+      ],
+      "canonical_expectations": {
+        "exact_zero": [
+          {
+            "bbox": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "centroid": [
+              1,
+              1
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "case_id": "D011_alpha_sweep",
+      "decision_ids": [
+        "D-03"
+      ],
+      "implementation_assessments": {
+        "csp_configurable_partial_alpha": "intentional_noncanonical_extension_if_retained",
+        "csp_default": "agrees",
+        "krita_current": "agrees",
+        "ml_python_current": "not_implemented_at_this_stage_and_observed_result_diverges",
+        "web_current": "agrees"
+      },
+      "observations": {
+        "csp_current_selection": [
+          {
+            "bbox": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "centroid": [
+              1,
+              1
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "csp_current_whole": [
+          {
+            "bbox": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "centroid": [
+              1,
+              1
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "krita_current": [
+          {
+            "bbox": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "centroid": [
+              1,
+              1
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [
+          {
+            "bbox": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "centroid": [
+              1,
+              1
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              3,
+              1,
+              1,
+              1
+            ],
+            "centroid": [
+              3,
+              1
+            ],
+            "id": 1,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              14
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              5,
+              1,
+              1,
+              1
+            ],
+            "centroid": [
+              5,
+              1
+            ],
+            "id": 2,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              16
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              7,
+              1,
+              1,
+              1
+            ],
+            "centroid": [
+              7,
+              1
+            ],
+            "id": 3,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              18
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          },
+          {
+            "bbox": [
+              9,
+              1,
+              1,
+              1
+            ],
+            "centroid": [
+              9,
+              1
+            ],
+            "id": 4,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              20
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "paper_or_spec_variants": {
+          "alpha_at_most_127": [
+            {
+              "bbox": [
+                1,
+                1,
+                1,
+                1
+              ],
+              "centroid": [
+                1,
+                1
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            },
+            {
+              "bbox": [
+                3,
+                1,
+                1,
+                1
+              ],
+              "centroid": [
+                3,
+                1
+              ],
+              "id": 1,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                14
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            },
+            {
+              "bbox": [
+                5,
+                1,
+                1,
+                1
+              ],
+              "centroid": [
+                5,
+                1
+              ],
+              "id": 2,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                16
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ],
+          "alpha_at_most_254": [
+            {
+              "bbox": [
+                1,
+                1,
+                1,
+                1
+              ],
+              "centroid": [
+                1,
+                1
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            },
+            {
+              "bbox": [
+                3,
+                1,
+                1,
+                1
+              ],
+              "centroid": [
+                3,
+                1
+              ],
+              "id": 1,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                14
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            },
+            {
+              "bbox": [
+                5,
+                1,
+                1,
+                1
+              ],
+              "centroid": [
+                5,
+                1
+              ],
+              "id": 2,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                16
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            },
+            {
+              "bbox": [
+                7,
+                1,
+                1,
+                1
+              ],
+              "centroid": [
+                7,
+                1
+              ],
+              "id": 3,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                18
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ],
+          "exact_zero": [
+            {
+              "bbox": [
+                1,
+                1,
+                1,
+                1
+              ],
+              "centroid": [
+                1,
+                1
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ]
+        },
+        "web_current": [
+          {
+            "bbox": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "centroid": [
+              1,
+              1
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "CONFIRMED_IMPLEMENTATION_DIVERGENCE"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "D012_faint_line_000",
+      "observations": {
+        "csp_current_selection": [],
+        "csp_current_whole": [],
+        "krita_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "paper_or_spec_variants": {
+          "any_nonzero_alpha": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                1
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ],
+          "training_gray_128": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                1
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ]
+        },
+        "web_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "CONFIRMED_IMPLEMENTATION_DIVERGENCE"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "D012_faint_line_127",
+      "observations": {
+        "csp_current_selection": [],
+        "csp_current_whole": [],
+        "krita_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "paper_or_spec_variants": {
+          "any_nonzero_alpha": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                1
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ],
+          "training_gray_128": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                1
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ]
+        },
+        "web_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "CONFIRMED_IMPLEMENTATION_DIVERGENCE"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "D012_faint_line_128",
+      "observations": {
+        "csp_current_selection": [],
+        "csp_current_whole": [],
+        "krita_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "paper_or_spec_variants": {
+          "any_nonzero_alpha": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                1
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ],
+          "training_gray_128": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                1
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ]
+        },
+        "web_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "CONFIRMED_IMPLEMENTATION_DIVERGENCE"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "D012_faint_line_129",
+      "observations": {
+        "csp_current_selection": [],
+        "csp_current_whole": [],
+        "krita_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [],
+        "paper_or_spec_variants": {
+          "any_nonzero_alpha": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                1
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ],
+          "training_gray_128": []
+        },
+        "web_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "UNRESOLVED_SPECIFICATION"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "D012_faint_line_254",
+      "observations": {
+        "csp_current_selection": [],
+        "csp_current_whole": [],
+        "krita_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [],
+        "paper_or_spec_variants": {
+          "any_nonzero_alpha": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                1
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ],
+          "training_gray_128": []
+        },
+        "web_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "UNRESOLVED_SPECIFICATION"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "D012_faint_line_255",
+      "observations": {
+        "csp_current_selection": [],
+        "csp_current_whole": [],
+        "krita_current": [],
+        "ml_python_current": [],
+        "paper_or_spec_variants": {
+          "any_nonzero_alpha": [],
+          "training_gray_128": []
+        },
+        "web_current": []
+      },
+      "status": "AGREES"
+    },
+    {
+      "audit_risk_ids": [
+        "G-03",
+        "C-10"
+      ],
+      "canonical_expectations": {
+        "canonical_clipped_domain_conservative_reject": [],
+        "canonical_full_geometry_then_scope": [
+          {
+            "bbox": [
+              1,
+              2,
+              3,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 3,
+            "pixel_indices": [
+              11,
+              12,
+              13
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "case_id": "D013_selection_boundary",
+      "decision_ids": [
+        "D-04"
+      ],
+      "implementation_assessments": {
+        "csp_core_current": "confirmed_bug_or_divergence_when_full_image_is_available",
+        "csp_host_acquisition": "host_limitation_unverified",
+        "krita_current": "selection_scope_not_implemented",
+        "ml_python_current": "selection_scope_not_implemented",
+        "web_current": "selection_scope_not_implemented"
+      },
+      "observations": {
+        "csp_current_selection": [],
+        "csp_current_whole": [
+          {
+            "bbox": [
+              1,
+              2,
+              3,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 3,
+            "pixel_indices": [
+              11,
+              12,
+              13
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "krita_current": [
+          {
+            "bbox": [
+              1,
+              2,
+              3,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 3,
+            "pixel_indices": [
+              11,
+              12,
+              13
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [
+          {
+            "bbox": [
+              1,
+              2,
+              3,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 3,
+            "pixel_indices": [
+              11,
+              12,
+              13
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "paper_or_spec_variants": {
+          "canonical_clipped_domain_conservative_reject": [],
+          "canonical_full_geometry_then_scope": [
+            {
+              "bbox": [
+                1,
+                2,
+                3,
+                1
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 3,
+              "pixel_indices": [
+                11,
+                12,
+                13
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ],
+          "noncanonical_selection_edge_encloses": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                1
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": true
+            }
+          ]
+        },
+        "web_current": [
+          {
+            "bbox": [
+              1,
+              2,
+              3,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 3,
+            "pixel_indices": [
+              11,
+              12,
+              13
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "CONFIRMED_IMPLEMENTATION_DIVERGENCE"
+    },
+    {
+      "audit_risk_ids": [
+        "G-03",
+        "C-10"
+      ],
+      "canonical_expectations": {
+        "selection_contains_gap": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "case_id": "D014_selection_contains_gap",
+      "decision_ids": [
+        "D-04"
+      ],
+      "implementation_assessments": {
+        "csp_core_current": "agrees_for_fully_contained_component",
+        "krita_current": "selection_scope_not_implemented",
+        "ml_python_current": "selection_scope_not_implemented",
+        "web_current": "selection_scope_not_implemented"
+      },
+      "observations": {
+        "csp_current_selection": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "csp_current_whole": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "krita_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "ml_python_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ],
+        "paper_or_spec_variants": {
+          "selection_contains_gap": [
+            {
+              "bbox": [
+                2,
+                2,
+                1,
+                1
+              ],
+              "centroid": [
+                2,
+                2
+              ],
+              "id": 0,
+              "kind": "transparent",
+              "pixel_count": 1,
+              "pixel_indices": [
+                12
+              ],
+              "touches_image_edge": false,
+              "touches_selection_edge": false
+            }
+          ]
+        },
+        "web_current": [
+          {
+            "bbox": [
+              2,
+              2,
+              1,
+              1
+            ],
+            "centroid": [
+              2,
+              2
+            ],
+            "id": 0,
+            "kind": "transparent",
+            "pixel_count": 1,
+            "pixel_indices": [
+              12
+            ],
+            "touches_image_edge": false,
+            "touches_selection_edge": false
+          }
+        ]
+      },
+      "status": "DELIBERATE_PLATFORM_DIFFERENCE"
+    }
+  ],
+  "model": [
+    {
+      "case_id": "M001_no_guide",
+      "csp_current": "STAGE_UNAVAILABLE",
+      "krita_current": "The wrapper uses the same artifact/runtime; Phase 2 checks its tensor construction and postprocessing separately.",
+      "python_onnxruntime_sha256_f32le": "f6803fa3410932809e07332311c2c467789a01a8f7cf83a82018ba15be936dc1",
+      "status": "UNRESOLVED_SPECIFICATION",
+      "web_onnxruntime_wasm": "RUN_BY_WEB_PARITY_TEST"
+    },
+    {
+      "case_id": "M002_one_guide_delta",
+      "csp_current": "STAGE_UNAVAILABLE",
+      "krita_current": "The wrapper uses the same artifact/runtime; Phase 2 checks its tensor construction and postprocessing separately.",
+      "python_onnxruntime_sha256_f32le": "873e4fae797e2717002bdc15c25dec22b1ec59631528072f0f000016e8c8d0fa",
+      "status": "UNRESOLVED_SPECIFICATION",
+      "web_onnxruntime_wasm": "RUN_BY_WEB_PARITY_TEST"
+    },
+    {
+      "case_id": "M003_symmetric_geometry",
+      "csp_current": "STAGE_UNAVAILABLE",
+      "krita_current": "The wrapper uses the same artifact/runtime; Phase 2 checks its tensor construction and postprocessing separately.",
+      "python_onnxruntime_sha256_f32le": "be36bb97c83a2591b96aa6d55461f671c9f583a0c9a7df194c4b8265a9c17d01",
+      "status": "UNRESOLVED_SPECIFICATION",
+      "web_onnxruntime_wasm": "RUN_BY_WEB_PARITY_TEST"
+    },
+    {
+      "case_id": "M004_asymmetric_geometry",
+      "csp_current": "STAGE_UNAVAILABLE",
+      "krita_current": "The wrapper uses the same artifact/runtime; Phase 2 checks its tensor construction and postprocessing separately.",
+      "python_onnxruntime_sha256_f32le": "368002c4d1c960646bad70be1a8fcb4f7f1c020251904f237f0defad13eca398",
+      "status": "UNRESOLVED_SPECIFICATION",
+      "web_onnxruntime_wasm": "RUN_BY_WEB_PARITY_TEST"
+    },
+    {
+      "case_id": "M005_boundary_near_geometry",
+      "csp_current": "STAGE_UNAVAILABLE",
+      "krita_current": "The wrapper uses the same artifact/runtime; Phase 2 checks its tensor construction and postprocessing separately.",
+      "python_onnxruntime_sha256_f32le": "d74d60858f443a7c7fbb7d965e43c784fae51e0a255c4ca6774c9378aa9d9d1b",
+      "status": "UNRESOLVED_SPECIFICATION",
+      "web_onnxruntime_wasm": "RUN_BY_WEB_PARITY_TEST"
+    },
+    {
+      "case_id": "M006_target_guide_present",
+      "csp_current": "STAGE_UNAVAILABLE",
+      "krita_current": "The wrapper uses the same artifact/runtime; Phase 2 checks its tensor construction and postprocessing separately.",
+      "python_onnxruntime_sha256_f32le": "b8087455928ac3687b914a6792d25203cf94cd77a398208898d9b195d3caa7f8",
+      "status": "UNRESOLVED_SPECIFICATION",
+      "web_onnxruntime_wasm": "RUN_BY_WEB_PARITY_TEST"
+    },
+    {
+      "case_id": "M007_target_guide_suppressed",
+      "csp_current": "STAGE_UNAVAILABLE",
+      "krita_current": "The wrapper uses the same artifact/runtime; Phase 2 checks its tensor construction and postprocessing separately.",
+      "python_onnxruntime_sha256_f32le": "f6803fa3410932809e07332311c2c467789a01a8f7cf83a82018ba15be936dc1",
+      "status": "UNRESOLVED_SPECIFICATION",
+      "web_onnxruntime_wasm": "RUN_BY_WEB_PARITY_TEST"
+    }
+  ],
+  "patch": [
+    {
+      "case_id": "P001_even_region_centroid",
+      "observations": {
+        "csp_current": "STAGE_UNAVAILABLE",
+        "krita_current_variant": "training_line_only",
+        "ml_python_current_variant": "training_line_only",
+        "variants": {
+          "training_line_only": {
+            "bounds": {
+              "destination_x": 12,
+              "destination_y": 12,
+              "source_height": 10,
+              "source_width": 10,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -12,
+              "virtual_y": -12
+            },
+            "centroid": [
+              4,
+              4
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                527,
+                530
+              ],
+              "channel_1_active_indices": [
+                528,
+                529
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          }
+        },
+        "web_current_variant": "training_line_only"
+      },
+      "status": "AGREES"
+    },
+    {
+      "case_id": "P002_asymmetric_region_centroid",
+      "observations": {
+        "csp_current": "STAGE_UNAVAILABLE",
+        "krita_current_variant": "training_line_only",
+        "ml_python_current_variant": "training_line_only",
+        "variants": {
+          "training_line_only": {
+            "bounds": {
+              "destination_x": 12,
+              "destination_y": 12,
+              "source_height": 10,
+              "source_width": 10,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -12,
+              "virtual_y": -12
+            },
+            "centroid": [
+              4,
+              4
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                527,
+                562
+              ],
+              "channel_1_active_indices": [
+                528,
+                529,
+                561
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          }
+        },
+        "web_current_variant": "training_line_only"
+      },
+      "status": "AGREES"
+    },
+    {
+      "case_id": "P003_top_left",
+      "observations": {
+        "csp_current": "STAGE_UNAVAILABLE",
+        "krita_current_variant": "training_line_only",
+        "ml_python_current_variant": "training_line_only",
+        "variants": {
+          "training_line_only": {
+            "bounds": {
+              "destination_x": 16,
+              "destination_y": 16,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -16,
+              "virtual_y": -16
+            },
+            "centroid": [
+              0,
+              0
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                529,
+                530,
+                531,
+                532,
+                560,
+                561,
+                562,
+                563,
+                564,
+                592,
+                593,
+                594,
+                595,
+                596,
+                624,
+                625,
+                626,
+                627,
+                628
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          }
+        },
+        "web_current_variant": "training_line_only"
+      },
+      "status": "AGREES"
+    },
+    {
+      "case_id": "P003_top",
+      "observations": {
+        "csp_current": "STAGE_UNAVAILABLE",
+        "krita_current_variant": "training_line_only",
+        "ml_python_current_variant": "training_line_only",
+        "variants": {
+          "training_line_only": {
+            "bounds": {
+              "destination_x": 14,
+              "destination_y": 16,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -14,
+              "virtual_y": -16
+            },
+            "centroid": [
+              2,
+              0
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                526,
+                527,
+                529,
+                530,
+                558,
+                559,
+                560,
+                561,
+                562,
+                590,
+                591,
+                592,
+                593,
+                594,
+                622,
+                623,
+                624,
+                625,
+                626
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          }
+        },
+        "web_current_variant": "training_line_only"
+      },
+      "status": "AGREES"
+    },
+    {
+      "case_id": "P003_top_right",
+      "observations": {
+        "csp_current": "STAGE_UNAVAILABLE",
+        "krita_current_variant": "training_line_only",
+        "ml_python_current_variant": "training_line_only",
+        "variants": {
+          "training_line_only": {
+            "bounds": {
+              "destination_x": 12,
+              "destination_y": 16,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -12,
+              "virtual_y": -16
+            },
+            "centroid": [
+              4,
+              0
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                524,
+                525,
+                526,
+                527,
+                556,
+                557,
+                558,
+                559,
+                560,
+                588,
+                589,
+                590,
+                591,
+                592,
+                620,
+                621,
+                622,
+                623,
+                624
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          }
+        },
+        "web_current_variant": "training_line_only"
+      },
+      "status": "AGREES"
+    },
+    {
+      "case_id": "P003_left",
+      "observations": {
+        "csp_current": "STAGE_UNAVAILABLE",
+        "krita_current_variant": "training_line_only",
+        "ml_python_current_variant": "training_line_only",
+        "variants": {
+          "training_line_only": {
+            "bounds": {
+              "destination_x": 16,
+              "destination_y": 14,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -16,
+              "virtual_y": -14
+            },
+            "centroid": [
+              0,
+              2
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                464,
+                465,
+                466,
+                467,
+                468,
+                496,
+                497,
+                498,
+                499,
+                500,
+                529,
+                530,
+                531,
+                532,
+                560,
+                561,
+                562,
+                563,
+                564
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          }
+        },
+        "web_current_variant": "training_line_only"
+      },
+      "status": "AGREES"
+    },
+    {
+      "case_id": "P003_right",
+      "observations": {
+        "csp_current": "STAGE_UNAVAILABLE",
+        "krita_current_variant": "training_line_only",
+        "ml_python_current_variant": "training_line_only",
+        "variants": {
+          "training_line_only": {
+            "bounds": {
+              "destination_x": 12,
+              "destination_y": 14,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -12,
+              "virtual_y": -14
+            },
+            "centroid": [
+              4,
+              2
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                460,
+                461,
+                462,
+                463,
+                464,
+                492,
+                493,
+                494,
+                495,
+                496,
+                524,
+                525,
+                526,
+                527,
+                556,
+                557,
+                558,
+                559,
+                560
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          }
+        },
+        "web_current_variant": "training_line_only"
+      },
+      "status": "AGREES"
+    },
+    {
+      "case_id": "P003_bottom_left",
+      "observations": {
+        "csp_current": "STAGE_UNAVAILABLE",
+        "krita_current_variant": "training_line_only",
+        "ml_python_current_variant": "training_line_only",
+        "variants": {
+          "training_line_only": {
+            "bounds": {
+              "destination_x": 16,
+              "destination_y": 13,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -16,
+              "virtual_y": -13
+            },
+            "centroid": [
+              0,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                432,
+                433,
+                434,
+                435,
+                436,
+                464,
+                465,
+                466,
+                467,
+                468,
+                496,
+                497,
+                498,
+                499,
+                500,
+                529,
+                530,
+                531,
+                532
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          }
+        },
+        "web_current_variant": "training_line_only"
+      },
+      "status": "AGREES"
+    },
+    {
+      "case_id": "P003_bottom",
+      "observations": {
+        "csp_current": "STAGE_UNAVAILABLE",
+        "krita_current_variant": "training_line_only",
+        "ml_python_current_variant": "training_line_only",
+        "variants": {
+          "training_line_only": {
+            "bounds": {
+              "destination_x": 14,
+              "destination_y": 13,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -14,
+              "virtual_y": -13
+            },
+            "centroid": [
+              2,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                430,
+                431,
+                432,
+                433,
+                434,
+                462,
+                463,
+                464,
+                465,
+                466,
+                494,
+                495,
+                496,
+                497,
+                498,
+                526,
+                527,
+                529,
+                530
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          }
+        },
+        "web_current_variant": "training_line_only"
+      },
+      "status": "AGREES"
+    },
+    {
+      "case_id": "P003_bottom_right",
+      "observations": {
+        "csp_current": "STAGE_UNAVAILABLE",
+        "krita_current_variant": "training_line_only",
+        "ml_python_current_variant": "training_line_only",
+        "variants": {
+          "training_line_only": {
+            "bounds": {
+              "destination_x": 12,
+              "destination_y": 13,
+              "source_height": 4,
+              "source_width": 5,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -12,
+              "virtual_y": -13
+            },
+            "centroid": [
+              4,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                428,
+                429,
+                430,
+                431,
+                432,
+                460,
+                461,
+                462,
+                463,
+                464,
+                492,
+                493,
+                494,
+                495,
+                496,
+                524,
+                525,
+                526,
+                527
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          }
+        },
+        "web_current_variant": "training_line_only"
+      },
+      "status": "AGREES"
+    },
+    {
+      "case_id": "P004_target_gap_mask",
+      "observations": {
+        "csp_current": "STAGE_UNAVAILABLE",
+        "krita_current_variant": "training_line_only",
+        "ml_python_current_variant": "training_line_only",
+        "variants": {
+          "training_line_only": {
+            "bounds": {
+              "destination_x": 12,
+              "destination_y": 13,
+              "source_height": 7,
+              "source_width": 9,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -12,
+              "virtual_y": -13
+            },
+            "centroid": [
+              4,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                526,
+                562
+              ],
+              "channel_1_active_indices": [
+                527,
+                528,
+                560,
+                561
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          }
+        },
+        "web_current_variant": "training_line_only"
+      },
+      "status": "AGREES"
+    },
+    {
+      "case_id": "P005_guide_delta",
+      "observations": {
+        "csp_current": "STAGE_UNAVAILABLE",
+        "krita_current_variant": "line_plus_guide",
+        "ml_python_current_variant": "training_line_only",
+        "variants": {
+          "line_plus_guide": {
+            "bounds": {
+              "destination_x": 13,
+              "destination_y": 13,
+              "source_height": 7,
+              "source_width": 7,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -13,
+              "virtual_y": -13
+            },
+            "centroid": [
+              3,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                527,
+                529
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "training_line_only": {
+            "bounds": {
+              "destination_x": 13,
+              "destination_y": 13,
+              "source_height": 7,
+              "source_width": 7,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -13,
+              "virtual_y": -13
+            },
+            "centroid": [
+              3,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                527
+              ],
+              "channel_1_active_indices": [
+                528
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          }
+        },
+        "web_current_variant": "line_plus_guide"
+      },
+      "status": "UNRESOLVED_SPECIFICATION"
+    },
+    {
+      "case_id": "P006_target_guide_suppression",
+      "observations": {
+        "csp_current": "STAGE_UNAVAILABLE",
+        "krita_current_variant": "suppress_target_guide",
+        "ml_python_current_variant": "training_line_only",
+        "variants": {
+          "line_plus_guide": {
+            "bounds": {
+              "destination_x": 13,
+              "destination_y": 13,
+              "source_height": 7,
+              "source_width": 7,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -13,
+              "virtual_y": -13
+            },
+            "centroid": [
+              3,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                527,
+                528,
+                529,
+                560
+              ],
+              "channel_1_active_indices": [
+                528,
+                560
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "suppress_target_guide": {
+            "bounds": {
+              "destination_x": 13,
+              "destination_y": 13,
+              "source_height": 7,
+              "source_width": 7,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -13,
+              "virtual_y": -13
+            },
+            "centroid": [
+              3,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                527,
+                529
+              ],
+              "channel_1_active_indices": [
+                528,
+                560
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          },
+          "training_line_only": {
+            "bounds": {
+              "destination_x": 13,
+              "destination_y": 13,
+              "source_height": 7,
+              "source_width": 7,
+              "source_x": 0,
+              "source_y": 0,
+              "virtual_x": -13,
+              "virtual_y": -13
+            },
+            "centroid": [
+              3,
+              3
+            ],
+            "tensor": {
+              "channel_0_active_indices": [
+                527
+              ],
+              "channel_1_active_indices": [
+                528,
+                560
+              ],
+              "dtype": "float32",
+              "shape": [
+                1,
+                2,
+                32,
+                32
+              ],
+              "zero_fill": 0.0
+            }
+          }
+        },
+        "web_current_variant": "suppress_target_guide"
+      },
+      "status": "UNRESOLVED_SPECIFICATION"
+    }
+  ],
+  "policy": {
+    "fallback_application": {
+      "audit_risk_ids": [
+        "K-11",
+        "C-02",
+        "C-03"
+      ],
+      "canonical_cases": {
+        "F001_learned_high": {
+          "apply_high_eligible": true,
+          "effective_confidence_band": "high",
+          "manual_apply_eligible": true,
+          "prediction_provenance": "learned",
+          "requires_explicit_confirmation": false
+        },
+        "F002_fallback_high_unconfirmed": {
+          "apply_high_eligible": false,
+          "effective_confidence_band": null,
+          "manual_apply_eligible": false,
+          "prediction_provenance": "fallback",
+          "requires_explicit_confirmation": true
+        },
+        "F003_fallback_high_confirmed": {
+          "apply_high_eligible": false,
+          "effective_confidence_band": null,
+          "manual_apply_eligible": true,
+          "prediction_provenance": "fallback",
+          "requires_explicit_confirmation": true
+        }
+      },
+      "current_implementation_notes": {
+        "csp": "rule output lacks source provenance and High heuristic results default to Apply in Quick Fix",
+        "krita": "greedy fallback and learned results share untagged predicted_rgb and ordinary Apply All behavior",
+        "ml_python": "no product fallback/auto-apply policy at this stage",
+        "web": "greedy fallback and learned results share untagged predictedColor and ordinary application behavior"
+      },
+      "decision_ids": [
+        "D-07"
+      ],
+      "status": "CONFIRMED_IMPLEMENTATION_DIVERGENCE"
+    },
+    "selection_scope": [
+      {
+        "audit_risk_ids": [
+          "G-03",
+          "C-10"
+        ],
+        "canonical_result": {
+          "application_pixel_indices": [
+            12
+          ],
+          "component_pixel_indices": [
+            11,
+            12,
+            13
+          ],
+          "eligible": true,
+          "geometry_status": "enclosed",
+          "selection_created_enclosure": false
+        },
+        "case_id": "S001_full_geometry_then_selection",
+        "current_implementation_notes": {
+          "csp_core": "clips before geometry and rejects; divergence because the core has the full Image",
+          "krita": "selection scope not implemented in the pure detector",
+          "ml_python": "selection scope not implemented",
+          "real_csp_host": "host acquisition limitation unverified",
+          "web": "selection scope not implemented"
+        },
+        "decision_ids": [
+          "D-04"
+        ],
+        "status": "CONFIRMED_IMPLEMENTATION_DIVERGENCE"
+      },
+      {
+        "audit_risk_ids": [
+          "G-03",
+          "C-10"
+        ],
+        "canonical_result": {
+          "application_pixel_indices": [],
+          "component_pixel_indices": [
+            12
+          ],
+          "eligible": false,
+          "geometry_status": "indeterminate",
+          "selection_created_enclosure": false
+        },
+        "case_id": "S002_clipped_domain_boundary_indeterminate",
+        "current_implementation_notes": {
+          "csp_core": "matches the conservative result for the controlled condition",
+          "krita": "selection scope not implemented in the pure detector",
+          "ml_python": "selection scope not implemented",
+          "real_csp_host": "host acquisition limitation unverified",
+          "web": "selection scope not implemented"
+        },
+        "decision_ids": [
+          "D-04"
+        ],
+        "status": "AGREES"
+      },
+      {
+        "audit_risk_ids": [
+          "G-03",
+          "C-10"
+        ],
+        "canonical_result": {
+          "application_pixel_indices": [],
+          "component_pixel_indices": [
+            12
+          ],
+          "eligible": false,
+          "geometry_status": "enclosed",
+          "selection_created_enclosure": false
+        },
+        "case_id": "S003_selection_excludes_enclosed_component",
+        "current_implementation_notes": {
+          "csp_core": "matches the conservative result for the controlled condition",
+          "krita": "selection scope not implemented in the pure detector",
+          "ml_python": "selection scope not implemented",
+          "real_csp_host": "host acquisition limitation unverified",
+          "web": "selection scope not implemented"
+        },
+        "decision_ids": [
+          "D-04"
+        ],
+        "status": "AGREES"
+      }
+    ]
+  },
+  "postprocess": [
+    {
+      "canonical_expectations": {
+        "reviewed_semantic": {
+          "region_means": {
+            "1": 0.2000000048428774,
+            "2": 0.7000000029802322
+          },
+          "rgb": [
+            20,
+            20,
+            220
+          ],
+          "selected_pixel_indices": [
+            2,
+            3,
+            6,
+            7
+          ],
+          "selected_region_id": 2
+        }
+      },
+      "case_id": "R001_manual_mean_winner",
+      "observations": {
+        "csp_current": "LEARNED_STAGE_UNAVAILABLE",
+        "krita_current": {
+          "region_means": {
+            "1": 0.2000000048428774,
+            "2": 0.7000000029802322
+          },
+          "rgb": [
+            20,
+            20,
+            220
+          ],
+          "selected_pixel_indices": [
+            2,
+            3,
+            6,
+            7
+          ],
+          "selected_region_id": 2
+        },
+        "ml_python_current": {
+          "region_means": {
+            "1": 0.2000000048428774,
+            "2": 0.7000000029802322
+          },
+          "rgb": [
+            20,
+            20,
+            220
+          ],
+          "selected_pixel_indices": [
+            2,
+            3,
+            6,
+            7
+          ],
+          "selected_region_id": 2
+        },
+        "web_current": {
+          "region_means": {
+            "1": 0.2000000048428774,
+            "2": 0.7000000029802322
+          },
+          "rgb": [
+            20,
+            20,
+            220
+          ],
+          "selected_pixel_indices": [
+            2,
+            3,
+            6,
+            7
+          ],
+          "selected_region_id": 2
+        }
+      },
+      "status": "AGREES"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "R002_label_zero",
+      "observations": {
+        "csp_current": "LEARNED_STAGE_UNAVAILABLE",
+        "krita_current": {
+          "region_means": {
+            "1": 0.4000000059604645
+          },
+          "rgb": [
+            40,
+            180,
+            40
+          ],
+          "selected_pixel_indices": [
+            1,
+            2,
+            4,
+            5
+          ],
+          "selected_region_id": 1
+        },
+        "ml_python_current": {
+          "region_means": {
+            "0": 0.9900000095367432,
+            "1": 0.4000000059604645
+          },
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "selected_pixel_indices": [
+            0,
+            3
+          ],
+          "selected_region_id": 0
+        },
+        "web_current": {
+          "region_means": {
+            "1": 0.4000000059604645
+          },
+          "rgb": [
+            40,
+            180,
+            40
+          ],
+          "selected_pixel_indices": [
+            1,
+            2,
+            4,
+            5
+          ],
+          "selected_region_id": 1
+        }
+      },
+      "status": "UNRESOLVED_SPECIFICATION"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "R003_disconnected_same_rgb",
+      "observations": {
+        "csp_current": "LEARNED_STAGE_UNAVAILABLE",
+        "krita_current": {
+          "region_means": {
+            "1": 0.4000000059604645,
+            "2": 0.800000011920929
+          },
+          "rgb": [
+            200,
+            30,
+            30
+          ],
+          "selected_pixel_indices": [
+            3,
+            4
+          ],
+          "selected_region_id": 2
+        },
+        "ml_python_current": {
+          "region_means": {
+            "1": 0.48000000715255736
+          },
+          "rgb": [
+            200,
+            30,
+            30
+          ],
+          "selected_pixel_indices": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "selected_region_id": 1
+        },
+        "web_current": {
+          "region_means": {
+            "1": 0.4000000059604645,
+            "2": 0.800000011920929
+          },
+          "rgb": [
+            200,
+            30,
+            30
+          ],
+          "selected_pixel_indices": [
+            3,
+            4
+          ],
+          "selected_region_id": 2
+        }
+      },
+      "status": "UNRESOLVED_SPECIFICATION"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "R004_tolerance_30_boundary",
+      "observations": {
+        "csp_current": {
+          "note": "CSP does not score the fixed ONNX map; only its transitive owner segmentation is comparable here.",
+          "owner_style_labels": [
+            [
+              1,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        "krita_current": {
+          "region_means": {
+            "1": 0.2000000054637591,
+            "2": 0.8999999761581421
+          },
+          "rgb": [
+            31,
+            0,
+            0
+          ],
+          "selected_pixel_indices": [
+            3
+          ],
+          "selected_region_id": 2
+        },
+        "ml_python_current": {
+          "region_means": {
+            "1": 0.37499999813735485
+          },
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "selected_pixel_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "selected_region_id": 1
+        },
+        "web_current": {
+          "region_means": {
+            "1": 0.2000000054637591,
+            "2": 0.8999999761581421
+          },
+          "rgb": [
+            31,
+            0,
+            0
+          ],
+          "selected_pixel_indices": [
+            3
+          ],
+          "selected_region_id": 2
+        }
+      },
+      "status": "UNRESOLVED_SPECIFICATION"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "R005_transitive_color_chain",
+      "observations": {
+        "csp_current": {
+          "note": "CSP does not score the fixed ONNX map; only its transitive owner segmentation is comparable here.",
+          "owner_style_labels": [
+            [
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        "krita_current": {
+          "region_means": {
+            "1": 0.15000000223517418,
+            "2": 0.8999999761581421
+          },
+          "rgb": [
+            40,
+            0,
+            0
+          ],
+          "selected_pixel_indices": [
+            2
+          ],
+          "selected_region_id": 2
+        },
+        "ml_python_current": {
+          "region_means": {
+            "1": 0.39999999354283017
+          },
+          "rgb": [
+            0,
+            0,
+            0
+          ],
+          "selected_pixel_indices": [
+            0,
+            1,
+            2
+          ],
+          "selected_region_id": 1
+        },
+        "web_current": {
+          "region_means": {
+            "1": 0.15000000223517418,
+            "2": 0.8999999761581421
+          },
+          "rgb": [
+            40,
+            0,
+            0
+          ],
+          "selected_pixel_indices": [
+            2
+          ],
+          "selected_region_id": 2
+        }
+      },
+      "status": "UNRESOLVED_SPECIFICATION"
+    },
+    {
+      "audit_risk_ids": [
+        "K-14"
+      ],
+      "canonical_expectations": {
+        "first_encountered_tie": {
+          "region_means": {
+            "1": 0.800000011920929
+          },
+          "rgb": [
+            240,
+            20,
+            20
+          ],
+          "selected_pixel_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "selected_region_id": 1
+        }
+      },
+      "case_id": "R006_modal_tie",
+      "decision_ids": [
+        "D-06"
+      ],
+      "implementation_assessments": {
+        "csp_current": "not_yet_implemented",
+        "krita_current": "confirmed_bug_or_divergence",
+        "ml_python_current": "agrees",
+        "web_current": "agrees"
+      },
+      "observations": {
+        "csp_current": "LEARNED_STAGE_UNAVAILABLE",
+        "krita_current": {
+          "region_means": {
+            "1": 0.800000011920929
+          },
+          "rgb": [
+            20,
+            20,
+            240
+          ],
+          "selected_pixel_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "selected_region_id": 1
+        },
+        "ml_python_current": {
+          "region_means": {
+            "1": 0.800000011920929
+          },
+          "rgb": [
+            240,
+            20,
+            20
+          ],
+          "selected_pixel_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "selected_region_id": 1
+        },
+        "web_current": {
+          "region_means": {
+            "1": 0.800000011920929
+          },
+          "rgb": [
+            240,
+            20,
+            20
+          ],
+          "selected_pixel_indices": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "selected_region_id": 1
+        }
+      },
+      "status": "CONFIRMED_IMPLEMENTATION_DIVERGENCE"
+    },
+    {
+      "canonical_expectations": {
+        "modal_flat_color": {
+          "region_means": {
+            "1": 0.6000000238418579
+          },
+          "rgb": [
+            100,
+            120,
+            140
+          ],
+          "selected_pixel_indices": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "selected_region_id": 1
+        }
+      },
+      "case_id": "R007_antialiased_colors",
+      "observations": {
+        "csp_current": "LEARNED_STAGE_UNAVAILABLE",
+        "krita_current": {
+          "region_means": {
+            "1": 0.6000000238418579
+          },
+          "rgb": [
+            100,
+            120,
+            140
+          ],
+          "selected_pixel_indices": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "selected_region_id": 1
+        },
+        "ml_python_current": {
+          "region_means": {
+            "1": 0.6000000238418579
+          },
+          "rgb": [
+            100,
+            120,
+            140
+          ],
+          "selected_pixel_indices": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "selected_region_id": 1
+        },
+        "web_current": {
+          "region_means": {
+            "1": 0.6000000238418579
+          },
+          "rgb": [
+            100,
+            120,
+            140
+          ],
+          "selected_pixel_indices": [
+            0,
+            1,
+            2,
+            3,
+            4
+          ],
+          "selected_region_id": 1
+        }
+      },
+      "status": "AGREES"
+    },
+    {
+      "canonical_expectations": {},
+      "case_id": "R008_line_vs_colored_regions",
+      "observations": {
+        "csp_current": "LEARNED_STAGE_UNAVAILABLE",
+        "krita_current": {
+          "region_means": {
+            "1": 0.10000000149011612,
+            "2": 0.800000011920929
+          },
+          "rgb": [
+            20,
+            20,
+            200
+          ],
+          "selected_pixel_indices": [
+            3,
+            4,
+            8,
+            9
+          ],
+          "selected_region_id": 2
+        },
+        "ml_python_current": {
+          "region_means": {
+            "1": 0.38000000566244124
+          },
+          "rgb": [
+            200,
+            20,
+            20
+          ],
+          "selected_pixel_indices": [
+            0,
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9
+          ],
+          "selected_region_id": 1
+        },
+        "web_current": {
+          "region_means": {
+            "1": 0.10000000149011612,
+            "2": 0.800000011920929
+          },
+          "rgb": [
+            20,
+            20,
+            200
+          ],
+          "selected_pixel_indices": [
+            3,
+            4,
+            8,
+            9
+          ],
+          "selected_region_id": 2
+        }
+      },
+      "status": "UNRESOLVED_SPECIFICATION"
+    }
+  ],
+  "schema": "gapfill-characterization-v2",
+  "warning": "Current implementation observations are evidence only. They are not promoted to canonical truth by this file."
+}

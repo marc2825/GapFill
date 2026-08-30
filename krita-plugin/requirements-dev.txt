@@ -1,0 +1,4 @@
+-r requirements-runtime.txt
+pytest>=8,<10
+ruff>=0.9,<1
+PyQt6>=6.7,<7
