@@ -17,9 +17,10 @@ The latest intended OFFF integration baseline is GapFill for Krita 1.0.2, but
     branch fix/gapfill-interaction-session
     release-source commit d0e1fbfb825d983d5a208f9b3990418a821f1160
     host-tested interaction repair checkpoint d48366d
+    frozen release-candidate commit 232db61f79e4d100a19978e82013868430950c59
 
-The final freeze commit, annotated tag krita-v1.0.2, and public release identity
-do not exist yet. Stop: do not start OFFF until 1.0.2 is
+The annotated tag krita-v1.0.2 and public release identity do not exist yet.
+Stop: do not start OFFF until 1.0.2 is
 published and this prompt is finalized to that exact tag/commit. The 1.0.1
 identities below are immutable historical evidence, not the next integration
 baseline.

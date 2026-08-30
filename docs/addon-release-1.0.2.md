@@ -1,8 +1,8 @@
 # GapFill for Krita 1.0.2 release preparation
 
-Status: **GAPFILL 1.0.2 RELEASE CANDIDATE PREPARED — LOCAL VERIFICATION
-PASS; NORMAL CI PENDING**. No `krita-v1.0.2` tag or public GitHub Release exists
-at this checkpoint.
+Status: **GAPFILL 1.0.2 RELEASE CANDIDATE PREPARED — LOCAL VERIFICATION AND
+NORMAL CI PASS**. No `krita-v1.0.2` tag or public GitHub Release exists at this
+checkpoint.
 
 GapFill for Krita 1.0.2 is an interaction/lifecycle patch over the immutable
 1.0.1 release. The user-facing product name is **GapFill for Krita**; the
@@ -46,7 +46,9 @@ and historical Phase 6.5 limits before publication.
 - Current preparation branch: `fix/gapfill-interaction-session`.
 - Release-source commit: `d0e1fbfb825d983d5a208f9b3990418a821f1160`
   (`chore(krita): prepare GapFill for Krita 1.0.2 source`).
-- The release-candidate freeze commit will be recorded after review.
+- Release-candidate freeze commit:
+  `232db61f79e4d100a19978e82013868430950c59`
+  (`docs(krita): freeze GapFill for Krita 1.0.2 candidate`).
 - Publication governance:
   `GAPFILL_1_0_2_INTERACTION_LIFECYCLE_PATCH_V1_GOVERNANCE_ADOPTED`.
 - Publication mode: `FROZEN_ARTIFACT_VERIFY_AND_PUBLISH`; tag CI must verify and
@@ -115,9 +117,14 @@ The frozen identities remain:
 - sidecar `2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5`;
 - native helper `ad2fa7463d59dca74a92dc867734b38eb7aa49821b163547da442147348f8746`.
 
-Normal branch CI run IDs/results remain to be recorded after the freeze commit
-is pushed. Tag-only publication verification remains an explicit publication
-step and is not triggered during release-candidate preparation.
+Normal branch CI run
+[`33323573954`](https://github.com/marc2825/GapFill/actions/runs/33323573954)
+passed for freeze commit `232db61`: Krita plugin job `99289662672`, reference
+fixtures job `99289662758`, CSP core job `99289662764`, and Web job
+`99289662783` all completed successfully. The Web job reported only the
+GitHub-hosted Node.js action-runtime deprecation warning; no project gate
+failed. Tag-only publication verification remains an explicit publication step
+and was not triggered during release-candidate preparation.
 
 ## Publication boundary
 
