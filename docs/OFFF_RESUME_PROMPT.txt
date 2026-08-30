@@ -28,7 +28,7 @@ branch integration, or formal host qualification in the first task. GapFill
 integration baseline.
 
 ======================================================================
-HISTORICAL PUBLISHED 1.0.1 RELEASE AND MAINTENANCE HEAD — KEEP DISTINCT
+HISTORICAL WITHDRAWN 1.0.1 DISTRIBUTION AND MAINTENANCE HEAD
 ======================================================================
 
 RELEASE BASELINE:
@@ -38,8 +38,8 @@ RELEASE BASELINE:
     annotated tag object abc7b901fb8a912ade9d8c37743df24f5cb60e26
     release/tag commit 3a551736654db94325e37e6bbeb457d1e4dd12b0
     subject: fix(krita): make release ZIP importer-compatible
-    release ID 379107741
-    https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.1
+    former GitHub Release ID 379107741
+    GitHub Release withdrawn from public distribution
 
 MAINTENANCE HEAD:
 
@@ -60,13 +60,13 @@ descendant. Inspect the checked-out branch HEAD before choosing a base;
 9a87fa1 remains the last non-documentation maintenance checkpoint, not a claim
 that no later documentation commit exists.
 
-Final production asset:
+Historical frozen artifact, no longer publicly distributed:
 
     gapfill-krita-windows-x86_64.zip
     repository path:
       krita-plugin/release/artifacts/1.0.1/gapfill-krita-windows-x86_64.zip
     Windows x86_64 only
-    asset ID 535762207
+    former public asset ID 535762207
     SHA-256 e001ad4db0a049db23f2839d780ff0ede810fc3f21c2d3fc574ef8bc12c93b19
     size 48218711 bytes
     1012 entries: 895 files and 117 directories
@@ -74,8 +74,12 @@ Final production asset:
     canonical verifier FROZEN_RELEASE_ARTIFACT_VERIFICATION_PASS
     importer result PLUGIN_DISCOVERABLE
 
-The GitHub Release asset was byte-identical to the repository artifact. Linux
-and macOS are not qualified GapFill 1.0.1 release artifacts.
+Before withdrawal, the GitHub Release asset was byte-identical to the repository
+artifact. The 1.0.1 GitHub Release was withdrawn after later real-host
+interaction defects were identified. Its annotated tag, commits, frozen
+artifact, hashes, qualification evidence, and documentation remain preserved;
+it is not a currently recommended download. Linux and macOS were not qualified
+GapFill 1.0.1 release artifacts.
 
 The provisional handoff commit
 f5ad58d334b07f3ac5a3e0ea1b612e1b003a6c96 remains historical evidence from

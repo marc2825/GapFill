@@ -145,3 +145,17 @@ explicit `gapfill_krita/` directory, exactly-one-plugin importer result, and
 model/sidecar/native identities all passed again. The immutable tag remains on
 the freeze commit; this final publication record is a documentation-only
 descendant and does not move the tag.
+
+## Current public distribution status
+
+The GitHub Release description is self-contained: it identifies the product,
+the exact qualified host cell, current features, complete importer installation
+steps, basic use, important limits, 1.0.2 improvements, and the frozen artifact
+identity without requiring earlier release notes. Its title, tag, asset ID,
+filename, size, and bytes remain unchanged.
+
+GapFill for Krita 1.0.2 is the sole currently recommended downloadable Krita
+bundle. The 1.0.1 GitHub Release was withdrawn after later real-host interaction
+defects were identified. The historical `krita-v1.0.1` annotated tag, release
+commit, frozen artifact, hashes, qualification evidence, and documentation are
+retained for traceability.

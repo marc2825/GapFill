@@ -59,8 +59,8 @@ updates its release provenance rather than rewriting it.
 | Annotated tag | `krita-v1.0.1` |
 | Tag object | `abc7b901fb8a912ade9d8c37743df24f5cb60e26` |
 | Tag target | `3a551736654db94325e37e6bbeb457d1e4dd12b0` |
-| GitHub Release | [GapFill 1.0.1](https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.1), ID `379107741` |
-| Production asset | `gapfill-krita-windows-x86_64.zip`, asset ID `535762207` |
+| Former GitHub Release | Withdrawn from public distribution; former ID `379107741` |
+| Former public asset | `gapfill-krita-windows-x86_64.zip`, former asset ID `535762207` |
 | Asset SHA-256 | `e001ad4db0a049db23f2839d780ff0ede810fc3f21c2d3fc574ef8bc12c93b19` |
 | Asset size | `48218711` bytes |
 | ZIP structure | 1012 entries: 895 files and 117 directories, including `gapfill_krita/` |
@@ -68,9 +68,13 @@ updates its release provenance rather than rewriting it.
 | Importer result | `PLUGIN_DISCOVERABLE`; exactly one `gapfill_krita` / `GapFill` plug-in |
 | Qualified platform | Windows x86_64 only |
 
-The published asset was verified byte-for-byte against the frozen repository
-artifact. Linux and macOS are not qualified GapFill 1.0.1 release artifacts.
-The release/tag commit above is the semantic and payload baseline.
+Before withdrawal, the published asset was verified byte-for-byte against the
+frozen repository artifact. The 1.0.1 GitHub Release was withdrawn after later
+real-host interaction defects were identified; its annotated tag, commits,
+artifact, hashes, qualification evidence, and documentation remain preserved.
+It is not a currently recommended download. Linux and macOS were not qualified
+GapFill 1.0.1 release artifacts. The release/tag commit above remains the
+historical semantic and payload baseline.
 
 The latest maintenance line is deliberately distinct:
 
@@ -82,10 +86,11 @@ The latest maintenance line is deliberately distinct:
 | Parent | release commit `3a551736654db94325e37e6bbeb457d1e4dd12b0` |
 | Scope | `.github/workflows/ci.yml` only: install Ubuntu `libegl1` and run a PyQt6 QtGui preflight |
 
-That descendant restored ordinary CI and changes no release payload or production
-semantics. A future OFFF thread may choose it as the development base, but only
-after read-only inspection and an explicit branch-base decision. It must not be
-described as the GapFill 1.0.1 release commit.
+That descendant restored ordinary CI and changes no release payload or
+production semantics. It is historical and must not be used as the current
+product baseline or described as the GapFill 1.0.1 release commit. New OFFF
+integration should use the published 1.0.2 baseline after the required read-only
+analysis.
 
 The commit containing this finalized handoff is itself a later documentation-only
 descendant. A fresh thread must inspect the checked-out branch HEAD before

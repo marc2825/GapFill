@@ -1,5 +1,15 @@
 # GapFill 1.0.1 Krita importer-compatibility hotfix
 
+Post-publication distribution status: **WITHDRAWN**. The 1.0.1 GitHub Release
+(former Release ID `379107741`) was withdrawn after later real-host interaction
+defects were identified. Its annotated tag `krita-v1.0.1`, release commit,
+frozen artifact, hashes, qualification evidence, and this historical preparation
+record remain preserved. GapFill for Krita 1.0.2 is the sole currently
+recommended downloadable Krita bundle.
+
+The following status and preparation language records the original checkpoint;
+it is not a current distribution recommendation.
+
 Status: **GAPFILL 1.0.1 IMPORTER-COMPATIBILITY HOTFIX READY — READY TO TAG**.
 This is a packaging-only patch release. It has not been tagged, pushed, or
 published by this checkpoint.
