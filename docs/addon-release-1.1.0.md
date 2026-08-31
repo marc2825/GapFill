@@ -110,8 +110,13 @@ training-distribution input and has no accuracy-superiority claim.
 
 - Starting `main` commit:
   `57ef6aeda0696b64a9f975899ed9cc419664561a`.
-- Release-source and frozen-candidate commit identities will be recorded after
-  the deterministic production artifact is built and frozen.
+- Release-source commit:
+  `6093dc40a391711ec087692a53eade5f2b6834e9`
+  (`release(krita): prepare GapFill for Krita 1.1.0`).
+- The exact frozen-candidate commit identity will be recorded after the
+  artifact and freeze metadata are committed. The intended tag target is the
+  commit containing `krita-plugin/release/1.1.0/freeze.json`, not any later
+  evidence-only documentation commit.
 - Publication governance:
   `GAPFILL_1_1_0_MODEL_INPUT_MODES_V1_GOVERNANCE_ADOPTED`.
 - Publication mode: `FROZEN_ARTIFACT_VERIFY_AND_PUBLISH`; eventual tag CI must
@@ -120,6 +125,68 @@ training-distribution input and has no accuracy-superiority claim.
 The ONNX model, historical fixture identity, and version-pinned native helper
 remain unchanged. The committed sidecar will truthfully distinguish Line-only
 training, Web compatibility behavior, and the two Krita runtime modes.
+
+## Frozen candidate artifact
+
+Two independent clean-tree builds from the exact release-source commit used
+the qualified Windows CPython 3.13 vendor payload and hash-pinned native
+helper. `cmp` and SHA-256 proved the outputs byte-for-byte identical.
+
+| Property | Frozen value |
+| --- | --- |
+| Repository artifact | `krita-plugin/release/artifacts/1.1.0/gapfill-for-krita-windows-x86_64.zip` |
+| SHA-256 | `541cba4b205d50ff307191afed349209c19d54506a0930413b9a92780a22a767` |
+| Size | 48,225,467 bytes |
+| ZIP entries | 1,012 total: 895 files and 117 explicit directories |
+| Importer | `PLUGIN_DISCOVERABLE`; exactly one `gapfill_krita` / `GapFill for Krita` plugin |
+| Disposable install | 895/895 ordinary files present and byte-identical |
+
+The archive contains the required explicit `gapfill_krita/` record, desktop
+and action metadata, model and sidecar, vendored NumPy and ONNX Runtime, and
+the version-pinned native helper. It contains no OFFF payload, tests, caches,
+bytecode, probes, host harness, JSONL/crash/session evidence, source-control
+files, or release-only scripts.
+
+Compared with immutable 1.0.2, no ordinary files were added or removed. The
+exact changed payloads are `Manual.html`, `controller.py`, `docker.py`,
+`engine/inference.py`, `engine/patches.py`, `engine/types.py`,
+`resources/models/model_info.json`, `settings.py`, and `worker.py`. They are
+the reviewed model-mode UI, persistence, tensor policy, propagation, frozen
+session identity/invalidation, manual, and truthful model-contract metadata.
+The ONNX, dependency vendor tree, and native helper did not change.
+
+Frozen identities:
+
+- fixture manifest:
+  `6243be8f2a26b383ef0293bd585318c0072011ccabf959cb25f42127aba5908c`;
+- ONNX:
+  `8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78`;
+- 1.1.0 model sidecar:
+  `58ca7fb15c414fabdf65019fc42d341f30398d3dc27b81b97da9c5a4ebffa398`;
+- native helper:
+  `ad2fa7463d59dca74a92dc867734b38eb7aa49821b163547da442147348f8746`.
+
+The sidecar change from the historical 1.0.2 hash `2ccc406b...` is intentional:
+it records Line-only training truth separately from Web compatibility behavior
+and the two qualified Krita runtime choices. The ONNX bytes are unchanged.
+
+## Local candidate validation
+
+- focused model-mode/session tests: 36 passed;
+- complete Krita/parity suite: 166 passed;
+- release/freeze/importer/build tests: 33 passed;
+- independent reference suite: 15 passed; provenance validation and Phase 5
+  characterization passed with zero model delta;
+- Web: 16 passed; ESLint, preset checks, image-metadata checks, and production
+  TypeScript/Vite build passed;
+- Ruff and compileall: passed;
+- importer, ZIP integrity, disposable extraction, deterministic A/B build, and
+  exact frozen verifier: passed;
+- `git diff --check`: passed.
+
+The local environment does not provide CMake, so the unchanged CSP gate awaits
+the standard GitHub Actions runner. Release readiness remains pending until
+normal branch CI passes Krita, reference, Web, and CSP jobs.
 
 ## Publication boundary
 

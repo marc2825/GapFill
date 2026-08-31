@@ -1,0 +1,93 @@
+{
+  "artifact": {
+    "directory_entry_count": 117,
+    "entry_count": 1012,
+    "file_entry_count": 895,
+    "filename": "gapfill-for-krita-windows-x86_64.zip",
+    "sha256": "541cba4b205d50ff307191afed349209c19d54506a0930413b9a92780a22a767",
+    "size": 48225467
+  },
+  "artifact_entry_manifest": {
+    "path": "krita-plugin/release/1.1.0/artifact-entries.json",
+    "sha256": "f6b625906a9922fe16050b3751efb9074a739d58b13df2b8d62d389da5989fdb"
+  },
+  "build": {
+    "builder_path": "krita-plugin/scripts/build_plugin.py",
+    "builder_sha256": "fbe75293fbc65ab5e85ead51c0df0935b5df455d2babda1315271039c167e2a8",
+    "candidate_a_sha256": "541cba4b205d50ff307191afed349209c19d54506a0930413b9a92780a22a767",
+    "candidate_b_sha256": "541cba4b205d50ff307191afed349209c19d54506a0930413b9a92780a22a767",
+    "reproducibility": "BYTE_FOR_BYTE_PASS"
+  },
+  "freeze_status": "GAPFILL FOR KRITA 1.1.0 RELEASE CANDIDATE PREPARED",
+  "frozen_artifact_filename": "gapfill-for-krita-windows-x86_64.zip",
+  "frozen_artifact_repository_path": "krita-plugin/release/artifacts/1.1.0/gapfill-for-krita-windows-x86_64.zip",
+  "frozen_artifact_sha256": "541cba4b205d50ff307191afed349209c19d54506a0930413b9a92780a22a767",
+  "frozen_artifact_size": 48225467,
+  "host_evidence": {
+    "classification": "GAPFILL FOR KRITA MODEL INPUT MODES — BOUNDED REAL-HOST QUALIFICATION PASS",
+    "known_crash_classification": "PRE-EXISTING HOST KO_TOOL_PROXY LIFECYCLE CRASH SIGNATURE OBSERVED AFTER QUALIFICATION HARNESS COMPLETION — NOT ATTRIBUTED TO MODEL-INPUT-MODE FEATURE",
+    "record": "docs/krita-model-input-modes.md",
+    "tested_host": "Windows 11 Pro x64 build 26200; Krita 5.3.3 git 858d352; Qt 5.15.7; CPython 3.13.5 x64; PyQt5 5.15.11"
+  },
+  "identities": {
+    "fixture_manifest_sha256": "6243be8f2a26b383ef0293bd585318c0072011ccabf959cb25f42127aba5908c",
+    "model_sidecar_sha256": "58ca7fb15c414fabdf65019fc42d341f30398d3dc27b81b97da9c5a4ebffa398",
+    "native_helper_sha256": "ad2fa7463d59dca74a92dc867734b38eb7aa49821b163547da442147348f8746",
+    "onnx_sha256": "8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78"
+  },
+  "importer_compatibility": {
+    "desktop_library": "gapfill_krita",
+    "diagnosis": "PLUGIN_DISCOVERABLE",
+    "discovered_plugin_count": 1,
+    "installed_file_count": 895,
+    "installed_payload_equality": "PASS",
+    "required_module_directory_entry": "gapfill_krita/",
+    "technical_module": "gapfill_krita",
+    "ui_name": "GapFill for Krita"
+  },
+  "kind": "gapfill-for-krita-model-input-modes-feature-freeze",
+  "overall_plugin_version": "1.1.0",
+  "payload_delta_from_1_0_2": {
+    "added_files": [],
+    "changed_files": [
+      "gapfill_krita/Manual.html",
+      "gapfill_krita/controller.py",
+      "gapfill_krita/docker.py",
+      "gapfill_krita/engine/inference.py",
+      "gapfill_krita/engine/patches.py",
+      "gapfill_krita/engine/types.py",
+      "gapfill_krita/resources/models/model_info.json",
+      "gapfill_krita/settings.py",
+      "gapfill_krita/worker.py"
+    ],
+    "removed_files": []
+  },
+  "predecessor": {
+    "artifact_filename": "gapfill-for-krita-windows-x86_64.zip",
+    "artifact_sha256": "34121098dc8f9e50707f686f5585176d0d7067858f21d241e190a2f4f25fa54b",
+    "artifact_size": 48223574,
+    "model_sidecar_sha256": "2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5",
+    "release_tag": "krita-v1.0.2"
+  },
+  "product": {
+    "docker_name": "GapFill",
+    "plugin_manager_name": "GapFill for Krita",
+    "release_title": "GapFill for Krita 1.1.0",
+    "technical_identity": "gapfill_krita",
+    "user_facing_name": "GapFill for Krita"
+  },
+  "prospective_tag_target": {
+    "selection": "FROZEN_CANDIDATE_COMMIT_CONTAINING_THIS_FREEZE_RECORD",
+    "later_documentation_commits_are_tag_targets": false
+  },
+  "publication_governance": "GAPFILL_1_1_0_MODEL_INPUT_MODES_V1_GOVERNANCE_ADOPTED",
+  "publication_mode": "FROZEN_ARTIFACT_VERIFY_AND_PUBLISH",
+  "qualified_release_platform": "windows-x86_64",
+  "release_tag": "krita-v1.1.0",
+  "schema": 1,
+  "source": {
+    "branch": "main",
+    "commit": "6093dc40a391711ec087692a53eade5f2b6834e9",
+    "subject": "release(krita): prepare GapFill for Krita 1.1.0"
+  }
+}
