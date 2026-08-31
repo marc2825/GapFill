@@ -43,3 +43,11 @@ test('rejects an output tensor with an unexpected value count', () => {
     /expected 4 output values.*received 3/i,
   );
 });
+
+test('preserves the pre-addon runtime acceptance of nonfinite and out-of-range values', () => {
+  const output = new Float32Array([Number.NaN, -0.1, 1.1, 0.5]);
+  assert.equal(
+    getValidatedProbabilityMap(output, [1, 1, 2, 2], [1, 1, 2, 2]),
+    output,
+  );
+});

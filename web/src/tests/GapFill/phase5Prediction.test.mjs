@@ -12,7 +12,9 @@ import {
   segmentLineRegions,
   selectCanonicalRegion,
 } from '../../utils/GapFill/onnxPostprocessing.ts';
-import { getValidatedProbabilityMap } from '../../utils/GapFill/onnxOutputValidation.ts';
+import {
+  getStrictValidatedProbabilityMap,
+} from '../../utils/GapFill/onnxOutputValidation.ts';
 import {
   calculateCenteredPatchBounds,
   copyIntoZeroPaddedPatch,
@@ -252,7 +254,7 @@ test('Phase 5 canonical region selection matches all eight frozen semantic cases
 
 test('Phase 5 output validation rejects nonfinite and out-of-range probabilities', () => {
   assert.throws(
-    () => getValidatedProbabilityMap(
+    () => getStrictValidatedProbabilityMap(
       new Float32Array([Number.NaN]),
       [1, 1, 1, 1],
       [1, 1, 1, 1],
@@ -260,7 +262,7 @@ test('Phase 5 output validation rejects nonfinite and out-of-range probabilities
     /nonfinite/,
   );
   assert.throws(
-    () => getValidatedProbabilityMap(
+    () => getStrictValidatedProbabilityMap(
       new Float32Array([1.01]),
       [1, 1, 1, 1],
       [1, 1, 1, 1],
@@ -289,7 +291,7 @@ test('Phase 5 Web ONNX output selects the canonical M001 region and RGB', async 
   const output = await session.run({
     input_mask: new ort.Tensor('float32', tensor, [1, 2, 32, 32]),
   });
-  const probabilities = getValidatedProbabilityMap(
+  const probabilities = getStrictValidatedProbabilityMap(
     output.nearest_region_mask.data,
     output.nearest_region_mask.dims,
     [1, 1, 32, 32],

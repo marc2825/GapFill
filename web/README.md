@@ -20,13 +20,15 @@ Open `http://localhost:5173/`. `npm ci` runs the `postinstall` script, which
 copies the ONNX Runtime WASM binary into `public/ort-wasm/`. The app loads the
 committed model from `public/models/unet32.onnx`.
 
-The learned runtime uses a binary float32 `[1,2,32,32]` tensor: channel 0 is
-Line Art only after canonical byte-RGBA/white-composite/grayscale-128
-conversion, and channel 1 is exactly the target gap. Guides remain detection
-boundaries but are excluded from the trained model input. The output is scored
-over full-image Line-derived semantic-region labels; the winning region supplies
-exact modal RGB with a first-row-major tie break. Predictions record explicit
-learned/fallback provenance, and fallback carries no learned confidence.
+The model was trained with a binary float32 `[1,2,32,32]` tensor whose channel
+0 is Line Art and whose channel 1 is the target gap. For compatibility with the
+Web product's established pre-addon behavior, the browser runtime supplies
+`alpha(Line) OR alpha(effective Guides)` in channel 0. For a Guide gap, pixels
+belonging to that target gap are removed from the effective Guide mask. This is
+a Web compatibility policy, not a claim that the model was trained on Guides.
+The output is scored against patch-local painted regions split by Line Art and
+effective Guides. Predictions retain explicit learned/fallback provenance;
+fallback carries no learned confidence.
 
 The web application has been tested with Google Chrome on Windows.
 
@@ -133,10 +135,12 @@ cd ../web
 The default `crop_size` is `32`, matching the web inference code. If you change
 the ML crop size, the browser inference patch size must be updated accordingly.
 The exporter writes a self-contained ONNX file and a sibling `model_info.json`.
-The JSON file documents the model interface and Line-only policy but is not
-loaded by the web app. Runtime code independently validates the session's exact
-input/output names and the output's float32 shape, finiteness, and `[0,1]`
-range. Repository validation pins the artifact SHA-256.
+The JSON file documents the Line-only training contract and the distinct Web
+compatibility runtime policy, but is not loaded by the web app. Runtime code
+uses the names exposed by the ONNX session and validates the output's float32
+shape and value count, matching the pre-addon Web behavior. Cross-host parity
+tests apply stricter finite/range checks independently. Repository validation
+pins the artifact SHA-256.
 
 ## Required Runtime Assets
 

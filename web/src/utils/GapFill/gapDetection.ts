@@ -16,7 +16,6 @@ import {
 } from './greedyColorPrediction';
 import { resolveGapFillFallbackColor } from './gapFillColors.ts';
 import { warnInDev } from './devLog';
-import { segmentLineRegions } from './onnxPostprocessing';
 
 const YIELD_EVERY_PIXELS = 0x40000;
 const ABORT_CHECK_EVERY_PIXELS = 0x10000;
@@ -37,7 +36,6 @@ interface PredictGapColorParams extends DetectedGapRegion {
   lineArtCanvas?: HTMLCanvasElement;
   guidesCanvas?: HTMLCanvasElement;
   fallbackColor: string;
-  semanticLabels?: Int32Array;
   signal?: AbortSignal;
 }
 
@@ -130,9 +128,11 @@ async function detectGapRegions(
 async function predictGapColor({
   canvas,
   lineArtCanvas,
+  guidesCanvas,
+  fallbackColor,
   center,
   pixels,
-  semanticLabels,
+  kind,
   signal,
 }: PredictGapColorParams): Promise<GapColorPrediction> {
   if (!lineArtCanvas) {
@@ -140,18 +140,20 @@ async function predictGapColor({
   }
 
   throwIfAborted(signal);
-  const learned = await predictColorWithONNX({
+  const predictedColor = await predictColorWithONNX({
     lineArtCanvas,
+    guidesCanvas: guidesCanvas || lineArtCanvas,
     coloredCanvas: canvas,
     gapCenter: center,
     gapPixels: pixels,
-    semanticLabels,
+    targetIsGuideGap: kind === 'guide',
+    fallbackColor,
   });
   throwIfAborted(signal);
   return {
-    predictedColor: learned.color,
+    predictedColor,
     predictionProvenance: 'learned',
-    learnedConfidence: learned.confidence,
+    learnedConfidence: null,
   };
 }
 
@@ -249,16 +251,6 @@ export async function detectGaps(
     [lineArtCanvas, guidesCanvas],
   );
   const gaps: GapFillRegion[] = [];
-  let semanticLabels: Int32Array | undefined;
-  if (lineArtCanvas) {
-    const lineContext = lineArtCanvas.getContext('2d');
-    if (!lineContext) {
-      throw new Error('Failed to read Line Art for semantic regions.');
-    }
-    semanticLabels = segmentLineRegions(
-      lineContext.getImageData(0, 0, width, height),
-    ).labels;
-  }
 
   // Implementation of Paper Sec. 4.1.2:
   // Attach a deep-learning-based suggested color to each detected gap.
@@ -281,7 +273,6 @@ export async function detectGaps(
       lineArtCanvas,
       guidesCanvas,
       fallbackColor: fallback,
-      semanticLabels,
       signal,
     });
 
@@ -294,17 +285,6 @@ export async function detectGaps(
       learnedConfidence: prediction.learnedConfidence,
       fallbackReason: prediction.fallbackReason,
     });
-  }
-
-  if (
-    lineArtCanvas &&
-    gaps.length > 0 &&
-    gaps.every((gap) => gap.predictionProvenance === 'fallback')
-  ) {
-    throw new Error(
-      `ONNX inference failed for every gap; heuristic fallback was not ` +
-        `substituted for the batch: ${gaps[0].fallbackReason || 'unknown error'}`,
-    );
   }
 
   return gaps;

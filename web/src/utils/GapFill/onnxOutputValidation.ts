@@ -31,7 +31,26 @@ export function getValidatedProbabilityMap(
     );
   }
 
-  for (const value of outputData) {
+  return outputData;
+}
+
+/**
+ * Strict probability validation used by cross-host parity evidence.
+ *
+ * The Web product runtime intentionally keeps its pre-addon behavior through
+ * `getValidatedProbabilityMap`, which checked tensor type and shape only.
+ */
+export function getStrictValidatedProbabilityMap(
+  outputData: unknown,
+  outputDimensions: readonly number[],
+  expectedDimensions: readonly number[],
+): Float32Array {
+  const probabilityMap = getValidatedProbabilityMap(
+    outputData,
+    outputDimensions,
+    expectedDimensions,
+  );
+  for (const value of probabilityMap) {
     if (!Number.isFinite(value)) {
       throw new Error('ONNX inference failed: output contains a nonfinite value.');
     }
@@ -40,5 +59,5 @@ export function getValidatedProbabilityMap(
     }
   }
 
-  return outputData;
+  return probabilityMap;
 }
