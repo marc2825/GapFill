@@ -12,7 +12,7 @@ from .canvas_boundary import (
     require_supported_widget_state,
     resolve_canvas_widget,
 )
-from .engine.types import GapRegion, Rgb
+from .engine.types import GapRegion, ModelBoundaryMode, Rgb
 from .host_contract import (
     GenerationGate,
     HostSnapshot,
@@ -37,6 +37,7 @@ from .worker import GapFillWorker
 @dataclass(frozen=True)
 class _SessionCheckpoint:
     context: ScanContext
+    model_boundary_mode: ModelBoundaryMode
     unresolved_ids: tuple[str, ...]
     resolved_ids: frozenset[str]
     invalidated_ids: frozenset[str]
@@ -55,6 +56,7 @@ class GapFillController:
         self._runs: dict[int, tuple[QThread, GapFillWorker]] = {}
         self._shutting_down = False
         self._published_generation: Optional[int] = None
+        self._analysis_model_boundary_mode: Optional[ModelBoundaryMode] = None
         self.resolved_ids: set[str] = set()
         self.invalidated_ids: set[str] = set()
         self._frozen_gaps: tuple[GapRegion, ...] = ()
@@ -73,13 +75,20 @@ class GapFillController:
         return self._gate.active in self._runs
 
     def scan(
-        self, coloring_node, line_node, guides_node, threshold: int, allow_greedy: bool
+        self,
+        coloring_node,
+        line_node,
+        guides_node,
+        threshold: int,
+        allow_greedy: bool,
+        model_boundary_mode: ModelBoundaryMode = ModelBoundaryMode.LINE_ONLY,
     ) -> None:
         if self._shutting_down:
             return
         self._retire_workers()
         generation = self._gate.start()
         self._published_generation = None
+        self._analysis_model_boundary_mode = model_boundary_mode
         self.resolved_ids.clear()
         self.invalidated_ids.clear()
         self._clear_session_history()
@@ -89,10 +98,12 @@ class GapFillController:
         view = window.activeView() if window else None
         if document is None or view is None:
             self._gate.retire(generation)
+            self._analysis_model_boundary_mode = None
             self.docker.show_error("Open a document before activating GapFill.")
             return
         if coloring_node is None or line_node is None:
             self._gate.retire(generation)
+            self._analysis_model_boundary_mode = None
             self.docker.show_error("Select both a Coloring layer and a Line Art layer.")
             return
         self._bind_history_actions(app)
@@ -103,6 +114,7 @@ class GapFillController:
             )
         except Exception as error:
             self._gate.retire(generation)
+            self._analysis_model_boundary_mode = None
             self.docker.set_busy(False)
             self.docker.show_error(str(error))
             return
@@ -112,7 +124,12 @@ class GapFillController:
         self.snapshot = snapshot
         thread = QThread()
         worker = GapFillWorker(
-            generation, snapshot, threshold, find_model_path(), allow_greedy
+            generation,
+            snapshot,
+            threshold,
+            find_model_path(),
+            allow_greedy,
+            model_boundary_mode,
         )
         self._runs[generation] = (thread, worker)
         worker.moveToThread(thread)
@@ -140,6 +157,7 @@ class GapFillController:
         if self._gate.active is None:
             return
         self._retire_workers()
+        self._analysis_model_boundary_mode = None
         self.docker.set_busy(False)
         self.docker.set_status("Cancelled. A running ONNX call may finish before cleanup.")
 
@@ -149,6 +167,7 @@ class GapFillController:
         self.snapshot = None
         self.gaps = []
         self._published_generation = None
+        self._analysis_model_boundary_mode = None
         self.resolved_ids.clear()
         self.invalidated_ids.clear()
         self._clear_session_history()
@@ -168,6 +187,7 @@ class GapFillController:
         self.snapshot = None
         self.gaps = []
         self._published_generation = None
+        self._analysis_model_boundary_mode = None
         self.resolved_ids.clear()
         self.invalidated_ids.clear()
         self._clear_session_history()
@@ -193,12 +213,14 @@ class GapFillController:
         if not self._gate.accepts(generation) or self._published_generation == generation:
             return
         self.gaps = []
+        self._analysis_model_boundary_mode = None
         self.docker.show_error(
             "GapFill could not load or run its color-prediction model.\n" + message
         )
 
     def _scan_cancelled(self, generation: int) -> None:
         if self._gate.accepts(generation) and self._published_generation != generation:
+            self._analysis_model_boundary_mode = None
             self.docker.set_status("Cancelled.")
 
     def _scan_completed(self, generation: int, gaps: list[GapRegion]) -> None:
@@ -207,6 +229,7 @@ class GapFillController:
         if not self._context_is_current(generation):
             self._gate.retire(generation)
             self.gaps = []
+            self._analysis_model_boundary_mode = None
             self.docker.set_regions([])
             self.docker.show_error(
                 "The scanned document/view disappeared or changed. Scan the intended canvas again."
@@ -217,6 +240,7 @@ class GapFillController:
         except Exception as error:
             self._gate.retire(generation)
             self.gaps = []
+            self._analysis_model_boundary_mode = None
             self.docker.set_regions([])
             self.docker.show_error(f"The scan became stale before preview: {error}")
             return
@@ -252,6 +276,7 @@ class GapFillController:
         self.snapshot = None
         self.gaps = []
         self._published_generation = None
+        self._analysis_model_boundary_mode = None
         self.resolved_ids.clear()
         self.invalidated_ids.clear()
         self._clear_session_history()
@@ -308,8 +333,12 @@ class GapFillController:
         self._host_reconciliation_token += 1
 
     def _checkpoint(self, context: ScanContext) -> _SessionCheckpoint:
+        model_boundary_mode = (
+            self._analysis_model_boundary_mode or ModelBoundaryMode.LINE_ONLY
+        )
         return _SessionCheckpoint(
             context=context,
+            model_boundary_mode=model_boundary_mode,
             unresolved_ids=tuple(gap.id for gap in self.gaps),
             resolved_ids=frozenset(self.resolved_ids),
             invalidated_ids=frozenset(self.invalidated_ids),
@@ -390,6 +419,7 @@ class GapFillController:
             return
         checkpoint = self._session_checkpoints[self._checkpoint_index]
         try:
+            self._require_checkpoint_mode(checkpoint)
             require_fresh(checkpoint.context, self._observe_current_context())
         except Exception as error:
             self._invalidate_session(
@@ -409,6 +439,7 @@ class GapFillController:
             return
         checkpoint = self._session_checkpoints[expected_index]
         try:
+            self._require_checkpoint_mode(checkpoint)
             require_fresh(checkpoint.context, self._observe_current_context())
             self._restore_session_checkpoint(expected_index)
         except Exception as error:
@@ -421,6 +452,7 @@ class GapFillController:
         if self.snapshot is None:
             raise StaleScanError("The frozen GapFill snapshot is unavailable.")
         checkpoint = self._session_checkpoints[index]
+        self._require_checkpoint_mode(checkpoint)
         by_id = {gap.id: gap for gap in self._frozen_gaps}
         if set(by_id) != {gap_id for gap_id, _color in checkpoint.preview_colors}:
             raise StaleScanError("The frozen GapFill candidate identity set changed.")
@@ -448,6 +480,42 @@ class GapFillController:
             f"Restored frozen GapFill checkpoint {index + 1}/"
             f"{len(self._session_checkpoints)} after document history navigation; "
             f"{len(self.gaps)} candidate(s) are unresolved."
+        )
+
+    def _require_checkpoint_mode(self, checkpoint: _SessionCheckpoint) -> None:
+        current = self._analysis_model_boundary_mode or ModelBoundaryMode.LINE_ONLY
+        if checkpoint.model_boundary_mode is not current:
+            raise StaleScanError(
+                "The frozen GapFill checkpoint belongs to a different model input mode."
+            )
+
+    def model_boundary_mode_changed(self, mode: ModelBoundaryMode) -> None:
+        """Make a model-input change an explicit frozen-analysis boundary."""
+
+        if self._shutting_down:
+            return
+        active_analysis = (
+            self.busy
+            or self.snapshot is not None
+            or bool(self.gaps)
+            or bool(self._session_checkpoints)
+            or self._published_generation is not None
+        )
+        if active_analysis:
+            self._retire_workers()
+            self._remove_overlay()
+            self.snapshot = None
+            self.gaps = []
+            self._published_generation = None
+            self.resolved_ids.clear()
+            self.invalidated_ids.clear()
+            self._clear_session_history()
+            self.docker.set_regions([])
+            self.docker.set_busy(False)
+        self._analysis_model_boundary_mode = None
+        label = "Line only" if mode is ModelBoundaryMode.LINE_ONLY else "Line + Guides"
+        self.docker.set_status(
+            f"Model input changed to {label}. Run Scan / Activate to create a new analysis."
         )
 
     @staticmethod

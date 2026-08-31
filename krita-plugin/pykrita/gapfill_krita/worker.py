@@ -4,6 +4,7 @@ from threading import Event
 
 from .engine.detection import detect_gap_regions
 from .engine.inference import GapFillPredictor
+from .engine.types import ModelBoundaryMode
 from .host_contract import HostSnapshot
 from .qt_compat import QObject, pyqtSignal, pyqtSlot
 
@@ -22,6 +23,7 @@ class GapFillWorker(QObject):
         threshold: int,
         model_path,
         allow_greedy: bool,
+        model_boundary_mode: ModelBoundaryMode = ModelBoundaryMode.LINE_ONLY,
     ):
         super().__init__()
         self.generation = generation
@@ -29,6 +31,7 @@ class GapFillWorker(QObject):
         self.threshold = threshold
         self.model_path = model_path
         self.allow_greedy = allow_greedy
+        self.model_boundary_mode = model_boundary_mode
         self._cancelled = Event()
 
     def cancel(self) -> None:
@@ -61,6 +64,7 @@ class GapFillWorker(QObject):
             predictor.predict_all(
                 images,
                 gaps,
+                model_boundary_mode=self.model_boundary_mode,
                 allow_greedy_on_inference_error=self.allow_greedy,
                 cancel_requested=self._cancelled.is_set,
                 progress=lambda done, total: self.progress.emit(

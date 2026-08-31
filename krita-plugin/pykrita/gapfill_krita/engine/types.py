@@ -17,6 +17,11 @@ class GapKind(str, Enum):
     GUIDE = "guide"
 
 
+class ModelBoundaryMode(str, Enum):
+    LINE_ONLY = "line_only"
+    LINE_OR_GUIDES = "line_or_guides"
+
+
 class PredictionProvenance(str, Enum):
     LEARNED = "learned"
     FALLBACK = "fallback"

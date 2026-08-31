@@ -4,6 +4,7 @@ from krita import DockWidget, Krita
 
 from .controller import GapFillController
 from .engine.colors import rgb_to_hex
+from .engine.types import ModelBoundaryMode
 from .krita_adapter import iter_nodes, node_label
 from .qt_compat import (
     USER_ROLE,
@@ -49,6 +50,17 @@ class GapFillDocker(DockWidget):
         self.coloring_combo = QComboBox()
         self.line_combo = QComboBox()
         self.guides_combo = QComboBox()
+        self.model_mode_combo = QComboBox()
+        self.model_mode_combo.addItem(
+            "Line only", ModelBoundaryMode.LINE_ONLY.value
+        )
+        self.model_mode_combo.addItem(
+            "Line + Guides", ModelBoundaryMode.LINE_OR_GUIDES.value
+        )
+        mode_index = self.model_mode_combo.findData(
+            self.settings.model_boundary_mode.value
+        )
+        self.model_mode_combo.setCurrentIndex(max(0, mode_index))
         self.threshold_spin = QSpinBox()
         self.threshold_spin.setRange(1, 10_000_000)
         self.threshold_spin.setValue(self.settings.threshold)
@@ -58,8 +70,16 @@ class GapFillDocker(DockWidget):
         form.addRow("Coloring:", self.coloring_combo)
         form.addRow("Line Art:", self.line_combo)
         form.addRow("Guides:", self.guides_combo)
+        form.addRow("Model input:", self.model_mode_combo)
         form.addRow("Maximum gap size:", self.threshold_spin)
         layout.addLayout(form)
+        model_help = QLabel(
+            "Line Art and Guides always define detection topology. "
+            "Line + Guides also supplies Guides to prediction; the model's "
+            "canonical training input is Line-only."
+        )
+        model_help.setWordWrap(True)
+        layout.addWidget(model_help)
         layout.addWidget(self.greedy_check)
 
         scan_row = QHBoxLayout()
@@ -111,6 +131,9 @@ class GapFillDocker(DockWidget):
         self.apply_all_button.clicked.connect(self.controller.apply_all)
         self.deactivate_button.clicked.connect(self.controller.deactivate)
         self.region_list.itemDoubleClicked.connect(lambda _item: self._correct_selected())
+        self.model_mode_combo.currentIndexChanged.connect(
+            self._model_boundary_mode_changed
+        )
         self._update_action_state()
 
     def canvasChanged(self, _canvas) -> None:
@@ -125,7 +148,21 @@ class GapFillDocker(DockWidget):
     def current_settings(self) -> GapFillSettings:
         self.settings.threshold = self.threshold_spin.value()
         self.settings.allow_per_gap_greedy_fallback = self.greedy_check.isChecked()
+        self.settings.model_boundary_mode = self.selected_model_boundary_mode()
         return self.settings
+
+    def selected_model_boundary_mode(self) -> ModelBoundaryMode:
+        value = str(self.model_mode_combo.currentData())
+        try:
+            return ModelBoundaryMode(value)
+        except ValueError:
+            return ModelBoundaryMode.LINE_ONLY
+
+    def _model_boundary_mode_changed(self, _index: int) -> None:
+        mode = self.selected_model_boundary_mode()
+        self.settings.model_boundary_mode = mode
+        self.settings.save()
+        self.controller.model_boundary_mode_changed(mode)
 
     def _save_settings(self) -> None:
         self.current_settings().save()
@@ -184,6 +221,7 @@ class GapFillDocker(DockWidget):
             self.guides_combo.currentData(),
             self.threshold_spin.value(),
             self.greedy_check.isChecked(),
+            self.selected_model_boundary_mode(),
         )
 
     def selected_ids(self) -> list[str]:

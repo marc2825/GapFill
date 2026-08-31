@@ -17,6 +17,7 @@ from .types import (
     GapRegion,
     LayerImages,
     LearnedPrediction,
+    ModelBoundaryMode,
     PredictionProvenance,
     Rgb,
 )
@@ -116,8 +117,15 @@ class GapFillPredictor:
         if values != expected:
             raise InvalidModelError(f"Expected {name} shape {expected}, received {values}.")
 
-    def predict_details(self, images: LayerImages, gap: GapRegion) -> LearnedPrediction:
-        tensor, bounds = build_model_tensor(images, gap)
+    def predict_details(
+        self,
+        images: LayerImages,
+        gap: GapRegion,
+        model_boundary_mode: ModelBoundaryMode = ModelBoundaryMode.LINE_ONLY,
+    ) -> LearnedPrediction:
+        tensor, bounds = build_model_tensor(
+            images, gap, mode=model_boundary_mode
+        )
         output = self.run_tensor(tensor)
 
         full_labels = build_line_region_labels(images.line_art)
@@ -169,14 +177,20 @@ class GapFillPredictor:
             raise InvalidModelError("GapFill model output contains a value outside [0, 1].")
         return output
 
-    def predict(self, images: LayerImages, gap: GapRegion) -> Rgb:
-        return self.predict_details(images, gap).rgb
+    def predict(
+        self,
+        images: LayerImages,
+        gap: GapRegion,
+        model_boundary_mode: ModelBoundaryMode = ModelBoundaryMode.LINE_ONLY,
+    ) -> Rgb:
+        return self.predict_details(images, gap, model_boundary_mode).rgb
 
     def predict_all(
         self,
         images: LayerImages,
         gaps: list[GapRegion],
         *,
+        model_boundary_mode: ModelBoundaryMode = ModelBoundaryMode.LINE_ONLY,
         allow_greedy_on_inference_error: bool = True,
         cancel_requested: Optional[Callable[[], bool]] = None,
         progress: Optional[Callable[[int, int], None]] = None,
@@ -198,7 +212,9 @@ class GapFillPredictor:
             if cancel_requested and cancel_requested():
                 raise InterruptedError("Color prediction was cancelled.")
             try:
-                prediction = self.predict_details(images, gap)
+                prediction = self.predict_details(
+                    images, gap, model_boundary_mode
+                )
                 learned_count += 1
             except (InvalidModelError, ModelUnavailableError):
                 raise
@@ -235,6 +251,7 @@ class GapFillPredictor:
             gap.predicted_rgb = prediction.rgb
             gap.prediction_provenance = prediction.provenance
             gap.learned_confidence = prediction.learned_confidence
+            gap.metadata["model_boundary_mode"] = model_boundary_mode.value
             if prediction.fallback_reason is None:
                 gap.metadata.pop("fallback_reason", None)
             else:

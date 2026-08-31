@@ -4,7 +4,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from .types import GapRegion, LayerImages, RgbaImage
+from .types import GapKind, GapRegion, LayerImages, ModelBoundaryMode, RgbaImage
 
 PATCH_SIZE = 32
 
@@ -128,14 +128,51 @@ def build_legacy_model_patches(
     return coloring, line_art, guides, gap_mask
 
 
+def build_line_only_boundary(line_art: ImagePatch) -> np.ndarray:
+    """Return the published 1.0.2 Line-only model boundary."""
+
+    return canonical_boundary_from_rgba(line_art.rgba)
+
+
+def build_line_or_guides_boundary(
+    line_art: ImagePatch,
+    guides: ImagePatch,
+    gap_mask: np.ndarray,
+    gap_kind: GapKind,
+) -> np.ndarray:
+    """Compose canonical Line with the normalized binary Guide boundary.
+
+    Krita's normalized Guide contract is any nonzero alpha, matching detection.
+    For a target Guide gap, only its own pixels are removed before composition.
+    """
+
+    line_boundary = build_line_only_boundary(line_art)
+    guide_boundary = guides.rgba[..., 3] > 0
+    if gap_kind is GapKind.GUIDE:
+        guide_boundary = guide_boundary.copy()
+        guide_boundary[gap_mask > 0] = False
+    return line_boundary | guide_boundary
+
+
 def build_model_tensor(
-    images: LayerImages, gap: GapRegion, size: int = PATCH_SIZE
+    images: LayerImages,
+    gap: GapRegion,
+    size: int = PATCH_SIZE,
+    mode: ModelBoundaryMode = ModelBoundaryMode.LINE_ONLY,
 ) -> tuple[np.ndarray, PatchBounds]:
-    """Build the canonical Line-only NCHW float32 model input."""
+    """Build an NCHW float32 input under an explicit boundary policy."""
 
     images.validate()
-    _, line_art, _, gap_mask = build_model_patches(images, gap, size)
-    boundary = canonical_boundary_from_rgba(line_art.rgba).astype(np.float32)
+    _, line_art, guides, gap_mask = build_model_patches(images, gap, size)
+    if mode is ModelBoundaryMode.LINE_ONLY:
+        boundary = build_line_only_boundary(line_art)
+    elif mode is ModelBoundaryMode.LINE_OR_GUIDES:
+        boundary = build_line_or_guides_boundary(
+            line_art, guides, gap_mask, gap.kind
+        )
+    else:
+        raise ValueError(f"Unsupported model boundary mode: {mode!r}.")
+    boundary = boundary.astype(np.float32)
     tensor = np.stack((boundary, gap_mask), axis=0)[None, ...]
     expected = (1, 2, size, size)
     if tensor.shape != expected or tensor.dtype != np.float32:

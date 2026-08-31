@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from .engine.types import ModelBoundaryMode
 from .qt_compat import QSettings
 
 
@@ -12,10 +13,16 @@ class GapFillSettings:
     sweep_radius: float = 18.0
     highlight_color: str = "#00D9FF"
     allow_per_gap_greedy_fallback: bool = True
+    model_boundary_mode: ModelBoundaryMode = ModelBoundaryMode.LINE_ONLY
 
     @classmethod
     def load(cls) -> "GapFillSettings":
         settings = QSettings("GapFill", "KritaPlugin")
+        stored_mode = str(settings.value("modelBoundaryMode", ModelBoundaryMode.LINE_ONLY.value))
+        try:
+            model_boundary_mode = ModelBoundaryMode(stored_mode)
+        except ValueError:
+            model_boundary_mode = ModelBoundaryMode.LINE_ONLY
         return cls(
             threshold=int(settings.value("threshold", 500)),
             marker_radius=float(settings.value("markerRadius", 14.0)),
@@ -23,6 +30,7 @@ class GapFillSettings:
             highlight_color=str(settings.value("highlightColor", "#00D9FF")),
             allow_per_gap_greedy_fallback=str(settings.value("allowGreedyFallback", "true")).lower()
             in ("1", "true", "yes"),
+            model_boundary_mode=model_boundary_mode,
         )
 
     def save(self) -> None:
@@ -32,3 +40,4 @@ class GapFillSettings:
         settings.setValue("sweepRadius", self.sweep_radius)
         settings.setValue("highlightColor", self.highlight_color)
         settings.setValue("allowGreedyFallback", self.allow_per_gap_greedy_fallback)
+        settings.setValue("modelBoundaryMode", self.model_boundary_mode.value)
