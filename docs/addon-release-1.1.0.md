@@ -1,7 +1,7 @@
 # GapFill for Krita 1.1.0 release preparation
 
-Status: **RELEASE CANDIDATE PREPARATION IN PROGRESS**. No `krita-v1.1.0` tag
-or public GitHub Release exists at this checkpoint.
+Status: **GAPFILL FOR KRITA 1.1.0 RELEASE CANDIDATE PREPARED**. No
+`krita-v1.1.0` tag or public GitHub Release exists at this checkpoint.
 
 GapFill for Krita is a Python plugin for Krita that finds small unpainted
 transparent gaps in anime-style coloring and predicts likely fill colors. The
@@ -113,10 +113,11 @@ training-distribution input and has no accuracy-superiority claim.
 - Release-source commit:
   `6093dc40a391711ec087692a53eade5f2b6834e9`
   (`release(krita): prepare GapFill for Krita 1.1.0`).
-- The exact frozen-candidate commit identity will be recorded after the
-  artifact and freeze metadata are committed. The intended tag target is the
-  commit containing `krita-plugin/release/1.1.0/freeze.json`, not any later
-  evidence-only documentation commit.
+- Frozen-candidate commit:
+  `956773c044a817e47cba91fc70fee23ab45c00e5`
+  (`docs(krita): freeze GapFill for Krita 1.1.0 candidate`). This is the exact
+  intended `krita-v1.1.0` target. This later evidence-only documentation
+  commit is not the tag target.
 - Publication governance:
   `GAPFILL_1_1_0_MODEL_INPUT_MODES_V1_GOVERNANCE_ADOPTED`.
 - Publication mode: `FROZEN_ARTIFACT_VERIFY_AND_PUBLISH`; eventual tag CI must
@@ -184,9 +185,26 @@ and the two qualified Krita runtime choices. The ONNX bytes are unchanged.
   exact frozen verifier: passed;
 - `git diff --check`: passed.
 
-The local environment does not provide CMake, so the unchanged CSP gate awaits
-the standard GitHub Actions runner. Release readiness remains pending until
-normal branch CI passes Krita, reference, Web, and CSP jobs.
+The local environment did not provide CMake, so the unchanged CSP gate was run
+on the standard GitHub Actions runner.
+
+## Frozen-candidate CI
+
+Normal `main` CI run
+[`33395516007`](https://github.com/marc2825/GapFill/actions/runs/33395516007)
+passed on frozen-candidate commit `956773c044a817e47cba91fc70fee23ab45c00e5`:
+
+- Krita plugin job `99498976183`: PASS;
+- reference fixtures job `99498976361`: PASS;
+- Web job `99498976417`: PASS;
+- CSP Gap Assist core job `99498976519`: PASS, including CMake configure,
+  build, and core/PNG end-to-end CTest.
+
+Pages run
+[`33395514923`](https://github.com/marc2825/GapFill/actions/runs/33395514923)
+also passed and is recorded separately from release-artifact qualification.
+The only annotations were GitHub-hosted action-runtime Node.js deprecation
+warnings; no repository gate failed.
 
 ## Publication boundary
 
