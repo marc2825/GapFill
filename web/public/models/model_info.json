@@ -23,7 +23,7 @@
   "input_description": "Training contract: 2-channel binary masks [Line-only boundary mask, target gap mask]. The Web compatibility runtime historically supplies Line OR effective Guides in channel 0.",
   "output_description": "Probability map (0-1 values)",
   "channels": {
-    "0": "Training: canonical Line Art only. Web compatibility runtime: alpha(Line) OR alpha(effective Guides), with the target Guide gap excluded from effective Guides.",
+    "0": "Training: canonical Line Art mask only; Guides are excluded because training did not supply them. Web compatibility runtime: alpha(Line) OR alpha(effective Guides), with the target Guide gap excluded from effective Guides.",
     "1": "Target gap mask (1=gap region, 0=other)"
   },
   "runtime_policy": "The model was trained with Line-only channel 0. The Web product intentionally preserves its pre-addon Line-or-effective-Guides compatibility behavior; this does not imply Guide-composed training data."
