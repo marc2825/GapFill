@@ -26,7 +26,7 @@
   "web_runtime_policy": "line_or_effective_guides",
   "krita_runtime_modes": ["line_only", "line_or_guides"],
   "channels": {
-    "0": "Training: canonical Line Art only. Web compatibility runtime: alpha(Line) OR alpha(effective Guides), with the target Guide gap excluded from effective Guides.",
+    "0": "Training: canonical Line Art mask only; Guides are excluded because training did not supply them. Web compatibility runtime: alpha(Line) OR alpha(effective Guides), with the target Guide gap excluded from effective Guides.",
     "1": "Target gap mask (1=gap region, 0=other)"
   },
   "runtime_policy": "The model was trained with Line-only channel 0. The Web product intentionally preserves its pre-addon Line-or-effective-Guides compatibility behavior. Krita development source defaults to Line-only and exposes a separately qualified Line-or-Guides option. Neither runtime policy implies Guide-composed training data."
