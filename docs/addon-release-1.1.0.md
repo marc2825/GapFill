@@ -1,17 +1,18 @@
-# GapFill for Krita 1.1.0 release preparation
+# GapFill for Krita 1.1.0 release
 
-Status: **GAPFILL FOR KRITA 1.1.0 RELEASE CANDIDATE PREPARED**. No
-`krita-v1.1.0` tag or public GitHub Release exists at this checkpoint.
+Status: **GAPFILL FOR KRITA 1.1.0 PUBLISHED AND VERIFIED**. The annotated
+`krita-v1.1.0` tag and public GitHub Release contain the exact frozen candidate
+and production artifact recorded below.
 
 GapFill for Krita is a Python plugin for Krita that finds small unpainted
 transparent gaps in anime-style coloring and predicts likely fill colors. The
 user-facing and Plugin Manager name is **GapFill for Krita**. Its technical
 module, package, import, and `X-KDE-Library` identity remain `gapfill_krita`.
-The prospective release title is **GapFill for Krita 1.1.0**, its prospective
-tag is `krita-v1.1.0`, and its production Windows asset is
+The release title is **GapFill for Krita 1.1.0**, its tag is `krita-v1.1.0`,
+and its production Windows asset is
 `gapfill-for-krita-windows-x86_64.zip`.
 
-## Prospective release notes
+## Release notes
 
 ### Highlights
 
@@ -40,7 +41,7 @@ included in this Krita release bundle.
 
 ## Qualified host
 
-The release candidate is qualified only for this exact cell:
+The release is qualified only for this exact cell:
 
 | Component | Qualified value |
 | --- | --- |
@@ -56,8 +57,9 @@ support claim is made. Unsupported or stale host state fails closed.
 
 ## Installation
 
-1. Download `gapfill-for-krita-windows-x86_64.zip` from the future 1.1.0
-   GitHub Release. Do not extract the ZIP.
+1. Download `gapfill-for-krita-windows-x86_64.zip` from the
+   [1.1.0 GitHub Release](https://github.com/marc2825/GapFill/releases/tag/krita-v1.1.0).
+   Do not extract the ZIP.
 2. In Krita, choose **Tools → Scripts → Import Python Plugin From File…** and
    select the ZIP.
 3. Restart Krita completely.
@@ -206,8 +208,29 @@ also passed and is recorded separately from release-artifact qualification.
 The only annotations were GitHub-hosted action-runtime Node.js deprecation
 warnings; no repository gate failed.
 
-## Publication boundary
+## Publication record
 
-Preparation stops before creating or pushing `krita-v1.1.0`, creating a GitHub
-Release, or uploading a public asset. Those operations require separate
-explicit authorization after the frozen candidate and normal CI are green.
+Publication used the exact prepared identities and did not rebuild or replace
+the artifact:
+
+| Property | Published value |
+| --- | --- |
+| Annotated tag | `krita-v1.1.0` |
+| Tag object | `8166aaeec88afc6edecbbfcd3a0bddf21d4c18a3` |
+| Peeled tag target | `956773c044a817e47cba91fc70fee23ab45c00e5` |
+| Tag verifier run | [33441152644](https://github.com/marc2825/GapFill/actions/runs/33441152644) |
+| Tag verifier job | `99649413874`, **PASS** / `FROZEN_RELEASE_ARTIFACT_VERIFICATION_PASS` |
+| GitHub Release | [GapFill for Krita 1.1.0](https://github.com/marc2825/GapFill/releases/tag/krita-v1.1.0) |
+| Release ID | `380063013` |
+| Published | `2026-08-31T21:28:01Z` |
+| Asset ID | `538548427` |
+| Public asset | `gapfill-for-krita-windows-x86_64.zip`, 48,225,467 bytes |
+| Public SHA-256 | `541cba4b205d50ff307191afed349209c19d54506a0930413b9a92780a22a767` |
+
+The public asset was downloaded from the GitHub Release after publication. It
+was byte-for-byte identical to the frozen repository artifact, passed ZIP
+integrity, reproduced the exact 1,012-entry inventory (895 files and 117
+explicit directories), contained `gapfill_krita/`, and produced exactly one
+`PLUGIN_DISCOVERABLE` plugin with technical module `gapfill_krita` and display
+name **GapFill for Krita**. The Release is published, non-draft,
+non-prerelease, latest/current, and contains exactly this one production asset.

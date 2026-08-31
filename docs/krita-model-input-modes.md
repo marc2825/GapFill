@@ -2,12 +2,11 @@
 
 Status: **implemented, bounded-real-host qualified on the recorded Windows /
 Krita 5.3.3 host cell, integrated into `main`, and selected for the GapFill for
-Krita 1.1.0 release candidate**.
+Krita 1.1.0 release**.
 
 This additive feature does not modify the published GapFill for Krita 1.0.2
-tag or artifact. Version 1.0.2 remains the current published Line-only release;
-the separately frozen 1.1.0 candidate adds the qualified selector without
-rewriting that history.
+tag or artifact. Version 1.1.0 is the current published release; the retained
+1.0.2 release remains an unchanged historical Line-only artifact.
 
 ## Contracts kept separate
 

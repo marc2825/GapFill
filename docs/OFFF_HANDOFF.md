@@ -1,14 +1,14 @@
 # OFFF Development Handoff
 
-> **LATEST PUBLISHED GAPFILL BASELINE:** GapFill for Krita 1.0.2 is published
-> at `krita-v1.0.2`. Annotated tag object
-> `9154d41be741058b703fd1198f0fd1ac1ab89396` peels to frozen release commit
-> `232db61f79e4d100a19978e82013868430950c59`. GitHub Release
-> `https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.2` has Release ID
-> `379404740` and exactly one production asset, ID `537074041`, SHA-256
-> `34121098dc8f9e50707f686f5585176d0d7067858f21d241e190a2f4f25fa54b`.
+> **LATEST PUBLISHED GAPFILL BASELINE:** GapFill for Krita 1.1.0 is published
+> at `krita-v1.1.0`. Annotated tag object
+> `8166aaeec88afc6edecbbfcd3a0bddf21d4c18a3` peels to frozen release commit
+> `956773c044a817e47cba91fc70fee23ab45c00e5`. GitHub Release
+> `https://github.com/marc2825/GapFill/releases/tag/krita-v1.1.0` has Release ID
+> `380063013` and exactly one production asset, ID `538548427`, SHA-256
+> `541cba4b205d50ff307191afed349209c19d54506a0930413b9a92780a22a767`.
 > OFFF remains untouched in this publication task. A future task may now begin
-> the required read-only OFFF spec/code analysis from the 1.0.2 baseline; it
+> the required read-only OFFF spec/code analysis from the 1.1.0 baseline; it
 > must not begin implementation until that analysis and semantic freeze are
 > reviewed.
 
@@ -21,27 +21,28 @@
 > **NEW THREAD START**
 >
 > Repository: `/home/marc2825/GapFill`
-> Latest published GapFill release: `GapFill for Krita 1.0.2`
-> **RELEASE BASELINE:** `krita-v1.0.2` / `232db61f79e4d100a19978e82013868430950c59`
-> Published release: `https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.2`
-> GapFill 1.0.0 and 1.0.1 remain immutable historical releases.
+> Latest published GapFill release: `GapFill for Krita 1.1.0`
+> **RELEASE BASELINE:** `krita-v1.1.0` / `956773c044a817e47cba91fc70fee23ab45c00e5`
+> Published release: `https://github.com/marc2825/GapFill/releases/tag/krita-v1.1.0`
+> GapFill 1.0.0, 1.0.1, and 1.0.2 remain immutable historical releases.
 > Do not opportunistically change frozen GapFill behavior for OFFF.
 > OFFF history is on `feature/overflow-floodfill` at `0caa23c658e6c589b8ff1ea0ed4a1ae9fa2a5043`.
 > Inspect that branch read-only; do not merge, rebase, or cherry-pick it yet.
 > Read its spec with `git show feature/overflow-floodfill:web/docs/OVERFLOW_FLOOD_FILL_SPEC.md`.
 > Existing OFFF code is a web prototype, not a qualified Krita implementation.
-> Frozen GapFill model channel 0 is Line-only; Guides affect detection topology only.
+> GapFill training and default model channel 0 are Line-only; the 1.1.0 Krita
+> runtime also has a separately qualified Line + Guides compatibility mode.
 > Historical OFFF specifies model channel 0 as Line Art / Guides.
 > `SEMANTIC DECISION REQUIRED BEFORE SHARING MODEL INPUT INFRASTRUCTURE`.
 > First task: read-only OFFF spec-vs-code gap analysis and OFFF v1 semantic freeze.
-> After read-only inspection, create a new OFFF branch from the 1.0.2 release
+> After read-only inspection, create a new OFFF branch from the 1.1.0 release
 > baseline and reconstruct selectively.
 > Keep GapFill and OFFF independently testable; later qualify coexistence in a real host.
 > Do not begin implementation until the semantic and integration plans are reviewed.
 
 ## 1. Why this document exists
 
-This is the durable boundary between the completed GapFill for Krita 1.0.2 release and
+This is the durable boundary between the completed GapFill for Krita 1.1.0 release and
 future Overflow Flood Fill (OFFF) development. It records enough repository
 evidence to restart in a new thread without relying on prior conversation or
 temporary qualification files.
@@ -95,7 +96,7 @@ The latest maintenance line is deliberately distinct:
 That descendant restored ordinary CI and changes no release payload or
 production semantics. It is historical and must not be used as the current
 product baseline or described as the GapFill 1.0.1 release commit. New OFFF
-integration should use the published 1.0.2 baseline after the required read-only
+integration should use the published 1.1.0 baseline after the required read-only
 analysis.
 
 The commit containing this finalized handoff is itself a later documentation-only
@@ -125,9 +126,11 @@ mode, adapters, and genuinely neutral shared infrastructure.
 The canonical GapFill contract remains defined by `docs/addon-spec.md`. The
 following distinctions are especially important for OFFF work:
 
-- Model input channel 0 is **Line-only**.
-- Guides affect **detection topology only**; Guides are not part of the trained
-  GapFill model input.
+- The trained/default model input channel 0 is **Line-only**; Guides affect
+  detection topology and are not part of the trained GapFill model input.
+- Krita 1.1.0 additionally offers the qualified `line_or_guides` compatibility
+  mode. It must not be mistaken for the training contract or presumed more
+  accurate.
 - Detection uses canonical four-neighbor connectivity.
 - An eligible gap is enclosed, has `component_size <= threshold`, does not touch
   the image edge, and is transparent in Coloring (`alpha == 0`).
@@ -178,8 +181,8 @@ counterpart. The branch was inspected without checkout or mutation.
 | --- | --- |
 | OFFF branch HEAD | `0caa23c658e6c589b8ff1ea0ed4a1ae9fa2a5043` |
 | Subject | `prototype for overflow floodfill` |
-| Merge base with current 1.0.2 release | `2044d8f163367b25ed6cb81f2c0c86949d9fdf0f` |
-| Divergence from 1.0.2 release baseline | OFFF: 1 unique commit; release: 31 unique commits |
+| Merge base with current 1.1.0 release | `2044d8f163367b25ed6cb81f2c0c86949d9fdf0f` |
+| Divergence from 1.1.0 release baseline | OFFF: 1 unique commit; release: 49 unique commits |
 | Historical divergence from 1.0.1 maintenance head | OFFF: 1 unique commit; maintenance: 26 unique commits |
 | Commit scope | 27 files, 2,296 insertions, 173 deletions |
 
@@ -400,8 +403,8 @@ Recommended strategy:
 1. Preserve `feature/overflow-floodfill` unchanged as historical reference.
 2. Complete the read-only gap analysis and freeze OFFF v1 semantics.
 3. After read-only inspection, create the new OFFF development branch from the
-   published release baseline `krita-v1.0.2` /
-   `232db61f79e4d100a19978e82013868430950c59`. Do not use the historical
+   published release baseline `krita-v1.1.0` /
+   `956773c044a817e47cba91fc70fee23ab45c00e5`. Do not use the historical
    `hotfix/krita-v1.0.1` maintenance line as the new product baseline.
 4. Recreate/port the OFFF spec first.
 5. Selectively reconstruct pure OFFF modules and tests one at a time, preserving
@@ -455,14 +458,17 @@ Final release, maintenance, and qualification records:
 2. `docs/addon-spec.md`
 3. `docs/addon-release.md`
 4. `docs/addon-phase6.5.md`
-5. `docs/addon-release-1.0.2.md`
-6. `krita-plugin/release/1.0.2/freeze.json`
-7. `krita-plugin/release/1.0.1/freeze.json` (historical)
-8. `krita-plugin/host_tests/matrix.json`
-9. `krita-plugin/pykrita/gapfill_krita/host_contract.py`
-10. `krita-plugin/pykrita/gapfill_krita/controller.py`
-11. `krita-plugin/pykrita/gapfill_krita/canvas_boundary.py`
-12. `krita-plugin/pykrita/gapfill_krita/native_backend.py`
+5. `docs/addon-release-1.1.0.md`
+6. `docs/krita-model-input-modes.md`
+7. `krita-plugin/release/1.1.0/freeze.json`
+8. `docs/addon-release-1.0.2.md` (historical)
+9. `krita-plugin/release/1.0.2/freeze.json` (historical)
+10. `krita-plugin/release/1.0.1/freeze.json` (historical)
+11. `krita-plugin/host_tests/matrix.json`
+12. `krita-plugin/pykrita/gapfill_krita/host_contract.py`
+13. `krita-plugin/pykrita/gapfill_krita/controller.py`
+14. `krita-plugin/pykrita/gapfill_krita/canvas_boundary.py`
+15. `krita-plugin/pykrita/gapfill_krita/native_backend.py`
 
 `docs/addon-release.md` is the release/freeze **preparation** record and therefore
 speaks prospectively about tagging/publication. The published state and remote
@@ -550,9 +556,9 @@ bug.
 
 ## 17. Release references and frozen hashes
 
-The authoritative machine-readable 1.0.2 release freeze is
-`krita-plugin/release/1.0.2/freeze.json`. The 1.0.1 record remains historical at
-`krita-plugin/release/1.0.1/freeze.json`.
+The authoritative machine-readable 1.1.0 release freeze is
+`krita-plugin/release/1.1.0/freeze.json`. The 1.0.2 and 1.0.1 records remain
+historical at their corresponding versioned paths.
 
 | Frozen item | SHA-256 |
 | --- | --- |
@@ -561,7 +567,8 @@ The authoritative machine-readable 1.0.2 release freeze is
 | Display Oracle V2 identity | `a0d6a02bcc678ed316a18e26da17a693293e0ac22d4579d992de6eeb21844f35` |
 | Native helper | `ad2fa7463d59dca74a92dc867734b38eb7aa49821b163547da442147348f8746` |
 | ONNX model | `8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78` |
-| Model sidecar | `2ccc406b1e0647499af6657877309e6a8d66ff7aebb0dd307ba0d7de306e55e5` |
+| 1.1.0 model sidecar | `58ca7fb15c414fabdf65019fc42d341f30398d3dc27b81b97da9c5a4ebffa398` |
+| Published 1.1.0 Windows x86_64 ZIP | `541cba4b205d50ff307191afed349209c19d54506a0930413b9a92780a22a767` |
 | Published 1.0.2 Windows x86_64 ZIP | `34121098dc8f9e50707f686f5585176d0d7067858f21d241e190a2f4f25fa54b` |
 
 These identities freeze GapFill evidence. They do not freeze or qualify OFFF.

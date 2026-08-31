@@ -5,14 +5,13 @@ in anime-style coloring and predicts a likely fill color for each gap. It adds
 an interactive canvas workflow for reviewing, correcting, and applying those
 predictions without leaving Krita.
 
-- **Prepared release candidate:** GapFill for Krita 1.1.0 (publication pending)
-- **Current published release:** [GapFill for Krita 1.0.2](https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.2)
+- **Current published release:** [GapFill for Krita 1.1.0](https://github.com/marc2825/GapFill/releases/tag/krita-v1.1.0)
+- **Previous published release:** [GapFill for Krita 1.0.2](https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.2)
 - **Download:** `gapfill-for-krita-windows-x86_64.zip`
 
 Version 1.1.0 adds a qualified **Model input** selector with **Line only** and
-**Line + Guides** choices. Until its tag and GitHub Release are explicitly
-published, 1.0.2 remains the sole downloadable release. The immutable 1.0.2
-artifact and its historical evidence are unchanged.
+**Line + Guides** choices. The immutable 1.0.2 artifact and its historical
+evidence remain available and unchanged.
 
 ## What it does
 
@@ -36,7 +35,7 @@ artifact and its historical evidence are unchanged.
 
 ## Supported environment
 
-The prepared 1.1.0 Windows bundle is formally qualified for this exact host
+The published 1.1.0 Windows bundle is formally qualified for this exact host
 cell:
 
 | Component | Qualified version |
@@ -58,7 +57,7 @@ The Windows release ZIP is self-contained. It includes the plugin, action
 metadata, model, NumPy, ONNX Runtime, and the version-pinned native Apply
 helper. Do not install additional Python packages with pip.
 
-1. After 1.1.0 is published, download its
+1. Download the 1.1.0
    `gapfill-for-krita-windows-x86_64.zip` release asset. Do not extract it.
 2. In Krita, choose **Tools → Scripts → Import Python Plugin From File…** and
    select the ZIP.
@@ -276,7 +275,7 @@ krita-plugin/
 The canonical behavior is documented in the
 [GapFill specification](../docs/addon-spec.md). The published artifact and its
 frozen identities are recorded in the
-[1.1.0 release-candidate record](../docs/addon-release-1.1.0.md). Historical
+[1.1.0 release record](../docs/addon-release-1.1.0.md). Historical
 1.0.2 release evidence remains in
 [the 1.0.2 record](../docs/addon-release-1.0.2.md).
 
