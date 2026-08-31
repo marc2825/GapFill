@@ -22,9 +22,12 @@
   ],
   "input_description": "Training contract: 2-channel binary masks [Line-only boundary mask, target gap mask]. The Web compatibility runtime historically supplies Line OR effective Guides in channel 0.",
   "output_description": "Probability map (0-1 values)",
+  "training_input_policy": "line_only",
+  "web_runtime_policy": "line_or_effective_guides",
+  "krita_runtime_modes": ["line_only", "line_or_guides"],
   "channels": {
     "0": "Training: canonical Line Art only. Web compatibility runtime: alpha(Line) OR alpha(effective Guides), with the target Guide gap excluded from effective Guides.",
     "1": "Target gap mask (1=gap region, 0=other)"
   },
-  "runtime_policy": "The model was trained with Line-only channel 0. The Web product intentionally preserves its pre-addon Line-or-effective-Guides compatibility behavior; this does not imply Guide-composed training data."
+  "runtime_policy": "The model was trained with Line-only channel 0. The Web product intentionally preserves its pre-addon Line-or-effective-Guides compatibility behavior. Krita development source defaults to Line-only and exposes a separately qualified Line-or-Guides option. Neither runtime policy implies Guide-composed training data."
 }

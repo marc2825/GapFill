@@ -12,6 +12,11 @@ Version 1.0.2 is the sole currently recommended Krita bundle. The 1.0.1 public
 release was withdrawn after later real-host interaction defects were found; its
 Git tag and historical evidence remain available for traceability.
 
+The current development source adds a **Model input** selector with **Line
+only** and **Line + Guides** choices. This development feature is not part of
+the immutable 1.0.2 artifact and still requires real-Krita qualification before
+a later release.
+
 ## What it does
 
 - Finds small, enclosed, fully transparent gaps on a selected **Coloring**
@@ -78,10 +83,12 @@ binary Python dependencies or native helper required for Apply.
 1. Choose the paint layer to inspect and modify as **Coloring**.
 2. Choose the boundary layer as **Line Art**.
 3. Optionally choose a **Guides** layer.
-4. Set **Maximum gap size**, then click **Scan / Activate**.
-5. Inspect the candidate markers and predicted colors.
-6. Correct or apply candidates using the canvas or docker controls.
-7. Click **Deactivate** when finished.
+4. Choose **Model input**. **Line only** is the default and matches 1.0.2;
+   **Line + Guides** is an extended compatibility mode.
+5. Set **Maximum gap size**, then click **Scan / Activate**.
+6. Inspect the candidate markers and predicted colors.
+7. Correct or apply candidates using the canvas or docker controls.
+8. Click **Deactivate** when finished.
 
 ### Canvas controls
 
@@ -121,11 +128,13 @@ rejected before preview or Apply.
 
 ## Detection and prediction semantics
 
-Line Art and Guides deliberately have different roles:
+Line Art and Guides have distinct detection and prediction roles:
 
 ```text
 gap detection boundary = Line Art OR Guides
-model input channel 0  = Line Art only
+model channel 0 (Line only)     = canonical Line
+model channel 0 (Line + Guides) = canonical Line OR normalized Guides
+model channel 1                 = target gap
 ```
 
 The detector uses four-neighbor connectivity and considers only enclosed,
@@ -133,10 +142,18 @@ fully transparent Coloring components at or below the configured size. Open
 components touching the document edge are excluded.
 
 For learned prediction, Line Art is composited over byte white and thresholded
-at inclusive grayscale 128 before the canonical two-channel `32 × 32` tensor is
-built. Guides never enter the trained model tensor. The model output is matched
-against full-image, Line-derived semantic regions to produce a deterministic
-representative RGB.
+at inclusive grayscale 128. In **Line + Guides**, the normalized Guide boundary
+(any nonzero alpha, the same binary source used by detection) is ORed with that
+Line boundary. For a target Guide gap, only its target pixels are removed from
+the Guide contribution before composition. Channel 1 remains the exact target
+gap in both modes. The model was trained with Line-only channel 0, so **Line +
+Guides** may be out-of-distribution and is not described as more accurate. The
+model output remains matched against full-image, Line-derived semantic regions.
+
+The selected mode is frozen when Scan begins. Changing it cancels or invalidates
+the current frozen analysis, clears its overlay and checkpoints, and requires
+an explicit new Scan; it never runs inference automatically. Known Apply and
+Undo/Redo checkpoints can only be restored within their original mode.
 
 The model must load and validate successfully before suggestions are shown. A
 missing, malformed, incompatible, or wrong-hash model/runtime produces an error
@@ -168,7 +185,9 @@ confidence and require explicit confirmation.
 
 For the exact qualification scope and exceptions, see
 [Phase 6.5 host qualification](../docs/addon-phase6.5.md) and the
-[1.0.2 interaction evidence](../docs/addon-interaction-1.0.2.md).
+[1.0.2 interaction evidence](../docs/addon-interaction-1.0.2.md). The
+development selector and its pending real-host smoke plan are recorded in
+[Krita model-input modes](../docs/krita-model-input-modes.md).
 
 ## Install from a source checkout
 
