@@ -8,7 +8,7 @@ import pytest
 
 os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
-from gapfill_krita.engine.types import LayerImages  # noqa: E402
+from gapfill_krita.engine.types import LayerImages, ModelBoundaryMode  # noqa: E402
 from gapfill_krita.host_contract import GenerationGate  # noqa: E402
 from gapfill_krita.worker import GapFillWorker  # noqa: E402
 from PyQt6.QtCore import QCoreApplication, QThread  # noqa: E402
@@ -94,6 +94,34 @@ def test_generation_is_attached_to_all_terminal_signals(app, monkeypatch) -> Non
     monkeypatch.setattr(worker_module, "GapFillPredictor", Predictor)
     events = _run_thread(app, GapFillWorker(77, _images(), 10, "model.onnx", False))
     assert events == [("completed", 77)]
+
+
+def test_worker_forwards_the_frozen_model_boundary_mode(app, monkeypatch) -> None:
+    import gapfill_krita.worker as worker_module
+
+    monkeypatch.setattr(worker_module, "detect_gap_regions", lambda *args, **kwargs: [])
+    observed = []
+
+    class Predictor:
+        def __init__(self, _path):
+            pass
+
+        def predict_all(self, images, gaps, **kwargs):
+            observed.append(kwargs["model_boundary_mode"])
+            return gaps
+
+    monkeypatch.setattr(worker_module, "GapFillPredictor", Predictor)
+    worker = GapFillWorker(
+        78,
+        _images(),
+        10,
+        "model.onnx",
+        False,
+        ModelBoundaryMode.LINE_OR_GUIDES,
+    )
+
+    assert _run_thread(app, worker) == [("completed", 78)]
+    assert observed == [ModelBoundaryMode.LINE_OR_GUIDES]
 
 
 def test_queued_terminal_delivery_is_gated_after_lifecycle_changes(app) -> None:

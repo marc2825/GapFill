@@ -3,7 +3,14 @@ import unittest
 
 import numpy as np
 from gapfill_krita.engine.inference import GapFillPredictor, InvalidModelError
-from gapfill_krita.engine.types import GapKind, GapRegion, LayerImages
+from gapfill_krita.engine.types import (
+    GapKind,
+    GapRegion,
+    LayerImages,
+    LearnedPrediction,
+    ModelBoundaryMode,
+    PredictionProvenance,
+)
 
 
 class Metadata:
@@ -29,6 +36,29 @@ class Session:
 
 
 class InferenceTests(unittest.TestCase):
+    def test_predict_all_freezes_the_explicit_mode_into_prediction_metadata(self):
+        predictor = GapFillPredictor("unused.onnx", expected_model_sha256=None)
+        predictor.load = lambda: None
+        observed = []
+
+        def predict_details(_images, _gap, mode):
+            observed.append(mode)
+            return LearnedPrediction((12, 34, 56), PredictionProvenance.LEARNED)
+
+        predictor.predict_details = predict_details
+        images = np.zeros((3, 3, 4), dtype=np.uint8)
+        gap = GapRegion(
+            "gap-0", np.asarray([4], dtype=np.int64), (1, 1), GapKind.TRANSPARENT
+        )
+        predictor.predict_all(
+            LayerImages(images, images.copy(), images.copy()),
+            [gap],
+            model_boundary_mode=ModelBoundaryMode.LINE_OR_GUIDES,
+        )
+
+        self.assertEqual(observed, [ModelBoundaryMode.LINE_OR_GUIDES])
+        self.assertEqual(gap.metadata["model_boundary_mode"], "line_or_guides")
+
     def test_accepts_exact_model_contract(self):
         with tempfile.NamedTemporaryFile(suffix=".onnx") as model:
             predictor = GapFillPredictor(

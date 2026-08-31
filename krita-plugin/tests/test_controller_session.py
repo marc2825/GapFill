@@ -11,6 +11,7 @@ from gapfill_krita.engine.types import (
     GapKind,
     GapRegion,
     LayerImages,
+    ModelBoundaryMode,
     PredictionProvenance,
 )
 from gapfill_krita.host_contract import (
@@ -143,7 +144,9 @@ def controller_module(monkeypatch):
     sys.modules.pop("gapfill_krita.controller", None)
 
 
-def _active_controller(module, gaps):
+def _active_controller(
+    module, gaps, mode: ModelBoundaryMode = ModelBoundaryMode.LINE_ONLY
+):
     docker = _Docker()
     controller = module.GapFillController(docker)
     generation = controller._gate.start()
@@ -152,6 +155,7 @@ def _active_controller(module, gaps):
     controller.view = object()
     controller.snapshot = _snapshot(generation)
     controller.gaps = list(gaps)
+    controller._analysis_model_boundary_mode = mode
     controller._start_session_history(controller.gaps)
     overlay = SimpleNamespace(
         closed=False,
@@ -310,8 +314,9 @@ def _observe_hash(controller, coloring_hash: str):
     )
 
 
+@pytest.mark.parametrize("model_mode", list(ModelBoundaryMode))
 def test_verified_undo_restores_original_frozen_candidates_without_inference(
-    controller_module, monkeypatch
+    controller_module, monkeypatch, model_mode
 ) -> None:
     gaps = [
         _gap("A", 1, (11, 12, 13)),
@@ -319,7 +324,7 @@ def test_verified_undo_restores_original_frozen_candidates_without_inference(
         _gap("C", 11, (31, 32, 33)),
     ]
     controller, docker, generation, _refreshes = _active_controller(
-        controller_module, gaps
+        controller_module, gaps, model_mode
     )
     gaps[0].preview_rgb = (101, 102, 103)
     frozen_metadata = [dict(gap.metadata) for gap in gaps]
@@ -340,6 +345,49 @@ def test_verified_undo_restores_original_frozen_candidates_without_inference(
     assert controller.snapshot.context.observation.coloring_sha256 == "H0"
     assert docker.regions == gaps
     assert "Restored frozen GapFill checkpoint 1/2" in docker.status
+    assert all(
+        checkpoint.model_boundary_mode is model_mode
+        for checkpoint in controller._session_checkpoints
+    )
+
+
+def test_model_mode_change_invalidates_active_analysis_without_rescan(
+    controller_module, monkeypatch
+) -> None:
+    controller, docker, _generation, _refreshes = _active_controller(
+        controller_module, [_gap("A", 1, (11, 12, 13))]
+    )
+    constructed_workers = []
+    monkeypatch.setattr(
+        controller_module,
+        "GapFillWorker",
+        lambda *_args, **_kwargs: constructed_workers.append(True),
+    )
+
+    controller.model_boundary_mode_changed(ModelBoundaryMode.LINE_OR_GUIDES)
+
+    assert constructed_workers == []
+    assert controller.snapshot is None
+    assert controller.gaps == []
+    assert controller.overlay is None
+    assert controller._session_checkpoints == []
+    assert controller._analysis_model_boundary_mode is None
+    assert docker.regions == []
+    assert "Run Scan / Activate" in docker.status
+
+
+def test_checkpoint_cannot_restore_into_a_different_model_mode(
+    controller_module
+) -> None:
+    controller, _docker, _generation, _refreshes = _active_controller(
+        controller_module,
+        [_gap("A", 1, (11, 12, 13))],
+        ModelBoundaryMode.LINE_ONLY,
+    )
+    controller._analysis_model_boundary_mode = ModelBoundaryMode.LINE_OR_GUIDES
+
+    with pytest.raises(StaleScanError, match="different model input mode"):
+        controller._restore_session_checkpoint(0)
 
 
 def test_scan_time_binding_uses_current_actions_not_initial_action_environment(
