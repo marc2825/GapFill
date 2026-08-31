@@ -26,10 +26,14 @@ HOTFIX_GOVERNANCE = "GAPFILL_1_0_1_IMPORTER_PACKAGING_HOTFIX_V1_GOVERNANCE_ADOPT
 INTERACTION_PATCH_GOVERNANCE = (
     "GAPFILL_1_0_2_INTERACTION_LIFECYCLE_PATCH_V1_GOVERNANCE_ADOPTED"
 )
+MODEL_INPUT_MODES_GOVERNANCE = (
+    "GAPFILL_1_1_0_MODEL_INPUT_MODES_V1_GOVERNANCE_ADOPTED"
+)
 PUBLICATION_GOVERNANCE_BY_VERSION = {
     "1.0.0": PUBLICATION_GOVERNANCE,
     "1.0.1": HOTFIX_GOVERNANCE,
     "1.0.2": INTERACTION_PATCH_GOVERNANCE,
+    "1.1.0": MODEL_INPUT_MODES_GOVERNANCE,
 }
 PUBLICATION_MODE = "FROZEN_ARTIFACT_VERIFY_AND_PUBLISH"
 QUALIFIED_PLATFORM = "windows-x86_64"
@@ -283,7 +287,7 @@ def verify_frozen_release(
                     )
 
             importer_compatibility = freeze.get("importer_compatibility")
-            if version in {"1.0.1", "1.0.2"}:
+            if version in {"1.0.1", "1.0.2", "1.1.0"}:
                 require(
                     isinstance(importer_compatibility, dict),
                     "Importer compatibility metadata is missing.",

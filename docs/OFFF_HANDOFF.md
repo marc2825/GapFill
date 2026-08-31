@@ -12,6 +12,12 @@
 > must not begin implementation until that analysis and semantic freeze are
 > reviewed.
 
+> **CURRENT PERMANENT DEVELOPMENT LINE:** `main` now contains the separately
+> qualified GapFill model-input policies `line_only` and `line_or_guides`, with
+> Line-only still the default. This does not make historical OFFF Line Art /
+> Guides semantics equivalent to either Krita mode. Any shared model-input
+> infrastructure still requires explicit OFFF semantic analysis.
+
 > **NEW THREAD START**
 >
 > Repository: `/home/marc2825/GapFill`

@@ -1,11 +1,13 @@
 # Krita model-input modes
 
-Status: **implemented and bounded-real-host qualified on the recorded Windows /
-Krita 5.3.3 host cell; ready for integration review**.
+Status: **implemented, bounded-real-host qualified on the recorded Windows /
+Krita 5.3.3 host cell, integrated into `main`, and selected for the GapFill for
+Krita 1.1.0 release candidate**.
 
 This additive feature does not modify the published GapFill for Krita 1.0.2
-tag or artifact. Version 1.0.2 remains the qualified Line-only release. A later
-feature release would normally use version 1.1.0 after host qualification.
+tag or artifact. Version 1.0.2 remains the current published Line-only release;
+the separately frozen 1.1.0 candidate adds the qualified selector without
+rewriting that history.
 
 ## Contracts kept separate
 

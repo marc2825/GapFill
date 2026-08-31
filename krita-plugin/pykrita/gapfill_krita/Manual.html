@@ -4,7 +4,7 @@
 <body>
   <h1>GapFill for Krita</h1>
   <p>Choose the transparent Coloring layer, transparent-background Line Art layer, and optional Guides layer, then select <strong>Scan / Activate</strong>.</p>
-  <p><strong>Model input</strong> controls prediction only. <strong>Line only</strong> is the default and matches the published 1.0.2 behavior. <strong>Line + Guides</strong> ORs the normalized Guide boundary into prediction channel 0. Guides define detection topology in both modes. The model was trained with Line-only input, so Line + Guides is an extended compatibility mode and is not claimed to be more accurate.</p>
+  <p><strong>Model input</strong> controls prediction only. <strong>Line only</strong> is the default and matches the trained model input semantics. <strong>Line + Guides</strong> ORs the normalized Guide boundary into prediction channel 0. Guides define detection topology in both modes. The model was trained with Line-only input, so Line + Guides is an extended compatibility mode and is not claimed to be more accurate.</p>
   <p>The selected mode is frozen by Scan. Changing it clears any active frozen analysis and requires a new explicit Scan; it does not run inference automatically. Undo/Redo checkpoints never cross a mode change.</p>
   <p>Hover a circle for a fixed 5× magnifier. Drag from inside a circle to sample a corrected color. Drag from outside the circles to sweep over suggestions, or use Apply All. A temporary pale yellow-green trail shows the active sweep path.</p>
   <p>The white Background layer is intentionally not selected: only the Coloring layer's transparency defines unpainted pixels. Line Art and Guides also need transparent backgrounds because their alpha channels define boundaries.</p>

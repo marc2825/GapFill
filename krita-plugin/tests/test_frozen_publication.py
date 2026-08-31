@@ -233,10 +233,13 @@ def test_frozen_tag_workflow_verifies_before_windows_only_upload() -> None:
     assert "krita-v1.0.0" in frozen
     assert "krita-v1.0.1" in frozen
     assert "krita-v1.0.2" in frozen
+    assert "krita-v1.1.0" in frozen
     assert "release/1.0.1/freeze.json" in frozen
     assert "release/1.0.1/artifact-entries.json" in frozen
     assert "release/1.0.2/freeze.json" in frozen
     assert "release/1.0.2/artifact-entries.json" in frozen
+    assert "release/1.1.0/freeze.json" in frozen
+    assert "release/1.1.0/artifact-entries.json" in frozen
     assert "steps.frozen.outputs.artifact" in frozen
     assert "pip install" not in frozen
     assert "requirements-runtime.txt" not in frozen

@@ -5,17 +5,14 @@ in anime-style coloring and predicts a likely fill color for each gap. It adds
 an interactive canvas workflow for reviewing, correcting, and applying those
 predictions without leaving Krita.
 
-- **Current release:** [GapFill for Krita 1.0.2](https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.2)
+- **Prepared release candidate:** GapFill for Krita 1.1.0 (publication pending)
+- **Current published release:** [GapFill for Krita 1.0.2](https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.2)
 - **Download:** `gapfill-for-krita-windows-x86_64.zip`
 
-Version 1.0.2 is the sole currently recommended Krita bundle. The 1.0.1 public
-release was withdrawn after later real-host interaction defects were found; its
-Git tag and historical evidence remain available for traceability.
-
-The current development source adds a **Model input** selector with **Line
-only** and **Line + Guides** choices. This development feature is not part of
-the immutable 1.0.2 artifact and still requires real-Krita qualification before
-a later release.
+Version 1.1.0 adds a qualified **Model input** selector with **Line only** and
+**Line + Guides** choices. Until its tag and GitHub Release are explicitly
+published, 1.0.2 remains the sole downloadable release. The immutable 1.0.2
+artifact and its historical evidence are unchanged.
 
 ## What it does
 
@@ -39,7 +36,8 @@ a later release.
 
 ## Supported environment
 
-The downloadable 1.0.2 bundle is formally qualified for this exact host cell:
+The prepared 1.1.0 Windows bundle is formally qualified for this exact host
+cell:
 
 | Component | Qualified version |
 | --- | --- |
@@ -60,9 +58,8 @@ The Windows release ZIP is self-contained. It includes the plugin, action
 metadata, model, NumPy, ONNX Runtime, and the version-pinned native Apply
 helper. Do not install additional Python packages with pip.
 
-1. Download `gapfill-for-krita-windows-x86_64.zip` from the
-   [1.0.2 release](https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.2).
-   Do not extract it.
+1. After 1.1.0 is published, download its
+   `gapfill-for-krita-windows-x86_64.zip` release asset. Do not extract it.
 2. In Krita, choose **Tools → Scripts → Import Python Plugin From File…** and
    select the ZIP.
 3. Restart Krita.
@@ -83,8 +80,8 @@ binary Python dependencies or native helper required for Apply.
 1. Choose the paint layer to inspect and modify as **Coloring**.
 2. Choose the boundary layer as **Line Art**.
 3. Optionally choose a **Guides** layer.
-4. Choose **Model input**. **Line only** is the default and matches 1.0.2;
-   **Line + Guides** is an extended compatibility mode.
+4. Choose **Model input**. **Line only** is the default and matches the trained
+   model input semantics; **Line + Guides** is an extended compatibility mode.
 5. Set **Maximum gap size**, then click **Scan / Activate**.
 6. Inspect the candidate markers and predicted colors.
 7. Correct or apply candidates using the canvas or docker controls.
@@ -185,8 +182,8 @@ confidence and require explicit confirmation.
 
 For the exact qualification scope and exceptions, see
 [Phase 6.5 host qualification](../docs/addon-phase6.5.md) and the
-[1.0.2 interaction evidence](../docs/addon-interaction-1.0.2.md). The
-development selector and its pending real-host smoke plan are recorded in
+[1.0.2 interaction evidence](../docs/addon-interaction-1.0.2.md). The 1.1.0
+selector and its completed bounded real-host qualification are recorded in
 [Krita model-input modes](../docs/krita-model-input-modes.md).
 
 ## Install from a source checkout
@@ -279,7 +276,9 @@ krita-plugin/
 The canonical behavior is documented in the
 [GapFill specification](../docs/addon-spec.md). The published artifact and its
 frozen identities are recorded in the
-[1.0.2 release record](../docs/addon-release-1.0.2.md).
+[1.1.0 release-candidate record](../docs/addon-release-1.1.0.md). Historical
+1.0.2 release evidence remains in
+[the 1.0.2 record](../docs/addon-release-1.0.2.md).
 
 ## Performance roadmap
 
