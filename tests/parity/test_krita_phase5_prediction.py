@@ -22,6 +22,7 @@ from gapfill_krita.engine.types import (
     GapKind,
     GapRegion,
     LayerImages,
+    ModelBoundaryMode,
     PredictionProvenance,
 )
 
@@ -163,12 +164,16 @@ class KritaPhase5PredictionTests(unittest.TestCase):
             original_predict = predictor.predict_details
             calls = 0
 
-            def controlled_predict(images: LayerImages, gap: GapRegion):
+            def controlled_predict(
+                images: LayerImages,
+                gap: GapRegion,
+                model_boundary_mode: ModelBoundaryMode,
+            ):
                 nonlocal calls
                 calls += 1
                 if calls == 2:
                     raise RuntimeError("controlled one-gap failure")
-                return original_predict(images, gap)
+                return original_predict(images, gap, model_boundary_mode)
 
             predictor.predict_details = controlled_predict  # type: ignore[method-assign]
             predictor.predict_all(images, [first, second])
