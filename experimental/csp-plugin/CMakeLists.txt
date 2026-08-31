@@ -78,22 +78,22 @@ if(GAP_ASSIST_BUILD_TESTS)
            COMMAND gap_assist_native_host_contract_tests)
 
   add_executable(gap_assist_phase2_fixtures
-                 ../tests/parity/csp_phase2_fixture_reader.cpp)
+                 ../../tests/parity/csp_phase2_fixture_reader.cpp)
   target_link_libraries(gap_assist_phase2_fixtures PRIVATE gap_assist_core)
   add_test(NAME gap_assist_phase2_fixtures
            COMMAND gap_assist_phase2_fixtures
-                   "${CMAKE_CURRENT_SOURCE_DIR}/../tests/fixtures/gapfill/parity/csp_detection_current.csv")
+                   "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/fixtures/gapfill/parity/csp_detection_current.csv")
 
   add_executable(gap_assist_phase4_detection_probe
-                 ../tests/parity/csp_phase4_detection_probe.cpp)
+                 ../../tests/parity/csp_phase4_detection_probe.cpp)
   target_link_libraries(gap_assist_phase4_detection_probe PRIVATE gap_assist_core)
   add_test(NAME gap_assist_phase4_detection
            COMMAND "${Python3_EXECUTABLE}"
-                   "${CMAKE_CURRENT_SOURCE_DIR}/../tests/parity/test_csp_phase4_detection.py"
+                   "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/parity/test_csp_phase4_detection.py"
                    "$<TARGET_FILE:gap_assist_phase4_detection_probe>")
 
   add_executable(gap_assist_phase5_prediction_probe
-                 ../tests/parity/csp_phase5_prediction_probe.cpp)
+                 ../../tests/parity/csp_phase5_prediction_probe.cpp)
   target_link_libraries(gap_assist_phase5_prediction_probe PRIVATE gap_assist_core)
   execute_process(
     COMMAND "${Python3_EXECUTABLE}" -c "import numpy, onnxruntime"
@@ -102,9 +102,9 @@ if(GAP_ASSIST_BUILD_TESTS)
   if(GAP_ASSIST_PHASE5_PYTHON_STATUS EQUAL 0)
     add_test(NAME gap_assist_phase5_prediction
              COMMAND "${Python3_EXECUTABLE}"
-                     "${CMAKE_CURRENT_SOURCE_DIR}/../tests/parity/test_csp_phase5_prediction.py"
+                     "${CMAKE_CURRENT_SOURCE_DIR}/../../tests/parity/test_csp_phase5_prediction.py"
                      "$<TARGET_FILE:gap_assist_phase5_prediction_probe>"
-                     "${CMAKE_CURRENT_SOURCE_DIR}/../web/public/models/unet32.onnx")
+                     "${CMAKE_CURRENT_SOURCE_DIR}/../../web/public/models/unet32.onnx")
   else()
     message(STATUS
       "NumPy/ONNX Runtime unavailable: CSP Phase 5 cross-runtime parity is not registered")

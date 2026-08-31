@@ -24,16 +24,17 @@ reducing the repetitive work of finding gaps, zooming in, and selecting colors.
 
 ## Quick Start
 
-This repository contains four components. Refer to the README for each component
-for installation, data preparation, and usage instructions.
+This repository contains the following primary components. Refer to the README
+for each component for installation, data preparation, and usage instructions.
 
 | Component | Description | Setup and usage |
 |---|---|---|
 | Web application (`web/`) | Interactive GapFill interface for detecting, inspecting, and filling gaps | [Web application README](web/README.md) |
-| Krita plugin (`krita-plugin/`) | Native GapFill docker with model-assisted previews and canvas interactions | [Krita plugin README](krita-plugin/README.md) |
-| CSP Gap Assist (`csp-plugin/`) | Windows CSP EX Quick Fix core plus a full PNG review companion | [CSP Gap Assist README](csp-plugin/README.md) |
+| Krita plug-in (`krita-plugin/`) | GapFill plug-in for the Krita digital painting application, with model-assisted previews and canvas interactions | [Krita plug-in README](krita-plugin/README.md) |
 | Machine-learning pipeline (`ml/`) | Data preprocessing, model training, evaluation, and visualization | [ML pipeline README](ml/README.md) |
 
+The CSP Gap Assist research prototype is kept in `experimental/csp-plugin/`; it
+is not a distributed or supported add-on.
 
 ## Development Branches
 

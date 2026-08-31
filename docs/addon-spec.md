@@ -63,7 +63,7 @@ Pinned primary evidence:
 | ML postprocessing | `ml/src/utils/color_utils.py`, `ml/src/pipelines/inference_pipeline.py` |
 | Web executable reference | `web/src/utils/GapFill/` |
 | Krita pure engine | `krita-plugin/pykrita/gapfill_krita/engine/` |
-| CSP pure core | `csp-plugin/src/core/`, `csp-plugin/src/predictors/` |
+| CSP pure core | `experimental/csp-plugin/src/core/`, `experimental/csp-plugin/src/predictors/` |
 
 The detailed paper states that a gap is an enclosed transparent region on the
 active coloring layer and that its boundary may be assembled with Line Art and
@@ -560,14 +560,14 @@ characterization commands are:
 /tmp/gapfill-phase2-venv/bin/python -m scripts.gapfill_reference.characterize_python --phase5
 (cd web && node --experimental-strip-types --test src/tests/GapFill/phase2Fixtures.test.mjs)
 (cd krita-plugin && python -m pytest -q tests ../tests/parity/test_krita_phase2_fixtures.py ../tests/parity/test_krita_phase4_detection.py ../tests/parity/test_krita_phase5_prediction.py)
-make -C csp-plugin test
-make -C csp-plugin test-phase5 PHASE5_PYTHON=/tmp/gapfill-phase2-venv/bin/python
+make -C experimental/csp-plugin test
+make -C experimental/csp-plugin test-phase5 PHASE5_PYTHON=/tmp/gapfill-phase2-venv/bin/python
 ```
 
 The equivalent CMake/CTest path is:
 
 ```bash
-cmake -S csp-plugin -B /tmp/gapfill-phase2-cmake -DCMAKE_BUILD_TYPE=Release
+cmake -S experimental/csp-plugin -B /tmp/gapfill-phase2-cmake -DCMAKE_BUILD_TYPE=Release
 cmake --build /tmp/gapfill-phase2-cmake --config Release --parallel 2
 ctest --test-dir /tmp/gapfill-phase2-cmake -C Release --output-on-failure
 ```

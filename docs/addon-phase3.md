@@ -120,11 +120,11 @@ cryptographic authentication mechanism.
 
 The final commands/results are:
 
-- `make -C csp-plugin clean` and `make -C csp-plugin -j2 all`: pass with GCC
+- `make -C experimental/csp-plugin clean` and `make -C experimental/csp-plugin -j2 all`: pass with GCC
   13.3.0 and C++20 warnings enabled;
-- `make -C csp-plugin test`: pass, 35/35 core and focused safety tests, the
+- `make -C experimental/csp-plugin test`: pass, 35/35 core and focused safety tests, the
   expanded Python CLI safety suite, and all 38 frozen CSP rows;
-- `make -C csp-plugin test-e2e`: pass, PNG fixture/create/apply/verify;
+- `make -C experimental/csp-plugin test-e2e`: pass, PNG fixture/create/apply/verify;
 - `python -m scripts.gapfill_reference.validate`: pass;
 - `python -m unittest scripts.gapfill_reference.test_reference -v`: pass, 9/9;
 - `python -m scripts.gapfill_reference.characterize_python`: pass, 19 detection,
@@ -159,9 +159,9 @@ diff. Phase 2's known semantic mismatches remain deliberately open.
   `src/core/image_types.hpp`, `src/core/smart_gap_propagation.*`, context plumbing
   in `src/core/quick_fix_pipeline.cpp` and
   `src/plugin_entry/gap_assist_command.cpp`, and tests/documentation.
-- Test/build integration: `csp-plugin/CMakeLists.txt`, `csp-plugin/Makefile`,
-  `csp-plugin/tests/cli_fixture.cpp`, `csp-plugin/tests/phase3_cli_safety.py`, and
-  `csp-plugin/tests/test_main.cpp`.
+- Test/build integration: `experimental/csp-plugin/CMakeLists.txt`, `experimental/csp-plugin/Makefile`,
+  `experimental/csp-plugin/tests/cli_fixture.cpp`, `experimental/csp-plugin/tests/phase3_cli_safety.py`, and
+  `experimental/csp-plugin/tests/test_main.cpp`.
 - Phase record: this file.
 
 Real CSP/CELSYS, MSVC/Windows, native Preview/Undo/writeback, and host snapshot

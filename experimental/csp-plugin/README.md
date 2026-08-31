@@ -41,7 +41,7 @@ and [SDK integration](docs/SDK_INTEGRATION.md).
 Requirements are a C++20 compiler and either Make or CMake 3.20+.
 
 ```bash
-cd csp-plugin
+cd experimental/csp-plugin
 make -j2
 make test
 make test-phase5 PHASE5_PYTHON=/path/to/python-with-numpy-and-onnxruntime
@@ -55,9 +55,9 @@ coverage, not the distributable native CSP adapter.
 Equivalent CMake commands:
 
 ```bash
-cmake -S csp-plugin -B csp-plugin/build -DCMAKE_BUILD_TYPE=Release
-cmake --build csp-plugin/build --config Release
-ctest --test-dir csp-plugin/build -C Release --output-on-failure
+cmake -S experimental/csp-plugin -B experimental/csp-plugin/build -DCMAKE_BUILD_TYPE=Release
+cmake --build experimental/csp-plugin/build --config Release
+ctest --test-dir experimental/csp-plugin/build -C Release --output-on-failure
 ```
 
 ## PNG review workflow
@@ -65,7 +65,7 @@ ctest --test-dir csp-plugin/build -C Release --output-on-failure
 Export the coloring layer from CSP as an RGBA PNG, preserving transparency, then run:
 
 ```bash
-csp-plugin/build/gap_assist_cli \
+experimental/csp-plugin/build/gap_assist_cli \
   --input coloring.png \
   --mode review \
   --gap-size medium \

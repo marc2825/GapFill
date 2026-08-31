@@ -30,13 +30,13 @@ build/gap_assist_tests: $(CORE_SOURCES) tests/test_main.cpp build/lodepng.o | bu
 build/gap_assist_native_host_contract_tests: $(CORE_SOURCES) tests/native_host_contract_test.cpp build/lodepng.o | build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
-build/gap_assist_phase2_fixtures: $(CORE_SOURCES) ../tests/parity/csp_phase2_fixture_reader.cpp build/lodepng.o | build
+build/gap_assist_phase2_fixtures: $(CORE_SOURCES) ../../tests/parity/csp_phase2_fixture_reader.cpp build/lodepng.o | build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
-build/gap_assist_phase4_detection_probe: $(CORE_SOURCES) ../tests/parity/csp_phase4_detection_probe.cpp build/lodepng.o | build
+build/gap_assist_phase4_detection_probe: $(CORE_SOURCES) ../../tests/parity/csp_phase4_detection_probe.cpp build/lodepng.o | build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
-build/gap_assist_phase5_prediction_probe: $(CORE_SOURCES) ../tests/parity/csp_phase5_prediction_probe.cpp build/lodepng.o | build
+build/gap_assist_phase5_prediction_probe: $(CORE_SOURCES) ../../tests/parity/csp_phase5_prediction_probe.cpp build/lodepng.o | build
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) $^ -o $@
 
 build/gap_assist_host_contract_probe: $(CORE_SOURCES) src/plugin_entry/host_contract_probe.cpp build/lodepng.o | build
@@ -48,15 +48,15 @@ build/gap_assist_cli_fixture: src/io/png_io.cpp tests/cli_fixture.cpp build/lode
 test: build/gap_assist_tests build/gap_assist_native_host_contract_tests build/gap_assist_phase2_fixtures build/gap_assist_phase4_detection_probe
 	./build/gap_assist_tests
 	./build/gap_assist_native_host_contract_tests
-	./build/gap_assist_phase2_fixtures ../tests/fixtures/gapfill/parity/csp_detection_current.csv
-	python3 ../tests/parity/test_csp_phase4_detection.py ./build/gap_assist_phase4_detection_probe
+	./build/gap_assist_phase2_fixtures ../../tests/fixtures/gapfill/parity/csp_detection_current.csv
+	python3 ../../tests/parity/test_csp_phase4_detection.py ./build/gap_assist_phase4_detection_probe
 	$(MAKE) test-safety
 
 test-safety: all build/gap_assist_cli_fixture
 	python3 tests/phase3_cli_safety.py ./build/gap_assist_cli ./build/gap_assist_cli_fixture
 
 test-phase5: build/gap_assist_phase5_prediction_probe
-	$(PHASE5_PYTHON) ../tests/parity/test_csp_phase5_prediction.py ./build/gap_assist_phase5_prediction_probe ../web/public/models/unet32.onnx
+	$(PHASE5_PYTHON) ../../tests/parity/test_csp_phase5_prediction.py ./build/gap_assist_phase5_prediction_probe ../../web/public/models/unet32.onnx
 
 test-e2e: all build/gap_assist_cli_fixture
 	./build/gap_assist_cli_fixture create build/e2e/input.png

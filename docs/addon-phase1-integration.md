@@ -38,7 +38,7 @@ The relevant old/new subtree IDs are identical:
 
 - `krita-plugin`: `5c01aaf660c88e175d46ac5f23fe452d1bb19871`
 - Krita checkpoint `.github`: `37b25acc218bb6f020f619c8ca7cff86e9466ac6`
-- `csp-plugin`: `ef6a50fc68658cdee9c05973efad2ac4f831b948`
+- `experimental/csp-plugin`: `ef6a50fc68658cdee9c05973efad2ac4f831b948`
 - CSP checkpoint `.github`: `747d674fc8da26540c6957ab0bad889b4458bb15`
 - `docs/addon-audit.md` blob: `139b144d031581b5f5556b70b8cca72781208545`
 
@@ -69,7 +69,7 @@ Krita (`krita-plugin`, isolated Python 3.12.3 environment):
 - ONNX payload SHA-256: `8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78`, identical to the audited ZIP.
 - The known source-ZIP omissions (`gapfill_krita.action` and the project license) remain unchanged.
 
-CSP (`csp-plugin`, GNU C++ 13.3.0):
+CSP (`experimental/csp-plugin`, GNU C++ 13.3.0):
 
 - `make clean` and `make -j2 all`: passed.
 - `make test`: 25/25 passed.
@@ -83,7 +83,7 @@ Whitespace checks:
 
 - `git diff --check` for the worktree: passed.
 - Rebased Krita and audit-report commit deltas: passed.
-- Rebased CSP and full integrated deltas: returned exit 2 only for the already-audited trailing whitespace/new blank line at EOF in `csp-plugin/third_party/lodepng/LICENSE:21`. It was intentionally not changed in Phase 1.
+- Rebased CSP and full integrated deltas: returned exit 2 only for the already-audited trailing whitespace/new blank line at EOF in `experimental/csp-plugin/third_party/lodepng/LICENSE:21`. It was intentionally not changed in Phase 1.
 
 ## Not reverified
 

@@ -134,27 +134,27 @@ PROVENANCE = {
     },
     "CSP-CURRENT": {
         "kind": "current_implementation",
-        "citation": "csp-plugin/src/core/gap_detection.cpp",
+        "citation": "experimental/csp-plugin/src/core/gap_detection.cpp",
         "claim": "Only active-image alpha is analyzed; Guide and Line Art are unavailable.",
     },
     "CSP-ALPHA-OPTION": {
         "kind": "current_implementation",
-        "citation": "csp-plugin/src/core/settings.hpp and gap_detection.cpp",
+        "citation": "experimental/csp-plugin/src/core/settings.hpp and gap_detection.cpp",
         "claim": "Alpha membership is configurable as alpha <= threshold.",
     },
     "CSP-OPTION": {
         "kind": "current_implementation",
-        "citation": "csp-plugin/src/core/settings.hpp",
+        "citation": "experimental/csp-plugin/src/core/settings.hpp",
         "claim": "Eight-connectivity is an optional CSP-specific mode.",
     },
     "CSP-SELECTION": {
         "kind": "current_implementation",
-        "citation": "csp-plugin/src/core/gap_detection.cpp",
+        "citation": "experimental/csp-plugin/src/core/gap_detection.cpp",
         "claim": "A component touching the selection boundary is open and rejected.",
     },
     "CSP-OWNER": {
         "kind": "current_implementation",
-        "citation": "csp-plugin/src/core/owner_regions.cpp",
+        "citation": "experimental/csp-plugin/src/core/owner_regions.cpp",
         "claim": "Owner colors join by neighbor-relative tolerance and can chain transitively.",
     },
     "WEB-FALLBACK": {
@@ -169,7 +169,7 @@ PROVENANCE = {
     },
     "CSP-FALLBACK": {
         "kind": "current_implementation",
-        "citation": "csp-plugin/src/core/quick_fix_pipeline.cpp and predictors/gap_color_predictor.cpp",
+        "citation": "experimental/csp-plugin/src/core/quick_fix_pipeline.cpp and predictors/gap_color_predictor.cpp",
         "claim": "Rule-based output has no learned/fallback source field and High results default to Apply in Quick Fix.",
     },
     "CURRENT-IMPLEMENTATIONS": {

@@ -126,7 +126,7 @@ feature commit. Public CSP code contains only SDK-independent core, CLI, a
 generic future host abstraction, and documentation.
 
 `git diff --check` passes for the Krita delta. The CSP delta reports only
-whitespace in the vendored `csp-plugin/third_party/lodepng/LICENSE` (line 21 and
+whitespace in the vendored `experimental/csp-plugin/third_party/lodepng/LICENSE` (line 21 and
 final whitespace). `git fsck --full --no-dangling` passes.
 
 ### Current-main work to incorporate
@@ -167,14 +167,14 @@ python3 -m venv /tmp/gapfill-krita-venv
 | Krita package integrity | `unzip -t /tmp/gapfill-krita-audit-final.zip` and content listing | Pass, 23 entries |
 | Krita representative vendored bundle | build/extract; `python3 -S` import NumPy/ONNX Runtime; load model contract | Pass on Linux CPython 3.12 only; not a Krita/3.13 result |
 | Krita syntax | `python3 -m compileall -q` over plugin scripts/package | Pass |
-| CSP Make build | `make -C csp-plugin -j2 all` | Pass |
-| CSP core tests | `make -C csp-plugin test`: 25 cases | Pass, 0 skipped |
-| CSP PNG/CLI E2E | `make -C csp-plugin test-e2e` | Pass |
+| CSP Make build | `make -C experimental/csp-plugin -j2 all` | Pass |
+| CSP core tests | `make -C experimental/csp-plugin test`: 25 cases | Pass, 0 skipped |
+| CSP PNG/CLI E2E | `make -C experimental/csp-plugin test-e2e` | Pass |
 | CSP CMake configure/build | isolated CMake 4.4.2, Release, GNU 13.3, parallel 2 | Pass |
 | CSP CTest | `ctest --test-dir <audit-build> -C Release --output-on-failure` | Pass, 4/4, 0 skipped |
 | CSP CMake install | isolated prefix inventory | Pass; CLI, public docs, LodePNG license only |
 | CSP ASan/UBSan | Debug CTest with leak detection disabled | Pass, 4/4, no diagnostics; LSan skipped under ptrace |
-| CSP public host probe | `csp-plugin/build/gap_assist_host_contract_probe` | Pass; explicitly no CELSYS SDK inspected |
+| CSP public host probe | `experimental/csp-plugin/build/gap_assist_host_contract_probe` | Pass; explicitly no CELSYS SDK inspected |
 
 The Krita virtual environment used CPython 3.12.3, NumPy 2.5.2, ONNX Runtime
 1.28.0, pytest 9.1.1, and Ruff 0.16.2. The exact model was also loaded with
@@ -201,7 +201,7 @@ initially installed, so CMake 4.4.2 was installed only into an isolated
 `/tmp` virtual environment. The exact commands were:
 
 ```bash
-/tmp/gapfill-csp-audit.JMYX4g/cmake-venv/bin/cmake -S csp-plugin -B /tmp/gapfill-csp-audit.JMYX4g/cmake-build -DCMAKE_BUILD_TYPE=Release
+/tmp/gapfill-csp-audit.JMYX4g/cmake-venv/bin/cmake -S experimental/csp-plugin -B /tmp/gapfill-csp-audit.JMYX4g/cmake-build -DCMAKE_BUILD_TYPE=Release
 /tmp/gapfill-csp-audit.JMYX4g/cmake-venv/bin/cmake --build /tmp/gapfill-csp-audit.JMYX4g/cmake-build --config Release --parallel 2
 /tmp/gapfill-csp-audit.JMYX4g/cmake-venv/bin/ctest --test-dir /tmp/gapfill-csp-audit.JMYX4g/cmake-build -C Release --output-on-failure
 /tmp/gapfill-csp-audit.JMYX4g/cmake-venv/bin/cmake --install /tmp/gapfill-csp-audit.JMYX4g/cmake-build --config Release --prefix /tmp/gapfill-csp-audit.JMYX4g/install
@@ -1077,7 +1077,7 @@ only a pure/CLI test.
 - **Expected behavior or question:** Input must remain byte-for-byte unchanged;
   all outputs must be distinct and committed atomically only after successful
   generation.
-- **Evidence:** `csp-plugin/README.md:62`, `src/cli/main.cpp:212-220`, and the
+- **Evidence:** `experimental/csp-plugin/README.md:62`, `src/cli/main.cpp:212-220`, and the
   source/correction hash probe in §3.
 - **Recommended verification:** Tests for identical, normalized-equivalent,
   relative/absolute, case-folded where relevant, hard-link, and symlink paths;
@@ -1465,7 +1465,7 @@ intended to become several small commits, not one rewrite.
 - **Likely files:** new `docs/addon-spec.md`; new shared
   `tests/fixtures/gapfill/` manifest/assets; a small reference exporter/validator
   under `scripts/`; web/ML reference tests; read-only fixture loaders in
-  `krita-plugin/tests/` and `csp-plugin/tests/`.
+  `krita-plugin/tests/` and `experimental/csp-plugin/tests/`.
 - **Tests required before modification:** Capture current ML, web, Krita, and CSP
   results for each proposed fixture, including known disagreement, without using
   any result as expected truth.
@@ -1486,7 +1486,7 @@ intended to become several small commits, not one rewrite.
   precedence, settings/CLI option precedence, and correction candidate
   validation (C-04, C-05, C-06, C-11). Preserve current detection/prediction
   results.
-- **Likely files:** `csp-plugin/src/cli/main.cpp`,
+- **Likely files:** `experimental/csp-plugin/src/cli/main.cpp`,
   `src/ui/review_session.*`, `src/core/correction_output.*`,
   `src/io/png_io.*`, review artifact I/O, and focused tests/fixtures.
 - **Tests required before modification:** Add failing tests for input/output and

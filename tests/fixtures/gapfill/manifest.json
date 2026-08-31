@@ -280,32 +280,32 @@
       "kind": "audit"
     },
     "CSP-ALPHA-OPTION": {
-      "citation": "csp-plugin/src/core/settings.hpp and gap_detection.cpp",
+      "citation": "experimental/csp-plugin/src/core/settings.hpp and gap_detection.cpp",
       "claim": "Alpha membership is configurable as alpha <= threshold.",
       "kind": "current_implementation"
     },
     "CSP-CURRENT": {
-      "citation": "csp-plugin/src/core/gap_detection.cpp",
+      "citation": "experimental/csp-plugin/src/core/gap_detection.cpp",
       "claim": "Only active-image alpha is analyzed; Guide and Line Art are unavailable.",
       "kind": "current_implementation"
     },
     "CSP-FALLBACK": {
-      "citation": "csp-plugin/src/core/quick_fix_pipeline.cpp and predictors/gap_color_predictor.cpp",
+      "citation": "experimental/csp-plugin/src/core/quick_fix_pipeline.cpp and predictors/gap_color_predictor.cpp",
       "claim": "Rule-based output has no learned/fallback source field and High results default to Apply in Quick Fix.",
       "kind": "current_implementation"
     },
     "CSP-OPTION": {
-      "citation": "csp-plugin/src/core/settings.hpp",
+      "citation": "experimental/csp-plugin/src/core/settings.hpp",
       "claim": "Eight-connectivity is an optional CSP-specific mode.",
       "kind": "current_implementation"
     },
     "CSP-OWNER": {
-      "citation": "csp-plugin/src/core/owner_regions.cpp",
+      "citation": "experimental/csp-plugin/src/core/owner_regions.cpp",
       "claim": "Owner colors join by neighbor-relative tolerance and can chain transitively.",
       "kind": "current_implementation"
     },
     "CSP-SELECTION": {
-      "citation": "csp-plugin/src/core/gap_detection.cpp",
+      "citation": "experimental/csp-plugin/src/core/gap_detection.cpp",
       "claim": "A component touching the selection boundary is open and rejected.",
       "kind": "current_implementation"
     },

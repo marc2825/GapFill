@@ -35,10 +35,10 @@ htmlcov/
 /krita-plugin/dist/
 /krita-plugin/vendor/
 /krita-plugin/pykrita/gapfill_krita/_vendor/
-/csp-plugin/build/
-/csp-plugin/dist/
-/csp-plugin/out/
-/csp-plugin/.sdk/
+/experimental/csp-plugin/build/
+/experimental/csp-plugin/dist/
+/experimental/csp-plugin/out/
+/experimental/csp-plugin/.sdk/
 /FilterPlugIn20210827
 
 # Logs

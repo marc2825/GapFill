@@ -280,7 +280,7 @@ fixtures, and read-only test infrastructure:
   disabled because the audit environment runs under ptrace, so LSan remains
   unverified;
 - `git diff --exit-code 30c7f02 -- web/src/utils ml/src
-  krita-plugin/pykrita csp-plugin/src` passed, confirming no production
+  krita-plugin/pykrita experimental/csp-plugin/src` passed, confirming no production
   implementation subtree changed.
 
 The exact reproduction commands and dependency versions are recorded in
