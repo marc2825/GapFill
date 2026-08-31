@@ -1,46 +1,182 @@
 # GapFill for Krita
 
-GapFill for Krita is a Python plugin/add-on that brings the GapFill project's
-gap-detection and region-correspondence color-prediction workflow into Krita.
-Version 1.0.2 is an interaction and lifecycle patch over the immutable 1.0.1
-release; it does not change detector, model, prediction, or native transaction
-semantics. **Phase 6.5 is closed for the recorded host cell:** A–P and R–V
-passed, while Q is explicitly `ROW_Q_HOST_CONDITION_UNAVAILABLE`, not PASS. The
-only Apply host admitted by the frozen implementation is Windows 11 Pro x64,
-Krita 5.3.3 git `858d352`, Qt 5.15.7, embedded CPython 3.13.5, and PyQt5
-5.15.11; every other host fails closed before loading the helper. Historical
-1.0.0 and 1.0.1 release evidence remains in the release records; the 1.0.2
-candidate is recorded in [the 1.0.2 release preparation](../docs/addon-release-1.0.2.md).
+GapFill for Krita is a Python plugin that finds small, enclosed, unpainted gaps
+in anime-style coloring and predicts a likely fill color for each gap. It adds
+an interactive canvas workflow for reviewing, correcting, and applying those
+predictions without leaving Krita.
 
-## Features
+- **Current release:** [GapFill for Krita 1.0.2](https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.2)
+- **Download:** `gapfill-for-krita-windows-x86_64.zip`
 
-- Detects small, enclosed, fully transparent components on the selected Coloring layer.
-- Treats Line Art and Guide pixels as detection boundaries; only enclosed,
-  uncovered Coloring transparency is paintable gap geometry.
-- Excludes Line Art pixels and open components touching the document boundary.
-- Runs the pinned 2-channel, 32×32 U-Net with a Line-only boundary channel,
-  validates its hash/interface/output, scores full-image Line-derived semantic
-  regions, and returns their deterministic modal RGB.
-- Shows temporary suggested fills, circular highlights, and a fixed 5× hover magnifier.
-- Supports in-circle drag-to-correct, out-circle sweep-to-apply, list-based correction, Apply Selected, and Apply All.
-- Converts every selected correction through `CanvasColorBridge`, sends the complete exact BGRA/U8 patch in one native transaction, and validates the full Coloring layer byte-for-byte. Formal production Row I passed exact one-step Undo/Redo in the admitted Windows/Krita host cell; all other available Phase 6.5 rows also closed successfully, subject to the explicit Q/T/V limits.
-- Performs detection and inference off the UI thread and supports cancellation.
+Version 1.0.2 is the sole currently recommended Krita bundle. The 1.0.1 public
+release was withdrawn after later real-host interaction defects were found; its
+Git tag and historical evidence remain available for traceability.
 
-## Install a Release Bundle
+## What it does
 
-Use only a qualification bundle built for the exact supported host cell. It contains NumPy, ONNX Runtime, `unet32.onnx`, and the hash-pinned native helper. A plain source ZIP does not contain binary Python dependencies or the helper and therefore cannot perform Apply.
+- Finds small, enclosed, fully transparent gaps on a selected **Coloring**
+  layer.
+- Uses **Line Art** and optional **Guides** to determine whether a gap is
+  enclosed.
+- Runs the bundled, hash-pinned model to suggest a color from the surrounding
+  artwork.
+- Shows candidates as circular markers with a 5× hover magnifier.
+- Lets you correct a suggestion by dragging from its marker and sampling a
+  visible source color.
+- Applies one candidate, a docker selection, all candidates, or candidates
+  crossed by a sweep gesture.
+- Keeps unapplied candidates in the same frozen scan session. Applying one
+  candidate does not silently rescan the document or rerun inference for the
+  remaining candidates.
+- Reconciles known GapFill-owned Undo/Redo steps with the corresponding frozen
+  candidate state.
+- Commits each Apply as one atomic native Krita transaction.
 
-1. In Krita, choose **Tools → Scripts → Import Python Plugin From File…** and select `gapfill-for-krita-windows-x86_64.zip`.
-2. Restart Krita.
-3. Open **Settings → Configure Krita… → Python Plugin Manager**, enable **GapFill for Krita**, and restart Krita again.
-4. Show the docker with **Settings → Dockers → GapFill**. If hidden, use **Tools → Scripts → Show GapFill Docker**.
+## Supported environment
 
-Python plugins are disabled by default in Krita, so the enable-and-restart step is required.
-Exit Krita completely before replacing or removing a bundle: Windows keeps a loaded `.pyd` locked until the process exits.
+The downloadable 1.0.2 bundle is formally qualified for this exact host cell:
 
-## Install from This Checkout
+| Component | Qualified version |
+| --- | --- |
+| Operating system | Windows 11 Pro x64 |
+| Krita | 5.3.3, git revision `858d352` |
+| Qt | 5.15.7 |
+| Embedded Python | CPython 3.13.5 |
+| PyQt | PyQt5 5.15.11 |
+| ONNX provider | `CPUExecutionProvider` |
 
-The model is reused from `web/public/models/unet32.onnx` and copied into the installed plugin:
+Other operating systems, architectures, Krita revisions, Qt versions, and
+embedded Python/PyQt versions are not qualified by this release. The bundled
+native Apply helper checks the host and fails closed when it does not match.
+
+## Install the release bundle
+
+The Windows release ZIP is self-contained. It includes the plugin, action
+metadata, model, NumPy, ONNX Runtime, and the version-pinned native Apply
+helper. Do not install additional Python packages with pip.
+
+1. Download `gapfill-for-krita-windows-x86_64.zip` from the
+   [1.0.2 release](https://github.com/marc2825/GapFill/releases/tag/krita-v1.0.2).
+   Do not extract it.
+2. In Krita, choose **Tools → Scripts → Import Python Plugin From File…** and
+   select the ZIP.
+3. Restart Krita.
+4. Open **Settings → Configure Krita… → Python Plugin Manager**, enable
+   **GapFill for Krita**, and restart Krita again.
+5. Open the docker with **Settings → Dockers → GapFill**. If it is hidden, use
+   **Tools → Scripts → Show GapFill Docker**.
+
+Krita disables newly imported Python plugins by default, so the enable step and
+second restart are required. Exit Krita completely before replacing or removing
+the bundle because Windows may keep the loaded native `.pyd` locked.
+
+A plain source ZIP is not an equivalent release bundle: it does not include the
+binary Python dependencies or native helper required for Apply.
+
+## Quick start
+
+1. Choose the paint layer to inspect and modify as **Coloring**.
+2. Choose the boundary layer as **Line Art**.
+3. Optionally choose a **Guides** layer.
+4. Set **Maximum gap size**, then click **Scan / Activate**.
+5. Inspect the candidate markers and predicted colors.
+6. Correct or apply candidates using the canvas or docker controls.
+7. Click **Deactivate** when finished.
+
+### Canvas controls
+
+| Gesture | Result |
+| --- | --- |
+| Hover a marker | Show the 5× magnifier |
+| Drag from inside a marker | Pick a replacement color from the visible composite |
+| Hover the magnifier's **×** while correcting | Cancel the correction |
+| Press outside all markers, sweep across candidates, then release | Apply the crossed candidates |
+| Use **Apply Selected** or **Apply All** | Apply candidates chosen in the docker |
+
+The sweep path is shown temporarily in pale yellow-green. Remaining candidates
+stay in the frozen session after a successful Apply, with their original
+geometry and predictions.
+
+## Layer setup
+
+- **Coloring** must be an unlocked, visible, origin-aligned, non-animated
+  RGBA/U8 paint layer using Normal blending and full opacity. It must not use
+  inherit alpha or have child masks, effects, or a layer style. Its parent
+  groups must also be visible, fully opaque, and neutral. Unpainted pixels must
+  be fully transparent.
+- **Line Art** must have a transparent background. Every nonzero-alpha pixel is
+  a detection boundary and is never treated as a paintable gap.
+- **Guides** are optional and must also have a transparent background. Their
+  nonzero-alpha pixels can enclose an ordinary Coloring gap, but Guide pixels
+  themselves are not paintable “Guide gaps.” An isolated Guide in open
+  transparency does not create a gap.
+- A white **Background** may remain visible underneath, but do not select it as
+  Coloring, Line Art, or Guides. It is visual backing only and does not change
+  Coloring transparency.
+
+Line Art and Guides must be visible RGBA/U8 nodes under neutral parents and use
+the document profile. Moved Coloring layers, masks/effects/styles, mixed input
+profiles, HDR/non-U8 documents, and documents larger than 16,777,216 pixels are
+rejected before preview or Apply.
+
+## Detection and prediction semantics
+
+Line Art and Guides deliberately have different roles:
+
+```text
+gap detection boundary = Line Art OR Guides
+model input channel 0  = Line Art only
+```
+
+The detector uses four-neighbor connectivity and considers only enclosed,
+fully transparent Coloring components at or below the configured size. Open
+components touching the document edge are excluded.
+
+For learned prediction, Line Art is composited over byte white and thresholded
+at inclusive grayscale 128 before the canonical two-channel `32 × 32` tensor is
+built. Guides never enter the trained model tensor. The model output is matched
+against full-image, Line-derived semantic regions to produce a deterministic
+representative RGB.
+
+The model must load and validate successfully before suggestions are shown. A
+missing, malformed, incompatible, or wrong-hash model/runtime produces an error
+instead of silently replacing the batch with heuristic output. The optional
+fallback is limited to an isolated per-gap prediction failure after at least one
+learned prediction has succeeded; fallback suggestions have no learned
+confidence and require explicit confirmation.
+
+## Safety and current limits
+
+- Interactive overlays are qualified only on an unrotated, unmirrored,
+  device-pixel-ratio-1 canvas whose internal widget can be identified uniquely.
+  Rotation, mirroring, unqualified HiDPI, and ambiguous split-view layouts fail
+  closed instead of guessing pointer coordinates.
+- Color correction accepts only fully opaque composite pixels.
+- A document, node, selection, projection, or relevant pixel change after Scan
+  makes stale results ineligible for Apply.
+- Apply changes only the selected Coloring pixels. It does not intentionally
+  alter the selection, foreground color, active node, eraser mode, alpha lock,
+  blend mode, opacity, or flow.
+- The native helper resolves the scanned document and Coloring layer by UUID,
+  validates expected-before bytes, applies sorted runs in one transaction, and
+  verifies the complete resulting layer. Failure reverts and verifies touched
+  bytes; there is no direct-Python writeback fallback.
+- ONNX Runtime calls are synchronous and cannot be interrupted mid-call. Stop
+  is checked before and after loading and each inference.
+- Opening-like regions such as sleeves are outside GapFill's intended enclosed-
+  gap capability.
+
+For the exact qualification scope and exceptions, see
+[Phase 6.5 host qualification](../docs/addon-phase6.5.md) and the
+[1.0.2 interaction evidence](../docs/addon-interaction-1.0.2.md).
+
+## Install from a source checkout
+
+This is for development. It does not by itself qualify a host or reproduce the
+published Windows bundle.
+
+The model is reused from `web/public/models/unet32.onnx` and copied into the
+installed plugin:
 
 ```bash
 python3.13 -m pip install -r krita-plugin/requirements-runtime.txt \
@@ -49,121 +185,28 @@ python3 krita-plugin/scripts/install_dev.py --dry-run
 python3 krita-plugin/scripts/install_dev.py
 ```
 
-Restart Krita, enable GapFill in Python Plugin Manager, and restart again. Use `--resource-dir PATH` if Krita uses a nonstandard resource directory. The default locations are:
+Restart Krita, enable **GapFill for Krita** in Python Plugin Manager, and
+restart again. Use `--resource-dir PATH` for a nonstandard resource directory.
+Default locations are:
 
 - Linux: `~/.local/share/krita`
 - Windows: `%APPDATA%\krita`
 - macOS: `~/Library/Application Support/krita`
 
-## Layer Setup
+These paths describe development installation only; they do not imply that the
+current release is qualified on Linux or macOS.
 
-Choose layers in the GapFill docker before scanning:
+## Build and test
 
-- **Coloring** must be an unlocked, origin-aligned, non-animated RGBA/U8 paint layer with no child masks/effects or layer style. It and its parents must be visible, fully opaque, Normal-blended, and not use inherit alpha. Unpainted pixels must be fully transparent.
-- **Line Art** must have a transparent background; its nonzero alpha pixels are boundaries and never gaps.
-- **Guides** are optional and must also have a transparent background. Their
-  nonzero-alpha pixels are detection boundaries, not paintable Guide-gap pixels.
-  A Guide-only or mixed Line/Guide enclosure may bound an ordinary transparent
-  Coloring gap; an isolated Guide in open transparency does not create a gap.
-- A white Background layer may remain visible below the other layers, but do not select it as Coloring, Line Art, or Guides. It is only visual backing and does not change the Coloring layer's transparency.
-
-The selected nodes are read over the document rectangle. Line/Guide projections
-must be visible RGBA/U8 nodes under neutral parents and currently must share the
-document profile. Moved Coloring layers, Coloring masks/effects/styles, mixed
-profiles, and documents larger than 16,777,216 pixels are rejected before
-preview. Any document/node/selection/projection change after scanning makes the
-result stale and prevents apply.
-
-The pure detector first converts these RGBA snapshots into separate binary
-Coloring-membership, Line-boundary, and Guide-boundary masks. Coloring membership
-is exactly alpha zero. Detection preserves its Phase 4 any-nonzero-alpha
-Line/Guide normalization. Learned prediction is deliberately separate: channel
-0 contains Line Art only after logical straight-alpha RGBA is composited over
-byte white and thresholded at inclusive grayscale 128. Guides remain detection
-boundaries but are excluded from the trained model tensor. Real Krita
-profile/render conversion into those logical bytes remains a host test.
-
-## Interaction
-
-1. Set the maximum gap size and select **Scan / Activate**.
-2. Hover a circular marker to inspect its fixed 5× magnifier.
-3. Drag from inside a circle to sample a replacement color from the visible composite. Hover the magnifier's **×** to cancel correction.
-4. Drag from outside the circles to sweep over several suggestions, then release to apply them.
-5. Alternatively, correct colors in the docker and use **Apply Selected** or **Apply All**.
-
-Interactive overlays currently support only an unrotated, unmirrored, device
-pixel ratio 1 canvas whose internal QWidget can be identified uniquely inside
-the active window. Rotation, mirror, unqualified HiDPI, and ambiguous split-view
-layouts disable the overlay instead of guessing at pointer coordinates.
-Sampling accepts only fully opaque composite pixels; semi-transparent samples
-are ignored because converting them into an opaque fill has no backdrop-stable
-perceived color.
-
-The ONNX model must load successfully before suggestions are shown. A missing,
-wrong-hash, malformed, or incompatible model/runtime is displayed as an error
-instead of silently replacing all predictions with the greedy heuristic. An
-isolated per-gap failure may use the optional greedy fallback only when at least
-one learned prediction succeeded; its provenance is `fallback` and its learned
-confidence is null. If every gap fails, the batch fails without committing
-partial prediction metadata. A no-gap scan does not load the model.
-
-ONNX Runtime calls are synchronous and cannot be interrupted mid-call. Stop is
-checked before and after load and each inference; results are attached only
-after the complete batch reaches a cancellation boundary.
-
-Apply does not create or replace a selection and does not change foreground
-color, active node, eraser mode, alpha lock, blending mode, opacity, or flow.
-Python retains the frozen application plan and profile conversion, then sends
-all colors and pixels in one call to the exact-host native helper. The helper
-resolves the scanned document by image-root UUID and the Coloring layer by node
-UUID, validates expected-before bytes, and writes sorted horizontal runs inside
-one Krita transaction. Native failure reverts and verifies the touched bytes;
-success must pass a full-layer exact raw-byte readback. There is no fallback to
-`fill_selection_foreground_color` or direct Python writeback. Each successful
-GapFill-owned apply resolves only the applied candidates and advances the
-expected Coloring checkpoint. Unresolved candidates remain in the same frozen
-analysis session with their original geometry and predictions; GapFill does not
-rerun detection or ONNX inference. Each apply remains its own atomic Undo step.
-An external document, layer, selection, or pixel mutation still invalidates the
-session conservatively. Formal one-step Undo/Redo and all other available Phase
-6.5 rows passed in the admitted Windows/Krita host cell. Q's unavailable HiDPI
-condition and the documented T/V scope limits remain explicit rather than being
-treated as broader support.
-
-## Future: prediction performance profiling and hardware acceleration
-
-This is a development TODO, not implemented behavior. Current learned
-prediction creates ONNX Runtime sessions with `CPUExecutionProvider` and runs
-the canonical `1 x 2 x 32 x 32` input once per gap. Profile before choosing an
-optimization: measure detection, region labeling, patch extraction, tensor
-construction, `session.run`, postprocessing, region scoring/selection, Python
-per-gap overhead, and worker/UI overhead separately.
-
-Future investigation should compare runtime-selectable accelerated providers
-(including CUDA on supported NVIDIA systems and a currently supported Windows
-acceleration path) with a `CPUExecutionProvider` fallback. It must account for
-runtime/DLL size, CUDA/cuDNN or driver compatibility, Krita's embedded CPython,
-Windows deployment, importer packaging, fallback behavior, and the added
-release-qualification matrix. CPU/provider parity must cover output shape and
-dtype, finite probabilities, selected region, predicted RGB, learned
-confidence, repeated-run stability, and predefined floating-point tolerances.
-
-Because this model is small, host-to-device transfer, kernel launch, and Python
-call overhead may outweigh GPU gains. Also benchmark batching, caching immutable
-scan-time data, avoiding repeated `build_line_region_labels(images.line_art)`,
-preprocessing reuse/vectorization, and fewer per-gap Python calls. Any batching
-change to the frozen model-input contract is a separate semantic and
-qualification task.
-
-## Build and Test
-
-Create a standard importable ZIP (model included, binary dependencies excluded):
+Build a standard importable source ZIP, with the model included but binary
+dependencies excluded:
 
 ```bash
 python3 krita-plugin/scripts/build_plugin.py
 ```
 
-Create a platform-specific self-contained ZIP after installing matching Python 3.13 wheels into a staging directory:
+Build a platform-specific self-contained ZIP after staging matching CPython
+3.13 wheels:
 
 ```bash
 python3.13 -m pip install -r krita-plugin/requirements-runtime.txt \
@@ -174,12 +217,12 @@ python3 krita-plugin/scripts/build_plugin.py \
   --output krita-plugin/dist/gapfill-krita-platform.zip
 ```
 
-The builder accepts only the exact helper filename and SHA-256 recorded in
-`scripts/build_plugin.py`. The reproducible helper source/build recipe is under
-`native/krita_5_3_3/`; the compiler, Krita headers/import libraries, and build
-workspace are not distributed in the plug-in ZIP.
+The builder accepts only the helper filename and SHA-256 pinned in
+`scripts/build_plugin.py`. Reproducible helper source and build instructions are
+under `native/krita_5_3_3/`; Krita SDK files and build workspaces are not
+distributed in the plugin ZIP.
 
-Run the engine tests and lint checks:
+Run the host-independent tests and lint checks:
 
 ```bash
 python3.13 -m pip install -r krita-plugin/requirements-dev.txt
@@ -188,27 +231,9 @@ pytest
 ruff check .
 ```
 
-The pure, Qt, and fake-adapter suites run without Krita. They do not establish
-host compatibility. A release must execute `host_tests/matrix.json` in every
-advertised real Krita distribution.
-
-## Release Smoke Test
-
-- Import and enable the clean release ZIP on a machine without development packages.
-- Scan a document with normal gaps, Guide gaps, a white Background, and an open transparent exterior.
-- Confirm that only enclosed gaps below the threshold are listed.
-- Confirm previews, pan/zoom markers, 5× magnifier, correction cancellation,
-  color sampling, sweep, Apply Selected, and Apply All at DPR 1. Confirm
-  rotation, mirror, HiDPI, and ambiguous split views fail closed until qualified.
-- Confirm Stop cancels a large scan and the canvas remains responsive.
-- Confirm missing/corrupt model errors are visible.
-- Confirm applied pixels land only on Coloring, selection and foreground/tool
-  state remain exact, and record every visible Undo and redo step. Row I is
-  qualified only for the admitted host cell and must be repeated for any future
-  supported host matrix.
-- Run every A–V row in `host_tests/matrix.json` for each newly advertised host
-  cell. Record unavailable host conditions explicitly and never relabel them as
-  PASS.
+The pure, Qt, and fake-adapter suites do not establish real-host compatibility.
+Every advertised Krita distribution must execute the matrix in
+`host_tests/matrix.json` on that real host.
 
 ## Architecture
 
@@ -217,21 +242,38 @@ krita-plugin/
 ├── pykrita/
 │   ├── gapfill_krita.desktop
 │   └── gapfill_krita/
-│       ├── engine/          # NumPy detection, patching, inference, postprocessing
-│       ├── controller.py    # Application state and orchestration
-│       ├── host_contract.py # Immutable provenance and host-independent invariants
-│       ├── krita_adapter.py # LibKis acquisition, conversion, apply/readback
-│       ├── native_backend.py # Exact-host guard and hash/ABI-checked helper loader
-│       ├── _native/         # Packaged version-pinned Windows helper location
-│       ├── overlay.py       # Canvas preview and pointer interactions
-│       ├── docker.py        # User interface
-│       └── worker.py        # Cancellable background work
-├── actions/                 # Krita action metadata
-├── native/krita_5_3_3/      # Reproducible pinned helper source/build definition
-├── scripts/                 # Packaging and development installation
-└── tests/                   # Krita-independent regression tests
+│       ├── engine/           # Detection, inference, and postprocessing
+│       ├── controller.py     # Session state and orchestration
+│       ├── host_contract.py  # Provenance and host-independent invariants
+│       ├── krita_adapter.py  # LibKis acquisition and conversion
+│       ├── native_backend.py # ABI/hash-checked native helper loader
+│       ├── _native/          # Version-pinned Windows helper
+│       ├── overlay.py        # Canvas preview and pointer interaction
+│       ├── docker.py         # User interface
+│       └── worker.py         # Cancellable background work
+├── actions/                  # Krita action metadata
+├── native/krita_5_3_3/       # Reproducible native-helper source/build
+├── scripts/                  # Packaging and development installation
+└── tests/                    # Krita-independent regression tests
 ```
+
+The canonical behavior is documented in the
+[GapFill specification](../docs/addon-spec.md). The published artifact and its
+frozen identities are recorded in the
+[1.0.2 release record](../docs/addon-release-1.0.2.md).
+
+## Performance roadmap
+
+Current learned prediction creates an ONNX Runtime session with
+`CPUExecutionProvider` and evaluates the canonical `1 × 2 × 32 × 32` input once
+per gap. Hardware acceleration, batching, caching, and preprocessing changes
+are future work. They require measurement, output-parity tests, packaging and
+driver analysis, and a new release-qualification matrix; they are not current
+plugin behavior.
 
 ## License
 
-The plugin source is released under the repository's [MIT License](../LICENSE). The trained model is subject to the repository's release terms. No preset or third-party anime images are packaged with this plugin.
+The plugin source is released under the repository's
+[MIT License](../LICENSE). The trained model is subject to the repository's
+release terms. No preset or third-party anime images are packaged with this
+plugin.

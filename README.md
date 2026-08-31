@@ -98,7 +98,7 @@ not grant rights to the third-party image materials described above.
 
 ## Updates
 
-- **August 30, 2026:** GapFill add-on for [Krita](https://krita.org) is released and available to download from [GitHub Releases](https://github.com/marc2825/GapFill/releases).
+- **August 30, 2026:** GapFill plug-in for [Krita](https://krita.org) is released and available to download from [GitHub Releases](https://github.com/marc2825/GapFill/releases).
 - **June 21, 2026:** Source code (refactored) for the web application is available.
 - **June 18, 2026:** The trained GapFill model is available as
   `trained_model.pth` from [GitHub Releases](https://github.com/marc2825/GapFill/releases).
