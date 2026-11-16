@@ -197,6 +197,8 @@ void applyDecisionFile(const std::filesystem::path& path, ReviewSession& session
   if (!input) throw std::runtime_error("Cannot read decisions: " + path.string());
   std::unordered_map<int, std::string> decisions;
   for (std::string line; std::getline(input, line);) {
+    // Accept CRLF files on hosts whose text streams do not translate them.
+    if (!line.empty() && line.back() == '\r') line.pop_back();
     if (line.empty() || line[0] == '#') continue;
     const auto separator = line.find('=');
     if (separator == std::string::npos)

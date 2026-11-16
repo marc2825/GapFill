@@ -89,6 +89,8 @@ Settings SettingsStore::load(const std::filesystem::path& path) {
   if (!stream) throw std::runtime_error("Cannot read settings: " + path.string());
   std::unordered_map<std::string, std::string> values;
   for (std::string line; std::getline(stream, line);) {
+    // Accept CRLF files on hosts whose text streams do not translate them.
+    if (!line.empty() && line.back() == '\r') line.pop_back();
     if (line.empty() || line[0] == '#') continue;
     const auto separator = line.find('=');
     if (separator == std::string::npos || separator == 0)

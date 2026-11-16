@@ -511,6 +511,19 @@ void identicalDecisionFileEntriesAreIdempotent() {
   std::filesystem::remove_all(directory);
 }
 
+void crlfDecisionFileIsAccepted() {
+  auto first = makeGap(0, 0, {1, 2, 3, 255}, 0.95, ga::ConfidenceBand::High);
+  auto second = makeGap(1, 1, {1, 2, 3, 255}, 0.95, ga::ConfidenceBand::High);
+  ga::ReviewSession session({first, second}, ga::RunMode::OneByOne);
+  const auto directory = phase3TemporaryDirectory("crlf-decisions");
+  const auto path = directory / "decisions.txt";
+  writeBytes(path, "# comment\r\n\r\n0=skip\r\n1=mark_only\r\n");
+  ga::applyDecisionFile(path, session);
+  std::filesystem::remove_all(directory);
+  CHECK(session.gaps()[0].status == ga::ReviewStatus::Skip);
+  CHECK(session.gaps()[1].status == ga::ReviewStatus::MarkOnly);
+}
+
 void forgedOpaqueCandidateFailsClosed() {
   const auto source = opaqueImage(4, 4, {9, 8, 7, 255});
   auto gap = makeGap(0, 5, {1, 2, 3, 255}, 1.0, ga::ConfidenceBand::High);
@@ -956,6 +969,20 @@ void settingsRoundTripPreservesUserChoices() {
   CHECK(!loaded.createHighlightLayer && loaded.predictorOnnx);
 }
 
+void crlfSettingsFileIsAccepted() {
+  const auto directory = phase3TemporaryDirectory("crlf-settings");
+  const auto path = directory / "settings.ini";
+  writeBytes(path,
+             "# Gap Assist\r\n\r\nmode=one_by_one\r\ngap_size=custom\r\n"
+             "custom_gap_threshold=17\r\nconfidence=conservative\r\n");
+  const auto loaded = ga::SettingsStore::load(path);
+  std::filesystem::remove_all(directory);
+  CHECK(loaded.mode == ga::RunMode::OneByOne);
+  CHECK(loaded.gapSizePreset == ga::GapSizePreset::Custom);
+  CHECK(loaded.customGapThreshold == 17);
+  CHECK(loaded.confidencePreset == ga::ConfidencePreset::Conservative);
+}
+
 void preCancelledCommandDoesNotModifyHost() {
   MockHost host;
   host.hostCapabilities = {.createRasterLayer = true, .customReviewDialog = true,
@@ -1369,6 +1396,7 @@ int main() {
       {"conflicting decisions fail", conflictingDecisionFileEntriesFail},
       {"identical decisions are idempotent",
        identicalDecisionFileEntriesAreIdempotent},
+      {"CRLF decision file is accepted", crlfDecisionFileIsAccepted},
       {"forged opaque candidate fails closed", forgedOpaqueCandidateFailsClosed},
       {"forged candidate matrix fails closed", forgedCandidateMatrixFailsClosed},
       {"candidate selection provenance fails closed",
@@ -1389,6 +1417,7 @@ int main() {
       {"missing review dialog is safe", missingReviewDialogCapabilityFailsSafely},
       {"overwrite without undo is safe", overwriteWithoutUndoCapabilityFailsSafely},
       {"settings round trip", settingsRoundTripPreservesUserChoices},
+      {"CRLF settings file is accepted", crlfSettingsFileIsAccepted},
       {"pre-cancel is nondestructive", preCancelledCommandDoesNotModifyHost},
       {"unavailable ONNX host path does not silently fall back",
        unavailableOnnxHostPathDoesNotSilentlyFallback},
