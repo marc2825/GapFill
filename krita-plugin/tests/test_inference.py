@@ -41,7 +41,7 @@ class InferenceTests(unittest.TestCase):
         predictor.load = lambda: None
         observed = []
 
-        def predict_details(_images, _gap, mode):
+        def predict_details(_images, _gap, mode, **_kwargs):
             observed.append(mode)
             return LearnedPrediction((12, 34, 56), PredictionProvenance.LEARNED)
 
@@ -58,6 +58,70 @@ class InferenceTests(unittest.TestCase):
 
         self.assertEqual(observed, [ModelBoundaryMode.LINE_OR_GUIDES])
         self.assertEqual(gap.metadata["model_boundary_mode"], "line_or_guides")
+
+    def test_predict_all_labels_line_regions_once_per_batch(self):
+        from unittest import mock
+
+        from gapfill_krita.engine import inference
+
+        width = height = 8
+        coloring = np.zeros((height, width, 4), dtype=np.uint8)
+        coloring[:, :4] = (220, 30, 30, 255)
+        coloring[:, 4:] = (30, 30, 220, 255)
+        line = np.zeros_like(coloring)
+        line[:, 3] = (0, 0, 0, 255)
+        images = LayerImages(coloring, line, np.zeros_like(coloring))
+        gaps = [
+            GapRegion(
+                f"gap-{index}",
+                np.asarray([y * width + x], dtype=np.int64),
+                (x, y),
+                GapKind.TRANSPARENT,
+            )
+            for index, (x, y) in enumerate(((1, 1), (6, 2), (5, 6)))
+        ]
+        with tempfile.NamedTemporaryFile(suffix=".onnx") as model:
+            predictor = GapFillPredictor(
+                model.name, session_factory=Session, expected_model_sha256=None
+            )
+            with mock.patch.object(
+                inference,
+                "build_line_region_labels",
+                wraps=inference.build_line_region_labels,
+            ) as labeler:
+                predictor.predict_all(images, gaps, allow_greedy_on_inference_error=False)
+
+        self.assertEqual(labeler.call_count, 1)
+        self.assertTrue(
+            all(gap.prediction_provenance is PredictionProvenance.LEARNED for gap in gaps)
+        )
+
+    def test_precomputed_labels_match_per_gap_labeling(self):
+        width = height = 8
+        coloring = np.zeros((height, width, 4), dtype=np.uint8)
+        coloring[:, :4] = (220, 30, 30, 255)
+        coloring[:, 4:] = (30, 30, 220, 255)
+        line = np.zeros_like(coloring)
+        line[:, 3] = (0, 0, 0, 255)
+        images = LayerImages(coloring, line, np.zeros_like(coloring))
+        gap = GapRegion(
+            "gap-0", np.asarray([2 * width + 6], dtype=np.int64), (6, 2), GapKind.TRANSPARENT
+        )
+        with tempfile.NamedTemporaryFile(suffix=".onnx") as model:
+            predictor = GapFillPredictor(
+                model.name, session_factory=Session, expected_model_sha256=None
+            )
+            from gapfill_krita.engine.postprocessing import build_line_region_labels
+
+            labels = build_line_region_labels(line)
+            self.assertEqual(
+                predictor.predict_details(images, gap),
+                predictor.predict_details(images, gap, line_region_labels=labels),
+            )
+            with self.assertRaises(ValueError):
+                predictor.predict_details(
+                    images, gap, line_region_labels=labels[:-1]
+                )
 
     def test_accepts_exact_model_contract(self):
         with tempfile.NamedTemporaryFile(suffix=".onnx") as model:

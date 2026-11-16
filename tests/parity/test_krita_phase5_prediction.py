@@ -168,12 +168,13 @@ class KritaPhase5PredictionTests(unittest.TestCase):
                 images: LayerImages,
                 gap: GapRegion,
                 model_boundary_mode: ModelBoundaryMode,
+                **kwargs,
             ):
                 nonlocal calls
                 calls += 1
                 if calls == 2:
                     raise RuntimeError("controlled one-gap failure")
-                return original_predict(images, gap, model_boundary_mode)
+                return original_predict(images, gap, model_boundary_mode, **kwargs)
 
             predictor.predict_details = controlled_predict  # type: ignore[method-assign]
             predictor.predict_all(images, [first, second])

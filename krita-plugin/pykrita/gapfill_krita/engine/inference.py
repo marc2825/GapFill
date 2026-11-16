@@ -122,14 +122,27 @@ class GapFillPredictor:
         images: LayerImages,
         gap: GapRegion,
         model_boundary_mode: ModelBoundaryMode = ModelBoundaryMode.LINE_ONLY,
+        *,
+        line_region_labels: Optional[np.ndarray] = None,
     ) -> LearnedPrediction:
+        """Predict one gap.
+
+        ``line_region_labels`` may carry a precomputed
+        ``build_line_region_labels(images.line_art)`` result. The full-image
+        labeling depends only on Line Art, so batch callers compute it once
+        instead of once per gap.
+        """
+
         tensor, bounds = build_model_tensor(
             images, gap, mode=model_boundary_mode
         )
         output = self.run_tensor(tensor)
 
-        full_labels = build_line_region_labels(images.line_art)
-        labels = extract_label_patch(full_labels, bounds)
+        if line_region_labels is None:
+            line_region_labels = build_line_region_labels(images.line_art)
+        elif line_region_labels.shape != images.line_art.shape[:2]:
+            raise ValueError("Line region labels must match the Line Art dimensions.")
+        labels = extract_label_patch(line_region_labels, bounds)
         coloring = extract_patch(images.coloring, bounds)
         selection = select_region_prediction(
             coloring.rgba,
@@ -205,6 +218,8 @@ class GapFillPredictor:
         if cancel_requested and cancel_requested():
             raise InterruptedError("Color prediction was cancelled.")
         excluded = (images.line_art[..., 3] > 0) | (images.guides[..., 3] > 0)
+        # The Line-derived region map is invariant across gaps in one batch.
+        line_region_labels = build_line_region_labels(images.line_art)
         pending: list[LearnedPrediction] = []
         learned_count = 0
         fallback_errors: list[Exception] = []
@@ -213,7 +228,10 @@ class GapFillPredictor:
                 raise InterruptedError("Color prediction was cancelled.")
             try:
                 prediction = self.predict_details(
-                    images, gap, model_boundary_mode
+                    images,
+                    gap,
+                    model_boundary_mode,
+                    line_region_labels=line_region_labels,
                 )
                 learned_count += 1
             except (InvalidModelError, ModelUnavailableError):
