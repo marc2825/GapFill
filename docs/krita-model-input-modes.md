@@ -202,7 +202,7 @@ Krita/OS/HiDPI/split-view cell.
 The one-shot automated harness wrote its complete result with status
 `AUTOMATED_HOST_PASS_RESTART_REQUIRED` at 21:01:45 local time. Approximately
 nine seconds later Krita generated
-`C:\Users\marck\AppData\Local\CrashDumps\krita.exe.3036.dmp`, SHA-256
+`C:\Users\%USERNAME%\AppData\Local\CrashDumps\krita.exe.3036.dmp`, SHA-256
 `00b278dfaf7a063eea468bf0d26f8f4df03b03add9c13ffcc6a74f02ce5c70c3`.
 The dump records `EXCEPTION_ACCESS_VIOLATION` in
 `libkritaflake.dll+0x7279b`, symbol

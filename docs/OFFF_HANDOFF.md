@@ -20,7 +20,7 @@
 
 > **NEW THREAD START**
 >
-> Repository: `/home/marc2825/GapFill`
+> Repository: the GapFill repository root (local clone)
 > Latest published GapFill release: `GapFill for Krita 1.1.0`
 > **RELEASE BASELINE:** `krita-v1.1.0` / `956773c044a817e47cba91fc70fee23ab45c00e5`
 > Published release: `https://github.com/marc2825/GapFill/releases/tag/krita-v1.1.0`

@@ -187,7 +187,7 @@ postprocessing, and learned-predictor modules without invoking preview
 writeback or any Apply route. It created only disposable test documents below:
 
 ```text
-C:\Users\marck\AppData\Local\Temp\gapfill-phase65-be-ed7d2e1
+C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-be-ed7d2e1
 ```
 
 `host-results.json` is 42,862 bytes, was last modified at
@@ -333,7 +333,7 @@ The first F–L harness invocation stopped inside baseline validation before it
 opened a fixture or entered Row F. Preserve it as an **F–L HARNESS PREFLIGHT
 FAILURE**, not a row result:
 
-- capture: `C:\Users\marck\AppData\Local\Temp\gapfill-phase65-fl-454d345\host-results.json`;
+- capture: `C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-fl-454d345\host-results.json`;
 - SHA-256: `97a491aaff6ef895537db1f40eea5170586407b394a8cea7262d677149fa03de`;
 - size: 1,735 bytes;
 - modification/change timestamp: 2026-08-15 22:17:40.1833424 +09:00
@@ -366,7 +366,7 @@ other artifact source/data file. The complete per-file comparison record is
 The replacement harness is `/tmp/gapfill_phase65_fl_host_v2.py`, SHA-256
 `0fd2c720c0c0e01ce32a0c3875c60191139e24ccd6ebfb9754918bcb4e0dd13b`,
 and refuses to overwrite
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-fl-v2-454d345`. Its
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-fl-v2-454d345`. Its
 comparator maps the importer layout explicitly, requires every artifact file's
 exact hash, and allows extras only when they are under the installed GapFill
 package's `__pycache__` directories and end in `.cpython-313.pyc`. Embedded
@@ -384,7 +384,7 @@ preflight event.
 The corrected v2 harness, SHA-256
 `0fd2c720c0c0e01ce32a0c3875c60191139e24ccd6ebfb9754918bcb4e0dd13b`,
 was executed once. Its preserved capture is
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-fl-v2-454d345\host-results.json`,
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-fl-v2-454d345\host-results.json`,
 SHA-256 `1596ebc85b3cfc4a408e754f47707c557854efeb288ee91d4afbe3c59f5a7020`,
 size 51,332 bytes, with modification/change timestamp
 2026-08-15 22:47:46.1196005 +09:00. It passed artifact, fixture, frozen-hash,
@@ -463,7 +463,7 @@ A production repair is not yet unambiguous. The first one-shot diagnostic was
 `/tmp/gapfill_phase65_rowf_action_diagnostic.py`, SHA-256
 `a680d34f64b7dcb7bffb2ee7c50af29255c74672543b55f88c81cada77167d3a`.
 Its preserved output is
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowf-action-diagnostic-454d345`.
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowf-action-diagnostic-454d345`.
 The result JSON has SHA-256
 `3b4711379ecc575a46a1c83208f265e558830b7bd18fa580c156f1b4f89565dd`,
 size 4,643 bytes, and modification/change timestamp 2026-08-15
@@ -502,7 +502,7 @@ The replacement diagnostic is
 `/tmp/gapfill_phase65_rowf_action_diagnostic_v2.py`, SHA-256
 `2fd3ca781539b46d9e522269d80a9ca139226e9136bf505192cf16468d9f79db`.
 It refuses to overwrite the new guarded directory
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowf-action-diagnostic-v2-454d345`,
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowf-action-diagnostic-v2-454d345`,
 does not call `apply_gap_colors()`, and was executed exactly once. It records the
 four positional/size accessors plus the authoritative full 64×64 mask bytes,
 length, hash, value counts, unique values, exact nonzero indices, and exact
@@ -666,7 +666,7 @@ The final narrow pre-repair diagnostic completed with status
 5.15.7 / CPython 3.13.5 / PyQt5 5.15.11 host cell. This section supersedes
 only the prospective color/timing conclusions at the end of diagnostic #2; it
 does not supersede or erase the original Row-F failure. The guarded capture is
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowf-color-timing-diagnostic-454d345`:
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowf-color-timing-diagnostic-454d345`:
 
 | Artifact | Bytes | Modification/change timestamp (+09:00) | SHA-256 |
 |---|---:|---|---|
@@ -935,7 +935,7 @@ The new, unexecuted harness is
 `/tmp/gapfill_phase65_rowf_requalification_managedcolor_bf19c8dc.py`, SHA-256
 `e3043bbf5a4f93c45c06c581021c7122a5d67a7fe3cf23574e9c0e078a768f25`.
 It refuses to overwrite the unique guarded directory
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowf-requalification-managedcolor-bf19c8dc`.
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowf-requalification-managedcolor-bf19c8dc`.
 Static compilation and Ruff checks passed; the harness has not been run in
 Krita.
 
@@ -959,9 +959,9 @@ in-place importer overwrite:
 2. Confirm no `krita.exe` process remains, for example with Task Manager or
    `Get-Process krita -ErrorAction SilentlyContinue` in PowerShell.
 3. Remove only the prior GapFill resources:
-   `C:\Users\marck\AppData\Roaming\krita\pykrita\gapfill_krita`,
-   `C:\Users\marck\AppData\Roaming\krita\pykrita\gapfill_krita.desktop`, and
-   `C:\Users\marck\AppData\Roaming\krita\actions\gapfill_krita.action`.
+   `C:\Users\%USERNAME%\AppData\Roaming\krita\pykrita\gapfill_krita`,
+   `C:\Users\%USERNAME%\AppData\Roaming\krita\pykrita\gapfill_krita.desktop`, and
+   `C:\Users\%USERNAME%\AppData\Roaming\krita\actions\gapfill_krita.action`.
 4. Start Krita and use **Tools > Scripts > Import Python Plugin from File** to
    import
    `\\wsl.localhost\Ubuntu-24.04\tmp\gapfill-krita-phase6.5-rowF-managedcolor-win-x64-py313-454d345-worktree.zip`.
@@ -984,7 +984,7 @@ remained an untested release blocker, and Row G had not begun.
 
 The dedicated Row-F-only requalification ran once in the same qualified host
 cell and completed with `ROW_F_PASS`. The capture is
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowf-requalification-managedcolor-bf19c8dc\row-f-results.json`,
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowf-requalification-managedcolor-bf19c8dc\row-f-results.json`,
 SHA-256 `9bbf01083a3b59610e6609ce3a80ed13eb13ca95a787b51c961b7c1f8bd86ad8`,
 size 24,544 bytes. Its internal creation time is
 2026-08-16 00:03:25.760148 UTC (09:03:25.760148 +09:00); its WSL-observed
@@ -1010,7 +1010,7 @@ All 892 packaged files were installed and byte-exact: zero missing, zero
 changed, and zero unexpected extras. The other 105 installed files were
 recognized `__pycache__`/`.cpython-313.pyc` products of the embedded runtime.
 The loaded package resolved below
-`C:\Users\marck\AppData\Roaming\krita\pykrita\gapfill_krita`.
+`C:\Users\%USERNAME%\AppData\Roaming\krita\pykrita\gapfill_krita`.
 
 Independent comparison against the Row-A-qualified artifact found no added or
 removed payload and only `gapfill_krita/krita_adapter.py` changed. The current
@@ -1116,7 +1116,7 @@ The real host remained Windows 11 AMD64, Krita 5.3.3 (`git 858d352`), Qt
 5.15.7, embedded CPython 3.13.5, and PyQt5 5.15.11.
 
 The preserved guarded capture is
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-gl-rowfpass-827e66f`.
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-gl-rowfpass-827e66f`.
 It must not be overwritten or rerun. Its principal artifacts are:
 
 | Artifact | Bytes | Modification/change timestamp (+09:00) | SHA-256 |
@@ -1268,7 +1268,7 @@ The prepared one-shot diagnostic is
 `631c2a1037c7673cdf5bb20bff07dad5cb5fac56b5ceb137f4294680383a1ea1`.
 It has **not** been executed and is not qualification evidence. It refuses to
 overwrite
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-multigroup-diagnostic-827e66f-v1`,
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowg-multigroup-diagnostic-827e66f-v1`,
 which was confirmed absent at preparation time. It revalidates the preserved
 failure, installed artifact tree, Row-F capture, frozen hashes, fixture, model,
 and exact two-group plan; opens only a copied disposable fixture; and does not
@@ -1303,7 +1303,7 @@ requalified.
 
 The prepared diagnostic was executed once and must not be rerun. Its guarded
 output is
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-multigroup-diagnostic-827e66f-v1`.
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowg-multigroup-diagnostic-827e66f-v1`.
 The final `DIAGNOSTIC_FAILED` status records a cleanup-harness exception, not a
 second Row-G execution or matrix-row failure. The action observations were
 already complete and persisted before restoration began:
@@ -1551,7 +1551,7 @@ One focused, not-yet-executed diagnostic was prepared at
 `/tmp/gapfill_phase65_rowg_copy_diagnostic_827e66f.py`, SHA-256
 `ed0e1d42552061bcec65ee39432a87994085f41c38f9d2d93a790ad7aeb33b00`.
 Its guarded output directory is
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-copy-diagnostic-827e66f-v1`.
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowg-copy-diagnostic-827e66f-v1`.
 It refuses overwrite and uses three separate byte-exact disposable copies of
 `multiple-colors.kra`:
 
@@ -1605,7 +1605,7 @@ status and its source-only expectation that integer RGBA/U8 COPY would recover
 mask-zero color channels. It does not reclassify any matrix row.
 
 The guarded capture is
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-copy-diagnostic-827e66f-v1`.
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowg-copy-diagnostic-827e66f-v1`.
 Its principal evidence is:
 
 - `diagnostic-results.json`: 219,929 bytes, modified
@@ -1793,7 +1793,7 @@ The installed Row-F-qualified artifact remains
 A fresh read-only comparison found all 892 payloads present and byte-exact in
 the user resource tree, with no non-cache extra; the 116 extra files were all
 recognized `__pycache__`/bytecode products. The plugin remains under
-`C:\Users\marck\AppData\Roaming\krita\pykrita\gapfill_krita`. The last
+`C:\Users\%USERNAME%\AppData\Roaming\krita\pykrita\gapfill_krita`. The last
 authoritative host record remains Windows 11 build 26200 AMD64, Krita 5.3.3
 (`git 858d352`), Qt 5.15.7, embedded CPython 3.13.5 AMD64, and PyQt5 5.15.11.
 The current WSL-to-Windows process query failed at the pre-existing vsock
@@ -2345,14 +2345,14 @@ its AST parse passed. The exact `.pyd` and harness were staged, without
 installation, at:
 
 ```text
-C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-noop-spike-b4acabf-8c239b66\
+C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-native-noop-spike-b4acabf-8c239b66\
 ```
 
 The staged file hashes match the isolated originals. The guarded result path
 is:
 
 ```text
-C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-noop-result-b4acabf-8c239b66\result.json
+C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-native-noop-result-b4acabf-8c239b66\result.json
 ```
 
 The result directory is absent, proving the harness was not run. It refuses a
@@ -2396,7 +2396,7 @@ harness remains preserved at
 Its staged copy remains byte-identical at:
 
 ```text
-C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-noop-spike-b4acabf-8c239b66\load_harness.py
+C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-native-noop-spike-b4acabf-8c239b66\load_harness.py
 ```
 
 The faulty condition was an exact comparison of
@@ -2424,7 +2424,7 @@ The output directory creation was after the faulty guard, so the original
 guarded output directory remains absent and no result JSON was written:
 
 ```text
-C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-noop-result-b4acabf-8c239b66\
+C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-native-noop-result-b4acabf-8c239b66\
 ```
 
 Accordingly, the `.pyd` did not enter the process through this harness,
@@ -2451,13 +2451,13 @@ attempt-1, and v2-staged copies are byte-identical: 130,560 bytes, SHA-256
 The v2 harness and unchanged binary are staged, without installation, at:
 
 ```text
-C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-noop-spike-v2-b4acabf-8c239b66\
+C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-native-noop-spike-v2-b4acabf-8c239b66\
 ```
 
 Its new one-invocation guarded output is:
 
 ```text
-C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-noop-result-v2-b4acabf-attempt2\result.json
+C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-native-noop-result-v2-b4acabf-attempt2\result.json
 ```
 
 That output directory is absent, proving v2 was not run. The harness refuses
@@ -2523,7 +2523,7 @@ The baseline immediately before transaction-prototype work was:
 | Production artifact SHA-256 | `bf19c8dc2fb3e44f160614f61fa189d52dac62bc24790b0094170ccd93fbe146` |
 | No-op binary | `/tmp/gapfill-krita-native-build/spike/out/gapfill_krita_native.cp313-win_amd64.pyd` |
 | No-op binary SHA-256 | `8c239b66244a258493c8965713ccd51b94d02f498d73955e43c4afea55218227` |
-| No-op result | `C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-noop-result-v2-b4acabf-attempt2\result.json` |
+| No-op result | `C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-native-noop-result-v2-b4acabf-attempt2\result.json` |
 | No-op result SHA-256 / size | `03a428a75233471e36b660670f2d3ebd3e55336b3c1d391dda42bfc7456963d1`; 6,195 bytes |
 | Fixture manifest SHA-256 | `6243be8f2a26b383ef0293bd585318c0072011ccabf959cb25f42127aba5908c` |
 | ONNX SHA-256 | `8219bf639a06942f07ea5867b8ffae2f20f85473155c0b45a57fa18d43f1aa78` |
@@ -2768,7 +2768,7 @@ The harness, exact `.pyd`, and fixture are staged outside the installed plugin
 at:
 
 ```text
-C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-txn-spike-b4acabf-6ee91201-v1\
+C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-native-txn-spike-b4acabf-6ee91201-v1\
 ```
 
 All three staged hashes match the isolated originals. No file was copied into
@@ -2776,7 +2776,7 @@ the Krita resource directory or production GapFill package. The unique guarded
 output directory is:
 
 ```text
-C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-txn-result-b4acabf-6ee91201-v1\
+C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-native-txn-result-b4acabf-6ee91201-v1\
 ```
 
 It is absent, which is direct filesystem evidence that this harness has not
@@ -2853,7 +2853,7 @@ arrays remain at their original paths and hashes; none was overwritten:
 The previously prepared prototype was run once on the qualified Windows 11
 x64 / Krita 5.3.3 git `858d352` / Qt 5.15.7 / CPython 3.13.5 host. Its guarded
 result directory is
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-native-txn-result-b4acabf-6ee91201-v1`.
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-native-txn-result-b4acabf-6ee91201-v1`.
 The result is `PASS`:
 
 - one native call carried 19 horizontal runs and 187 pixels in two colors;
@@ -3011,7 +3011,7 @@ ZIP integrity passes. The model, sidecar, and native helper entries have their
 frozen/pinned hashes above. The candidate is also staged, byte-identically, at:
 
 ```text
-C:\Users\marck\AppData\Local\Temp\gapfill-phase65-production-native-b4acabf-v1\
+C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-production-native-b4acabf-v1\
 gapfill-krita-phase6.5-native-transaction-win-x64-py313-b4acabf-worktree.zip
 ```
 
@@ -3039,8 +3039,8 @@ saving.
 The guarded future output directories are:
 
 ```text
-C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v1
-C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowi-production-native-b4acabf-v1
+C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v1
+C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowi-production-native-b4acabf-v1
 ```
 
 Both directories were confirmed absent after preparation. Neither harness was
@@ -3067,7 +3067,7 @@ It is classified narrowly as
 qualify the new production mutation backend as either passing or failing.
 
 The preserved guarded evidence is
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v1\result.json`
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v1\result.json`
 (1,911 bytes, SHA-256
 `e9ff242d577528dbb33d6803497c95d5fbfd274b43f097383d882da8dbc297de`).
 It records the qualified Windows 11 / Krita 5.3.3 git `858d352` / Qt 5.15.7 /
@@ -3135,10 +3135,10 @@ the preserved v1 stage:
 Row G v2 preserves the v1 post-preflight cases and acceptance criteria,
 including corrected-decision Apply Selected and multi-color Apply All. Its new
 guarded output is
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v2`.
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v2`.
 Row I shared the same broken verifier, so a corrected v2 wrapper was prepared
 with output
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowi-production-native-b4acabf-v2`.
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowi-production-native-b4acabf-v2`.
 Both output directories remain absent: neither v2 wrapper was executed, and
 Row I remains untested.
 
@@ -3162,7 +3162,7 @@ was executed once. It is classified narrowly as
 PASS or FAIL result for the new production native mutation backend.
 
 The preserved guarded result is
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v2\result.json`
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v2\result.json`
 (3,554 bytes, SHA-256
 `665842b92bd5d05f6aaec6240cdb1643b7907f18722c630a491deb1a4d1c45eb`).
 It records the exact qualification artifact at SHA-256
@@ -3195,7 +3195,7 @@ before this attempt.
 ### Pre-replacement installed-tree identity
 
 An independent read-only comparison captured the complete current identity at
-`C:\Users\marck\AppData\Roaming\krita`. The installed package root is
+`C:\Users\%USERNAME%\AppData\Roaming\krita`. The installed package root is
 `pykrita\gapfill_krita`; it contains 1,006 files: 890 non-cache payload files
 and 116 files under `__pycache__` ending in `.cpython-313.pyc`. All 116 are
 recognized embedded-CPython cache products. The qualification ZIP expects 893
@@ -3242,14 +3242,14 @@ if the pinned native/model/sidecar hashes differ. It expands and verifies all
 Replacement is limited to these three GapFill targets:
 
 ```text
-C:\Users\marck\AppData\Roaming\krita\pykrita\gapfill_krita
-C:\Users\marck\AppData\Roaming\krita\pykrita\gapfill_krita.desktop
-C:\Users\marck\AppData\Roaming\krita\actions\gapfill_krita.action
+C:\Users\%USERNAME%\AppData\Roaming\krita\pykrita\gapfill_krita
+C:\Users\%USERNAME%\AppData\Roaming\krita\pykrita\gapfill_krita.desktop
+C:\Users\%USERNAME%\AppData\Roaming\krita\actions\gapfill_krita.action
 ```
 
 The whole old package directory—including stale payload and recognized
 caches—is moved, not deleted, to
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-clean-install-backup-b4acabf-v3`.
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-clean-install-backup-b4acabf-v3`.
 The exact artifact is expanded first under the separately guarded
 `gapfill-phase65-clean-install-stage-b4acabf-v3` directory. The three targets
 are then moved into place and every installed file is hashed again. Failure
@@ -3283,9 +3283,9 @@ byte-exact acceptance checks. Prepared identities are:
 | `/tmp/gapfill_phase65_rowi_production_native_b4acabf_v3.py` | `88115937e8f279d9c055ea9aa6b459f70d0a3900b4645cbc10a8bfc394286ccb` |
 
 The new guarded outputs are respectively
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v3`
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v3`
 and
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowi-production-native-b4acabf-v3`.
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowi-production-native-b4acabf-v3`.
 Both remain absent. Neither v3 harness, Row G, nor Row I was executed. Row I v3
 was prepared because it shares the stricter installed/native preflight; Row I
 remains untested.
@@ -3325,7 +3325,7 @@ the frozen model and sidecar hashes.
 ### Row G — production apply multiple colors: PASS
 
 The preserved capture is
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v3`.
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowg-production-native-b4acabf-v3`.
 Its top-level `result.json` is 28,226 bytes, SHA-256
 `0a6a8d17cceddfac44677b165bb0adb8a710ff870f9abf288cd284745d67e6b5`,
 and records final status `PASS`.
@@ -3366,7 +3366,7 @@ cell.
 ### Row I — production one-step Undo/Redo: PASS
 
 The preserved capture is
-`C:\Users\marck\AppData\Local\Temp\gapfill-phase65-rowi-production-native-b4acabf-v3`.
+`C:\Users\%USERNAME%\AppData\Local\Temp\gapfill-phase65-rowi-production-native-b4acabf-v3`.
 Its top-level `result.json` is 24,142 bytes, SHA-256
 `aca8687b10203118b3e36196937d94e2546d996e84047a136f209467cecbf5a0`,
 and its authoritative raw-state NPZ is SHA-256

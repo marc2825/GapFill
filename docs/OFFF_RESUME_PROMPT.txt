@@ -1,6 +1,6 @@
 You are starting a fresh OFFF development thread in:
 
-    /home/marc2825/GapFill
+    <GapFill repository root>
 
 This prompt is self-contained. Assume no access to any prior conversation.
 Begin with read-only investigation and an OFFF specification freeze/gap

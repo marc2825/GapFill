@@ -13,12 +13,12 @@
   "branch_at_preparation": "qualify/csp-host-adapter",
   "build": {
     "build_a": {
-      "command": "/tmp/gapfill-krita-venv/bin/python krita-plugin/scripts/build_plugin.py --vendor /mnt/c/Users/marck/AppData/Roaming/krita/pykrita/gapfill_krita/_vendor --native-helper /mnt/c/Users/marck/AppData/Roaming/krita/pykrita/gapfill_krita/_native/gapfill_krita_native_5_3_3.cp313-win_amd64.pyd --output /tmp/gapfill-release-freeze-df4e18c/build-a/gapfill-krita-windows-x86_64.zip",
+      "command": "/tmp/gapfill-krita-venv/bin/python krita-plugin/scripts/build_plugin.py --vendor /mnt/c/Users/%USERNAME%/AppData/Roaming/krita/pykrita/gapfill_krita/_vendor --native-helper /mnt/c/Users/%USERNAME%/AppData/Roaming/krita/pykrita/gapfill_krita/_native/gapfill_krita_native_5_3_3.cp313-win_amd64.pyd --output /tmp/gapfill-release-freeze-df4e18c/build-a/gapfill-krita-windows-x86_64.zip",
       "sha256": "7001c1bf92aa7abb5840baf52fe07457ab06cb80074297488e67ded212ab74e2",
       "size": 48197787
     },
     "build_b": {
-      "command": "/tmp/gapfill-krita-venv/bin/python krita-plugin/scripts/build_plugin.py --vendor /mnt/c/Users/marck/AppData/Roaming/krita/pykrita/gapfill_krita/_vendor --native-helper /mnt/c/Users/marck/AppData/Roaming/krita/pykrita/gapfill_krita/_native/gapfill_krita_native_5_3_3.cp313-win_amd64.pyd --output /tmp/gapfill-release-freeze-df4e18c/build-b/gapfill-krita-windows-x86_64.zip",
+      "command": "/tmp/gapfill-krita-venv/bin/python krita-plugin/scripts/build_plugin.py --vendor /mnt/c/Users/%USERNAME%/AppData/Roaming/krita/pykrita/gapfill_krita/_vendor --native-helper /mnt/c/Users/%USERNAME%/AppData/Roaming/krita/pykrita/gapfill_krita/_native/gapfill_krita_native_5_3_3.cp313-win_amd64.pyd --output /tmp/gapfill-release-freeze-df4e18c/build-b/gapfill-krita-windows-x86_64.zip",
       "sha256": "7001c1bf92aa7abb5840baf52fe07457ab06cb80074297488e67ded212ab74e2",
       "size": 48197787
     },
